@@ -1,0 +1,81 @@
+name: jaxsw
+channels:
+- defaults
+- conda-forge
+- pytorch
+dependencies:
+- python=3.9
+# Standard Libraries
+- numpy             # Numerical Linear Algebra
+- scipy             # Scientific Computing
+- conda-forge::xarray            # Data structures
+- pandas            # Data structure
+- scikit-learn      # Machine Learning
+- scikit-image      # Image Processing
+- conda-forge::statsmodels       # Statistical Learning
+- conda-forge::pyinterp
+- conda-forge::xbatcher
+# PLOTTING LIBRARY
+- matplotlib                      # standard plotting library
+- seaborn                         # Stats viz library
+- pyviz::geoviews                 # holoviews for geo data
+- conda-forge::cartopy            # EO plotting
+- pyviz::hvplot                   # interactive plots
+- pyviz::datashader                      # scale plots
+- conda-forge::xmovie             # xarray movies/gifs
+# Storage
+- conda-forge::netCDF4
+- conda-forge::zarr
+# JAX FRAMEWORK
+- conda-forge::jax
+- conda-forge::jaxlib
+# GUI
+- conda-forge::ipywidgets
+- ipykernel
+- conda-forge::tqdm
+- pip
+- pip:
+  # Jax framework
+  - einops
+  - jaxtyping
+  - pytreeclass
+  - kernex
+  # deep learning
+  - serket
+  - diffrax
+  - flax
+  - ciclo
+  # optimization
+  - optax
+  - jaxopt
+  # probabilistic
+  - tinygp
+  - distrax
+  - dynamax
+  # OTHER
+  - plum-dispatch
+  # formatting
+  - black
+  - pylint
+  - isort
+  - flake8
+  - mypy
+  - pytest
+  - pre-commit
+  - rich
+  - sh
+  - pudb
+  # Notebook stuff
+  - pyprojroot
+  - python-dotenv
+  # logging
+  - wandb
+  - loguru
+  # plotting
+  - celluloid
+  - corner
+  - tabulate
+  # experiment
+  - hydra-core
+  - hydra-colorlog
+  - hydra-optuna-sweeper
