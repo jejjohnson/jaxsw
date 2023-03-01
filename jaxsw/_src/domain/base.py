@@ -1,72 +1,68 @@
-from typing import NamedTuple, Iterable, List
-from jaxtyping import Array, Float
-from functools import reduce
-import equinox as eqx
+import typing as tp
 import jax.numpy as jnp
+import equinox as eqx
+from functools import reduce
+from operator import mul
+from jaxtyping import Float, Array
 
 
-class Domain(eqx.Module):
+class Domain(tp.NamedTuple):
     """Domain class for a rectangular domain
-
+    
     Attributes:
-        size (Tuple[int]): The size of the domain in absolute units.
-        dx (Tuple[float]):
+        size (Tuple[int]): The size of the domain
+        xmin: (Iterable[float]): The min bounds for the input domain
+        xmax: (Iterable[float]): The max bounds for the input domain
+        coord (List[Array]): The coordinates of the domain
+        grid (Array): A grid of the domain
+        ndim (int): The number of dimenions of the domain
+        size (Tuple[int]): The size of each dimenions of the domain
+        cell_volume (float): The total volume of a grid cell
     """
-
-    D: Iterable[int] = eqx.static_field()
-    dx: Iterable[int] = eqx.static_field()
-
+    xmin: tp.Iterable[float]
+    xmax: tp.Iterable[float]
+    dx: tp.Iterable[float]
+    
+    @classmethod
+    def from_numpoints(cls, xmin: tp.Iterable[float], xmax: tp.Iterable[float], N: tp.Iterable[int]):
+        
+        f = lambda xmin, xmax, N: (xmax - xmin) / (float(N) - 1)
+        
+        dx = tuple(map(f, xmin, xmax, N))
+        
+        return cls(xmin=xmin, xmax=xmax, dx=dx)
+    
     @property
-    def size(self) -> List[float]:
-        """The length of the grid sides
-
-        Returns:
-            List[float]: the size of the domain, in absolute units.
-        """
-        return list(map(lambda x: x[0] * x[1], zip(self.D, self.dx)))
-
+    def coords(self) -> tp.List:        
+        return list(map(make_coords, self.xmin, self.xmax, self.dx))
+    
+    @property
+    def grid(self) -> jnp.ndarray:
+        return make_grid_from_coords(self.coords)
+    
     @property
     def ndim(self) -> int:
-        """The number of dimensions of the domain
-
-        Returns:
-            int: the number of dimensions in the domain
-        """
-        return len(self.D)
-
+        return len(self.xmin)
+    
+    @property
+    def size(self) -> tp.Tuple[int]:
+        return tuple(map(len, self.coords))
+    
     @property
     def cell_volume(self) -> float:
-        """The volume of a single cell
+        return reduce(mul, self.dx)
+            
+            
+def make_coords(xmin, xmax, delta):
+    return jnp.arange(xmin, xmax + delta, delta)
 
-        Returns:
-            float: the volume of a single cell
-        """
-        return reduce(lambda x, y: x * y, self.dx)
-
-    @property
-    def spatial_axis(self) -> List[Array]:
-        axis = [make_axis(n, delta) for n, delta in zip(self.D, self.dx)]
-        axis = [ax - jnp.mean(ax) for ax in axis]
-        return axis
-
-    @property
-    def origin(self) -> Array:
-        return jnp.zeros((self.ndim,))
-
-    @property
-    def grid(self) -> Array:
-        return make_grid_from_axis(self.spatial_axis)
-
-
-def make_axis(D, delta):
-    if D % 2 == 0:
-        return jnp.arange(0, D) * delta - delta * D / 2
+def make_grid_from_coords(coords: tp.Iterable) -> Float[Array, "D"]:
+    if isinstance(coords, tp.Iterable):
+        coords = jnp.meshgrid(*coords, indexing="ij")
+    elif isinstance(coords, (jnp.ndarray, np.ndarray)):
+        coords = jnp.meshgrid(coords, indexing="ij")
     else:
-        return jnp.arange(0, D) * delta - delta * (D - 1) / 2
-
-
-def make_grid_from_axis(axis):
-    if isinstance(axis, (list, tuple)):
-        return jnp.stack(jnp.meshgrid(*axis, indexing="ij"), axis=-1)
-    elif isinstance(axis, jnp.ndarray):
-        return jnp.stack(jnp.meshgrid(axis, indexing="ij"), axis=-1)
+        raise ValueError(f"Unrecognized dtype for inputs")
+        
+    return jnp.stack(coords, axis=-1)
+        
