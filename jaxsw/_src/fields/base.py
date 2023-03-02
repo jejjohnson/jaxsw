@@ -5,11 +5,12 @@ from ..domain.base import Domain
 from jaxtyping import Array, Float
 from .utils import check_discretization
 
+# TODO: add power operation
+# TODO: add negative operation
 
 class Field(eqx.Module):
     values: Float
     domain: Domain
-    
     
     @classmethod
     def init_from_fn(cls, domain: Domain, fn: tp.Callable, *kwargs):
@@ -18,6 +19,8 @@ class Field(eqx.Module):
         
         return cls(values=values, domain=domain)
     
+    def replace_values(self, values):
+        return self.__class__(values, self.domain)
     
     def binop(self, other, fn: tp.Callable):
 
@@ -53,8 +56,8 @@ class Field(eqx.Module):
 #     def __neg__(self):
 #         return binop(self, other, lambda x, y: 
 
-#     def __pow__(self, other):
-#         pass
+    # def __pow__(self, other):
+    #     return Field(self.values**2, self.domain)
 
 #     def __rpow__(self, other):
 #         return binop(self, other, 
