@@ -1,5 +1,6 @@
 import typing as tp
 from jaxtyping import Array
+import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
 from einops import rearrange
@@ -32,6 +33,7 @@ def fd_convolution(
         x = jnp.pad(x, pad_width=pad, mode=mode)
     
     return jsp.signal.convolve(x, kernel, mode="valid")
+    # return jax.lax.conv(x, kernel, window_strides=(1,), padding="VALID")
 
 
 def _add_kernel_dims(kernel: Array, ndim: int, axis: int) -> Array:
