@@ -8,9 +8,7 @@ from .functional.fd import (
     generate_backward_offsets, 
     generate_forward_offsets,
     generate_finitediff_coeffs,
-    central_difference,
-    forward_difference,
-    backward_difference
+    finite_difference
 )
 from .functional.padding import generate_forward_padding, generate_central_padding, generate_backward_padding
 
@@ -18,7 +16,7 @@ from .functional.padding import generate_forward_padding, generate_central_paddi
 class Derivative(eqx.Module):
     derivative: int = eqx.static_field()
     accuracy: int = eqx.static_field()
-    step_size: tp.Iterable[int] = eqx.static_field()
+    step_size: int = eqx.static_field()
     mode: str = eqx.static_field()
     method: str = eqx.static_field()
     coeffs: tp.Sequence[int] = eqx.static_field()
@@ -28,7 +26,7 @@ class Derivative(eqx.Module):
 
     def __init__(
         self,
-        dx: tp.Iterable[int],
+        step_size: int,
         axis: int=0,
         derivative: int=1,
         accuracy: int=8, 
@@ -63,60 +61,23 @@ class Derivative(eqx.Module):
         self.offsets = offsets
         self.padding = padding
         self.method = method
-        self.step_size = dx[axis]
+        self.step_size = step_size
         self.axis = axis
         self.mode = mode
 
     def __call__(self, x: Array) -> Array:
 
-        if self.method == "central":
-            return self._central_difference(x)
-        elif self.method == "forward":
-            return self._forward_difference(x)
-        elif self.method == "backward":
-            return self._backward_difference(x)
-        else:
-            raise ValueError(f"Unrecognized method...")
+        return finite_difference(
+            x, 
+            axis=self.axis,
+            derivative=self.derivative,
+            step_size=self.step_size,
+            coeffs=self.coeffs,
+            offsets=self.offsets,
+            padding=self.padding,
+            mode=self.mode
+            )
         
-    def _central_difference(self, x: Array) -> Array:
-
-        return central_difference(
-            x, 
-            axis=self.axis,
-            derivative=self.derivative,
-            step_size=self.step_size,
-            coeffs=self.coeffs,
-            offsets=self.offsets,
-            padding=self.padding,
-            mode=self.mode
-            )
-    
-    def _forward_difference(self, x: Array) -> Array:
-
-        return forward_difference(
-            x, 
-            axis=self.axis,
-            derivative=self.derivative,
-            step_size=self.step_size,
-            coeffs=self.coeffs,
-            offsets=self.offsets,
-            padding=self.padding,
-            mode=self.mode
-            )
-    
-    def _backward_difference(self, x: Array) -> Array:
-
-        return backward_difference(
-            x, 
-            axis=self.axis,
-            derivative=self.derivative,
-            step_size=self.step_size,
-            coeffs=self.coeffs,
-            offsets=self.offsets,
-            padding=self.padding,
-            mode=self.mode
-            )
-
 
 
 # class Derivative(eqx.Module):
