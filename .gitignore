@@ -142,3 +142,4 @@ datasets/*
 .idea/inspectionProfiles/profiles_settings.xml
 .jupyter/desktop-settings.json
 .jupyter/desktop-workspaces/default-37a8.jupyterlab-workspace
+*.DS_STORE

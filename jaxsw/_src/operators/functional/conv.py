@@ -6,15 +6,15 @@ import jax.scipy as jsp
 from einops import rearrange
 
 
-def fd_kernel_init(dx: tp.Tuple[int], coeffs: tp.Tuple[int], axis: int=0) -> Array:
+def fd_kernel_init(dims: tp.Tuple[int], coeffs: tp.Tuple[int], axis: int=0) -> Array:
     
     # add kernel dims
     kernel = jnp.asarray(coeffs, dtype=jnp.float32)
 
-    kernel = _add_kernel_dims(kernel, ndim=len(dx), axis=axis)
+    kernel = _add_kernel_dims(kernel, ndim=len(dims), axis=axis)
     
     # add dx
-    kernel = kernel / dx[axis]
+    kernel = kernel / dims[axis]
     
     # flip (convolutions are the opposite)
     kernel = jnp.flip(kernel, axis=tuple(range(kernel.ndim)))
