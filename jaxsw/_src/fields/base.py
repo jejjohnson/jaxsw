@@ -68,6 +68,11 @@ class Field(eqx.Module):
     def __rtruediv__(self, other):
         return self.binop(other, lambda x, y: y / x)
 
+    def min(self):
+        return self.values.min()
+    
+    def max(self):
+        return self.values.max()
 
 
     
