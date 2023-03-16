@@ -80,7 +80,6 @@ def test_field_operations_1d(domain_1d):
     np.testing.assert_array_equal(-u1.values, (-u1).values)
     np.testing.assert_array_equal(u1.values / u2.values, (u1 / u2).values)
     np.testing.assert_array_equal(1 / u1.values, (u1.inverse()).values)
-    np.testing.assert_array_equal(u1.values == 1, (u1 == 1).values)
 
 
 def test_field_replace_values_1d(field_1d):

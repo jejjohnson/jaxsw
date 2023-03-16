@@ -20,7 +20,9 @@ class Field(eqx.Module):
         return cls(values=values, domain=domain)
     
     def replace_values(self, values):
-        return self.__class__(values, self.domain)
+        return eqx.tree_at(lambda x: x.values, self, values)
+        # return self.__class__(values, self.domain)
+    
     
     def binop(self, other, fn: tp.Callable):
 
@@ -50,29 +52,30 @@ class Field(eqx.Module):
     def __rsub__(self, other):
         return self.binop(other, lambda x, y: y - x)
     
-#     def __bool__(self, other):
-#         return binop(self, other, lambda x, y: bool(x))
+    # def __bool__(self):
+    #     return eqx.tree_at(lambda x: x.values, self, self.values.__bool__())
 
-#     def __neg__(self):
-#         return binop(self, other, lambda x, y: 
+    def __neg__(self):
+        return eqx.tree_at(lambda x: x.values, self, -self.values)
 
-    # def __pow__(self, other):
-    #     return Field(self.values**2, self.domain)
+    def __pow__(self, power):
+        return eqx.tree_at(lambda x: x.values, self, self.values**power)
 
-#     def __rpow__(self, other):
-#         return binop(self, other, 
+    def __rpow__(self, power):
+        return eqx.tree_at(lambda x: x.values, self, power**self.values)
 
     def __truediv__(self, other):
         return self.binop(other, lambda x, y: x / y)
 
     def __rtruediv__(self, other):
         return self.binop(other, lambda x, y: y / x)
+    
+    def inverse(self):
+        return eqx.tree_at(lambda x: x.values, self, 1 / self.values)
 
     def min(self):
         return self.values.min()
     
     def max(self):
         return self.values.max()
-
-
     
