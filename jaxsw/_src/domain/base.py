@@ -39,6 +39,12 @@ class Domain(eqx.Module):
     dx: tp.Iterable[float] = eqx.static_field()
 
     def __init__(self, xmin, xmax, dx):
+        """Initializes domain
+        Args:
+            xmin (Iterable[float]): the min bounds for the input domain
+            xmax (Iterable[float]): the max bounds for the input domain
+            dx (Iterable[float]): the step size for the input domain
+        """
         self.xmin = _fix_iterable_input(xmin)
         self.xmax = _fix_iterable_input(xmax)
         self.dx = _fix_iterable_input(dx)
@@ -51,6 +57,10 @@ class Domain(eqx.Module):
         dx = tuple(map(f, xmin, xmax, N))
         
         return cls(xmin=xmin, xmax=xmax, dx=dx)
+    
+    @property
+    def shape(self) -> tp.Tuple[int]:
+        return self.grid
     
     @property
     def coords(self) -> tp.List:        

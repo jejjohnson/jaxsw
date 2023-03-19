@@ -91,7 +91,7 @@ def difference(
     *,
     axis: int = 0,
     accuracy: int = 1,
-    step_size: float | jnp.ndarray = 1,
+    step_size: jnp.ndarray = 1,
     derivative: int = 1,
     method: str = "forward",
 ):
@@ -148,7 +148,7 @@ def gradient(
     array: Array,
     *,
     accuracy: int = 1,
-    step_size: float | jnp.ndarray = 1,
+    step_size: jnp.ndarray = 1,
     method: str = "forward",
 ) -> Array:
     accuracy = fdx._src.utils._check_and_return(accuracy, array.ndim, "accuracy")

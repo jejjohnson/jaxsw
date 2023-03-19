@@ -9,8 +9,24 @@ from .utils import check_discretization
 # TODO: add negative operation
 
 class Field(eqx.Module):
+    """A Field for a discrete domain
+    
+    Attributes:
+        values (Array): An arbitrary sized array
+        domain (Domain): the domain for the array
+    """
     values: Float
     domain: Domain
+    
+    def __init__(self, values: Array, domain: Domain):
+        """
+        Args:
+            values (Array): An arbitrary sized array
+            domain (Domain): the domain for the array
+        """
+        assert values.shape == domain.size
+        self.values = values
+        self.domain = domain
     
     @classmethod
     def init_from_fn(cls, domain: Domain, fn: tp.Callable, *kwargs):
