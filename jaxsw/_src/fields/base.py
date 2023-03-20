@@ -24,7 +24,7 @@ class Field(eqx.Module):
             values (Array): An arbitrary sized array
             domain (Domain): the domain for the array
         """
-        assert values.shape == domain.size
+        assert values.shape == domain.grid.shape
         self.values = values
         self.domain = domain
     
@@ -39,6 +39,9 @@ class Field(eqx.Module):
         return eqx.tree_at(lambda x: x.values, self, values)
         # return self.__class__(values, self.domain)
     
+    @property
+    def shape(self) -> tp.Tuple[int]:
+        return self.values.shape
     
     def binop(self, other, fn: tp.Callable):
 

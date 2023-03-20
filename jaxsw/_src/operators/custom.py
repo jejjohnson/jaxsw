@@ -10,6 +10,7 @@ class FuncOperator(eqx.Module):
         self.f = f
 
     def __call__(self, u: Field) -> Field:
+
         u = eqx.tree_at(lambda x: x.values, u, self.f(u.values))
 
         return u

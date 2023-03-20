@@ -58,9 +58,6 @@ class Domain(eqx.Module):
         
         return cls(xmin=xmin, xmax=xmax, dx=dx)
     
-    @property
-    def shape(self) -> tp.Tuple[int]:
-        return self.grid
     
     @property
     def coords(self) -> tp.List:        
