@@ -6,14 +6,8 @@ from jaxopt.linear_solve import solve_cg
 from jaxtyping import Array
 from einops import rearrange
 import finitediffx as fdx
-from jaxsw._src.operators.functional.fd import difference
-
-
-R_EARTH = 6371200.0 # radius of the Earth (m)
-GRAVITY = 9.80665 # gravitational acceleration (m/s^2)
-OMEGA = 2.*jnp.pi/86164.0  # angular speed of the Earth (7.292e-5) (rad/s)
-DEG2M = jnp.pi * R_EARTH / 180.0   # Degrees to Meters
-RHO = 1.0e3    # density of water (kg/m^3)
+from jaxsw._src.utils.constants import R_EARTH, OMEGA, GRAVITY
+from jaxsw._src.operators.functional.fd import jacobian
 
 
 def ekman_number(AV, f0, H):
@@ -134,10 +128,29 @@ def diff_y(u: Array) -> Array:
     u = jsp.signal.convolve(u, kernel, mode="valid")
     return u
 
+def u_plusminus(u: Array, way: int=1) -> tp.Tuple[Array,Array]:
+    
+    unew = jnp.zeros_like(u)
+    unew = way*0.5*(u[2:-2,2:-2]+u[2:-2,3:-1])
+    uplus = jnp.where(unew<0, 0, unew)
+    uminus = jnp.where(unew>0, 0, unew)
+    return uplus, uminus
+    # u = diff_x(u)
+    # return plusminus(u, way=way)
+
+def v_plusminus(v: Array, way: int=1) -> tp.Tuple[Array,Array]:
+    vnew = jnp.zeros_like(v)
+    vnew = way*0.5*(v[2:-2,2:-2]+v[3:-1,2:-2])
+    vplus = jnp.where(vnew<0, 0, vnew)
+    vminus = jnp.where(vnew>0, 0, vnew)
+    return vplus, vminus
+    # v = diff_y(v)
+    # return plusminus(v, way=way)
 
 def plusminus(u: Array, way: int=1) -> tp.Tuple[Array, Array]:
-    u_plus = jnp.where(way * u > 0.0, u, 0.0)
-    u_minus = jnp.where(way * u < 0.0, u, 0.0)
+    
+    u_plus = jnp.where(way * u < 0.0, 0.0, u)
+    u_minus = jnp.where(way * u > 0.0, 0.0, u)
     return u_plus, u_minus
 
 
@@ -172,97 +185,12 @@ def backward_diff_y(u: Array, dy: Array) -> Array:
     return u / dy
 
 
-def pad_bc(x, bc="dirichlet", mode: str="constant"):
-    
-    if bc is not None:
-        x = jnp.pad(x, pad_width=((1,1),(1,1)), mode=mode)
-        
-    if bc == "dirichlet_face":
-        # faces
-        x = x.at[0,:].set(0.0)
-        x = x.at[-1,:].set(0.0)
-        x = x.at[:,0].set(0.0)
-        x = x.at[:,-1].set(0.0)
-
-        # corners
-        x = x.at[0,0].set(0.0)
-        x = x.at[-1,0].set(0.0)
-        x = x.at[0,-1].set(0.0)
-        x = x.at[-1,-1].set(0.0)
-    elif bc == "dirichlet":
-        x = x.at[0,:].set(-x[1,:])
-        
-        x = x.at[0,:].set(-x[1,:])
-        x = x.at[-1,:].set(-x[-2,:])
-        x = x.at[:,0].set(-x[:,1])
-        x = x.at[:,-1].set(-x[:,-2])
-
-        # corners
-        x =x.at[0,0].set(-x[0,1]   - x[1,0]   - x[1,1])
-        x =x.at[-1,0].set(-x[-1,1]  - x[-2,0]  - x[-2,1])
-        x =x.at[0,-1].set(-x[1,-1]  - x[0,-2]  - x[1,-2])
-        x =x.at[-1,-1].set(-x[-1,-2] - x[-2,-2] - x[-2,-1])
-        
-    elif bc == "neumann":
-        raise NotImplementedError()
-    elif bc == "periodic":
-        raise NotImplementedError()
-    elif bc is None:
-        return x
-    else:
-        raise ValueError(f"Unrecognized boundary condition: {bc}")
-        
-    return x
-
-
-# def jacobian(f, g, dx, dy, bc: str="dirichlet", **kwargs):
-#     f = pad_bc(f, **kwargs)
-#     g = pad_bc(g, **kwargs)
-    
-#     dx_f = f[2:,:] - f[:-2,:]
-#     dx_g = g[2:,:] - g[:-2,:]
-#     dy_f = f[...,2:] - f[..., :-2]
-#     dy_g = g[...,2:] - g[...,:-2]
-    
-    
-#     jac = (
-#             (   dx_f[...,1:-1] * dy_g[1:-1,:] - dx_g[...,1:-1] * dy_f[1:-1,:]  ) +
-#             (   (f[2:,1:-1] * dy_g[2:,:] - f[:-2,1:-1] * dy_g[:-2,:]) -
-#                 (f[1:-1,2:]  * dx_g[...,2:] - f[1:-1,:-2] * dx_g[...,:-2])     ) +
-#             (   (g[1:-1,2:] * dx_f[...,2:] - g[1:-1,:-2] * dx_f[...,:-2]) -
-#                 (g[2:,1:-1] * dy_f[2:,:] - g[:-2,1:-1] * dy_f[:-2,:])  )
-#            ) 
-    
-#     return jac / (12. * dx * dy)
-
-
-def jacobian(p, q, dx, dy, bc: str="dirichlet", **kwargs):
-    p = pad_bc(p, **kwargs)
-    q = pad_bc(q, **kwargs)
-        
-    jac = ((q[2:,1:-1]-q[:-2,1:-1])*(p[1:-1,2:]-p[1:-1,:-2]) \
-        +(q[1:-1 ,:-2]-q[1:-1 ,2:])*(p[2:, 1:-1]-p[:-2, 1:-1 ]) \
-        + q[2:, 1:-1 ]*( p[2:,2: ] - p[2:,:-2 ]) \
-        - q[:-2, 1:-1]*( p[:-2,2:] - p[:-2,:-2]) \
-        - q[1:-1 ,2:]*( p[2:,2: ] - p[:-2,2: ]) \
-        + q[1:-1 ,:-2]*( p[2:,:-2] - p[:-2,:-2]) \
-        + p[1:-1 ,2:]*( q[2:,2: ] - q[:-2,2: ]) \
-        - p[1:-1 ,:-2]*( q[2:,:-2] - q[:-2,:-2]) \
-        - p[2:, 1:-1 ]*( q[2:,2: ] - q[2:,:-2 ]) \
-        + p[:-2, 1:-1]*( q[:-2,2:] - q[:-2,:-2]))
-    
-    
-    return jac / (12. * dx * dy)
-    # det = jnp.mean(jnp.asarray([jnp.mean(dx),jnp.mean(dy)]))
-    # return jac / (12. * det)
-
-
-def rhs_fn(q, psi, f0, dx, dy, way=1, upwind=True, beta: bool=True):
+def rhs_fn(q, psi, f0, dx, dy, way=1, bc="dirichlet", upwind=True, beta: bool=True):
     
     if upwind:
         out = advection_term_upwind(q, psi, dx, dy, way=way)
     else:
-        out = jacobian(psi, q, dx, dy)
+        out = jacobian(p=psi, q=q, dx=dx, dy=dy, bc=bc, pad=True)
         
     if beta:
         u, v = streamfn_to_velocity(psi, dx, dy) 
@@ -278,8 +206,10 @@ def rhs_fn(q, psi, f0, dx, dy, way=1, upwind=True, beta: bool=True):
         
     
 def beta_term(f0, dy, v):
+    
+    dv_dy = fdx.difference(v, axis=1, step_size=(dy), accuracy=2, method="central", derivative=1)
         
-    return beta_cdiff(f0, dy) * diff_y(v)
+    return beta_cdiff(f0, dy) * dv_dy
 
 
 
@@ -295,16 +225,15 @@ def pv_to_streamfn(q, dx, dy, c1=1.5, tol=1e-10, accuracy: int=1):
     return psi
 
 
-def advection_term_upwind(q, psi, dx, dy, way):
+def advection_term_upwind(q, psi, dx, dy, way: int=1):
     
     # u,v schemes
     u, v = streamfn_to_velocity(psi, dx, dy)
     
-    u = diff_x(u)
-    v = diff_y(v)
+    term = jnp.zeros_like(q)
 
-    u_plus, u_minus = plusminus(u, way)
-    v_plus, v_minus = plusminus(v, way)
+    u_plus, u_minus = u_plusminus(u, way)
+    v_plus, v_minus = v_plusminus(v, way)
     
     # dq_dx_f = forward_diff_x(q, dx)
     # dq_dy_f = forward_diff_y(q, dy)
@@ -312,13 +241,15 @@ def advection_term_upwind(q, psi, dx, dy, way):
     # dq_dy_b = backward_diff_y(q, dy)
     
     # forward methods
-    dq_dx_f = difference(q, step_size=dx, axis=0, derivative=1, accuracy=1, method="forward")
-    dq_dy_f = difference(q, step_size=dy, axis=1, derivative=1, accuracy=1, method="forward")
+    dq_dx_f = fdx.difference(q, step_size=dx, axis=0, derivative=1, accuracy=1, method="forward")
+    dq_dy_f = fdx.difference(q, step_size=dy, axis=1, derivative=1, accuracy=1, method="forward")
     # backward methods
-    dq_dx_b = difference(q, step_size=dx, axis=0, derivative=1, accuracy=1, method="backward")
-    dq_dy_b = difference(q, step_size=dy, axis=1, derivative=1, accuracy=1, method="backward")
+    dq_dx_b = fdx.difference(q, step_size=dx, axis=0, derivative=1, accuracy=1, method="backward")
+    dq_dy_b = fdx.difference(q, step_size=dy, axis=1, derivative=1, accuracy=1, method="backward")
     
-    t1 = u_plus * dq_dx_b + u_minus * dq_dx_f
-    t2 = v_plus * dq_dy_b + v_minus * dq_dy_f
+    t1 = u_plus * dq_dx_b[2:-2,2:-2] + u_minus * dq_dx_f[2:-2,2:-2]
+    t2 = v_plus * dq_dy_b[2:-2,2:-2] + v_minus * dq_dy_f[2:-2,2:-2]
     
-    return t1 + t2
+    term = term.at[2:-2,2:-2].set(t1 + t2)
+    
+    return term

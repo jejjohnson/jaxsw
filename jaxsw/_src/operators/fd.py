@@ -5,7 +5,7 @@ import typing as tp
 import equinox as eqx
 from jaxsw._src.domain.base import Domain
 from jaxsw._src.fields.base import Field
-from jaxsw._src.operators.functional.fd import difference
+import finitediffx as fdx
 
 # from finitediffx._src.utils import _check_and_return
 # from .functional.fd import (
@@ -44,7 +44,7 @@ class Difference(eqx.Module):
         self.method = method
 
     def __call__(self, u: Field) -> Field:
-        out = difference(
+        out = fdx.difference(
             u.values,
             axis=self.axis,
             accuracy=self.accuracy,

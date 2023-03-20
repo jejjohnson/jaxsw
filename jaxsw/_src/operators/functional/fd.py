@@ -4,6 +4,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array
 import functools as ft
+from jaxsw._src.boundaries.functional import apply_bcs_2d
 from jaxsw._src.operators.functional.padding import (
     generate_backward_padding,
     generate_central_padding,
@@ -16,7 +17,7 @@ from jaxsw._src.operators.functional.padding import (
 # TODO: Mixed Difference Init
 # TODO: Forward Difference
 
-COEFFS = tp.Tuple[tp.Tuple[int], tp.Tuple[int], tp.Tuple[int]]
+COEFFS = tp.Tuple[tp.Tuple[int], tp.Tuple[int], tp.Tuple[int, int]]
 
 generate_finitediff_coeffs = fdx._src.utils.generate_finitediff_coeffs
 generate_forward_offsets = fdx._src.utils._generate_forward_offsets
@@ -59,241 +60,51 @@ def difference_slicing(
     return x
 
 
-def finite_difference(
-    x: Array,
-    step_size: int,
-    axis: int,
-    derivative: int,
-    coeffs: tp.Iterable[int],
-    offsets: tp.Iterable[int],
-    padding: tp.Optional[tp.Iterable[int]] = None,
-    mode: str = "edge",
+def jacobian(
+    p: Array,
+    q: Array,
+    dx: Array,
+    dy: Array,
+    bc: str = "dirichlet",
+    pad: bool = True,
 ) -> Array:
-    print("x before padding:", x.shape)
-    if padding is not None:
-        print("Padding before:", padding)
-        padding = _add_padding_dims(padding=padding, ndim=x.ndim, axis=axis)
-        print("Padding after:", padding)
-        x = jnp.pad(x, pad_width=padding, mode=mode)
+    p = apply_bcs_2d(p, bc=bc, pad=pad)
+    q = apply_bcs_2d(q, bc=bc, pad=pad)
 
-    print("x after padding:", x.shape)
-    # slicing with coeffficients
-    x = difference_slicing(x, axis=axis, coeffs=coeffs, offsets=offsets)
-
-    # derivative factor
-    x = x / (step_size**derivative)
-    print("x after fd:", x.shape)
-    return x
-
-
-def difference(
-    array,
-    *,
-    axis: int = 0,
-    accuracy: int = 1,
-    step_size: jnp.ndarray = 1,
-    derivative: int = 1,
-    method: str = "forward",
-):
-    size = array.shape[axis]
-    center_offsets = fdx._src.utils._generate_central_offsets(derivative, accuracy + 1)
-    center_coeffs = fdx._src.utils.generate_finitediff_coeffs(
-        center_offsets, derivative
+    jac = (
+        (q[2:, 1:-1] - q[:-2, 1:-1]) * (p[1:-1, 2:] - p[1:-1, :-2])
+        + (q[1:-1, :-2] - q[1:-1, 2:]) * (p[2:, 1:-1] - p[:-2, 1:-1])
+        + q[2:, 1:-1] * (p[2:, 2:] - p[2:, :-2])
+        - q[:-2, 1:-1] * (p[:-2, 2:] - p[:-2, :-2])
+        - q[1:-1, 2:] * (p[2:, 2:] - p[:-2, 2:])
+        + q[1:-1, :-2] * (p[2:, :-2] - p[:-2, :-2])
+        + p[1:-1, 2:] * (q[2:, 2:] - q[:-2, 2:])
+        - p[1:-1, :-2] * (q[2:, :-2] - q[:-2, :-2])
+        - p[2:, 1:-1] * (q[2:, 2:] - q[2:, :-2])
+        + p[:-2, 1:-1] * (q[:-2, 2:] - q[:-2, :-2])
     )
 
-    left_offsets = fdx._src.utils._generate_forward_offsets(derivative, accuracy)
-    left_coeffs = fdx._src.utils.generate_finitediff_coeffs(left_offsets, derivative)
-
-    right_offsets = fdx._src.utils._generate_backward_offsets(derivative, accuracy)
-    right_coeffs = fdx._src.utils.generate_finitediff_coeffs(right_offsets, derivative)
-
-    # print(size, len(center_offsets), size >= len(center_offsets))
-
-    if method == "central":
-        return _central_difference(
-            array,
-            axis=axis,
-            left_coeffs=left_coeffs,
-            center_coeffs=center_coeffs,
-            right_coeffs=right_coeffs,
-            left_offsets=left_offsets,
-            center_offsets=center_offsets,
-            right_offsets=right_offsets,
-        ) / (step_size**derivative)
-
-    elif method == "forward":
-        return _forward_difference(
-            array,
-            axis=axis,
-            left_coeffs=left_coeffs,
-            right_coeffs=right_coeffs,
-            left_offsets=left_offsets,
-            right_offsets=right_offsets,
-        ) / (step_size**derivative)
-
-    elif method == "backward":
-        return _backward_difference(
-            array,
-            axis=axis,
-            left_coeffs=left_coeffs,
-            right_coeffs=right_coeffs,
-            left_offsets=left_offsets,
-            right_offsets=right_offsets,
-        ) / (step_size**derivative)
-    else:
-        raise ValueError(f"Unrecognized method: {method}!")
+    return jac / (12.0 * dx * dy)
+    # det = jnp.mean(jnp.asarray([jnp.mean(dx),jnp.mean(dy)]))
+    # return jac / (12. * det)
 
 
-def gradient(
-    array: Array,
-    *,
-    accuracy: int = 1,
-    step_size: jnp.ndarray = 1,
-    method: str = "forward",
-) -> Array:
-    accuracy = fdx._src.utils._check_and_return(accuracy, array.ndim, "accuracy")
-    step_size = fdx._src.utils._check_and_return(step_size, array.ndim, "step_size")
+# def jacobian(f, g, dx, dy, bc: str="dirichlet", **kwargs):
+#     p = apply_bcs_2d(p, bc=bc, **kwargs)
+#     q = apply_bcs_2d(q, bc=bc, **kwargs)
 
-    return jnp.stack(
-        [
-            difference(
-                array,
-                accuracy=acc,
-                step_size=step,
-                derivative=1,
-                axis=axis,
-                method=method,
-            )
-            for axis, (acc, step) in enumerate(zip(accuracy, step_size))
-        ],
-        axis=0,
-    )
+#     dx_f = f[2:,:] - f[:-2,:]
+#     dx_g = g[2:,:] - g[:-2,:]
+#     dy_f = f[...,2:] - f[..., :-2]
+#     dy_g = g[...,2:] - g[...,:-2]
 
 
-def jacobian(array, *, accuracy, step_size, method):
-    accuracy = fdx._src.utils._check_and_return(accuracy, array.ndim - 1, "accuracy")
-    step_size = fdx._src.utils._check_and_return(step_size, array.ndim - 1, "step_size")
+#     jac = (
+#             (   dx_f[...,1:-1] * dy_g[1:-1,:] - dx_g[...,1:-1] * dy_f[1:-1,:]  ) +
+#             (   (f[2:,1:-1] * dy_g[2:,:] - f[:-2,1:-1] * dy_g[:-2,:]) -
+#                 (f[1:-1,2:]  * dx_g[...,2:] - f[1:-1,:-2] * dx_g[...,:-2])     ) +
+#             (   (g[1:-1,2:] * dx_f[...,2:] - g[1:-1,:-2] * dx_f[...,:-2]) -
+#                 (g[2:,1:-1] * dy_f[2:,:] - g[:-2,1:-1] * dy_f[:-2,:])  )
+#            )
 
-    return jnp.stack(
-        [
-            gradient(xi, accuracy=accuracy, step_size=step_size, method=method)
-            for xi in array
-        ],
-        axis=0,
-    )
-
-
-def divergence(array, *, accuracy, step_size, method, keepdims=True):
-    accuracy = fdx._src.utils._check_and_return(accuracy, array.ndim - 1, "accuracy")
-    step_size = fdx._src.utils._check_and_return(step_size, array.ndim - 1, "step_size")
-
-    result = sum(
-        difference(
-            array[axis],
-            accuracy=acc,
-            step_size=step,
-            method=method,
-            derivative=1,
-            axis=axis,
-        )
-        for axis, (acc, step) in enumerate(zip(accuracy, step_size))
-    )
-
-    if keepdims:
-        return jnp.expand_dims(result, axis=0)
-    return result
-
-
-def laplacian(array, *, accuracy, step_size, method):
-    accuracy = fdx._src.utils._check_and_return(accuracy, array.ndim, "accuracy")
-    step_size = fdx._src.utils._check_and_return(step_size, array.ndim, "step_size")
-
-    return sum(
-        difference(
-            array, accuracy=acc, step_size=step, derivative=2, axis=axis, method=method
-        )
-        for axis, (acc, step) in enumerate(zip(accuracy, step_size))
-    )
-
-
-def _central_difference(
-    x,
-    axis: int,
-    left_coeffs,
-    center_coeffs,
-    right_coeffs,
-    left_offsets,
-    center_offsets,
-    right_offsets,
-):
-    size = x.shape[axis]
-    sliced = ft.partial(jax.lax.slice_in_dim, x, axis=axis)
-
-    # use central difference for interior points
-    left_x = sum(
-        coeff * sliced(offset, offset - center_offsets[0])
-        for offset, coeff in zip(left_offsets, left_coeffs)
-    )
-
-    right_x = sum(
-        coeff * sliced(size + (offset - center_offsets[-1]), size + (offset))
-        for offset, coeff in zip(right_offsets, right_coeffs)
-    )
-
-    center_x = sum(
-        coeff * sliced(offset - center_offsets[0], size + (offset - center_offsets[-1]))
-        for offset, coeff in zip(center_offsets, center_coeffs)
-    )
-
-    return jnp.concatenate([left_x, center_x, right_x], axis=axis)
-
-
-def _backward_difference(
-    x,
-    *,
-    axis,
-    left_coeffs,
-    right_coeffs,
-    left_offsets,
-    right_offsets,
-):
-    size = x.shape[axis]
-    sliced = ft.partial(jax.lax.slice_in_dim, x, axis=axis)
-    # use central difference for interior points
-    left_x = sum(
-        coeff * sliced(offset, offset - right_offsets[0])
-        for offset, coeff in zip(left_offsets, left_coeffs)
-    )
-
-    right_x = sum(
-        coeff * sliced(offset - right_offsets[0], size + (offset - right_offsets[-1]))
-        for offset, coeff in zip(right_offsets, right_coeffs)
-    )
-
-    return jnp.concatenate([left_x, right_x], axis=axis)
-
-
-def _forward_difference(
-    x,
-    *,
-    axis,
-    left_coeffs,
-    right_coeffs,
-    left_offsets,
-    right_offsets,
-):
-    size = x.shape[axis]
-    sliced = ft.partial(jax.lax.slice_in_dim, x, axis=axis)
-
-    # use central difference for interior points
-    left_x = sum(
-        coeff * sliced(offset - left_offsets[0], size + (offset - left_offsets[-1]))
-        for offset, coeff in zip(left_offsets, left_coeffs)
-    )
-
-    right_x = sum(
-        coeff * sliced(size + (offset - left_offsets[-1]), size + (offset))
-        for offset, coeff in zip(right_offsets, right_coeffs)
-    )
-
-    return jnp.concatenate([left_x, right_x], axis=axis)
+#     return jac / (12. * dx * dy)
