@@ -8,20 +8,20 @@ from jaxsw._src.domain import TimeDomain
 class DynamicalSystem(eqx.Module):
     t_domain: TimeDomain
     solver: dfx.AbstractSolver = dfx.Euler()
-    controller: Optional[dfx.PIDController] = dfx.ConstantStepSize()
+    stepsize_controller: Optional[dfx.PIDController] = dfx.ConstantStepSize()
     saveat: Optional[dfx.SaveAt] = None
-    
+
     def __init__(
         self,
         t_domain,
         solver=dfx.Euler(),
-        controller=dfx.ConstantStepSize(),
+        stepsize_controller=dfx.ConstantStepSize(),
         saveat=None
     ):
         self.solver = solver
         self.t_domain = t_domain
         self.saveat = saveat
-        self.controller = controller
+        self.stepsize_controller = stepsize_controller
         
     def init_u0(self, domain: PyTree):
         raise NotImplementedError()
@@ -42,6 +42,7 @@ class DynamicalSystem(eqx.Module):
             dt0=dt,
             y0=u,
             saveat=self.saveat,
+            stepsize_controller=self.stepsize_controller,
             **kwargs
         )
         return sol.ys
