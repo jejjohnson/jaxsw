@@ -42,7 +42,9 @@ def lat_lon_deltas(lon: Array, lat: Array) -> tp.Tuple[Array, Array]:
     
     lon_grid, lat_grid = jnp.meshgrid(lon, lat, indexing="ij")
     
-    f0 = coriolis_param(lat_grid)
+    f = coriolis_param(lat_grid)
+    
+    beta = beta_plane(lat_grid) 
 
     lon_grid = jnp.deg2rad(lon_grid)
     lat_grid = jnp.deg2rad(lat_grid)
@@ -55,7 +57,7 @@ def lat_lon_deltas(lon: Array, lat: Array) -> tp.Tuple[Array, Array]:
     dy = R_EARTH * jnp.hypot(dlon_dy * jnp.cos(lat_grid), dlat_dy)
     
     
-    return dx, dy, f0
+    return dx, dy, f, beta
 
 
 def beta_cdiff(f0: Array, dy: Array) -> Array:
@@ -216,10 +218,19 @@ def beta_term(psi, f, dx, dy):
     
     _, v = streamfn_to_velocity(psi, dx, dy) 
     
-    dv_dy = fdx.difference(v, axis=1, step_size=dy, accuracy=1, method="central", derivative=1)
+    dv_dy = fdx.difference(
+        v, axis=1, step_size=dy, 
+        accuracy=1, method="central", 
+        derivative=1
+    )
     
-    # return f0 * dv_dy
-    return beta_cdiff(f, dy) * dv_dy
+    df_dy = fdx.difference(
+        f, step_size=dy,
+        accuracy=1, method="central",
+        derivative=1
+    )
+    
+    return df_dy * v
 
 
 
