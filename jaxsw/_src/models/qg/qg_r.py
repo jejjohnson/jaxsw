@@ -1,5 +1,6 @@
 import typing as tp
 import numpy as np
+import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
 from jaxopt.linear_solve import solve_cg
@@ -87,8 +88,15 @@ def laplacian_2d(array: Array, dx: Array, dy: Array) -> Array:
 # def streamfn_to_pvort(psi: Array, dx: Array, dy: Array, c1: float=1.5) -> Array:
 #     return laplacian_2d(psi, dx, dy) - (1./c1**2) * psi
 
-def streamfn_to_pvort(psi: Array, dx: Array, dy: Array, c1: float=1.5, accuracy: int=1) -> Array:
-    return fdx.laplacian(psi, step_size=(dx,dy), accuracy=accuracy) - (1./c1**2) * psi
+def streamfn_to_pvort(
+    psi: Array, 
+    dx: Array, 
+    dy: Array, 
+    c1: float=2.7, 
+    f0: float=1e-5, 
+    **kwargs
+) -> Array:
+    return fdx.laplacian(psi, step_size=(dx,dy), **kwargs) - (f0/c1)**2 * psi
 
 
 def sobel_diff_x(u: Array, dx: Array) -> Array:
@@ -131,26 +139,25 @@ def diff_y(u: Array) -> Array:
 def u_plusminus(u: Array, way: int=1) -> tp.Tuple[Array,Array]:
     
     unew = jnp.zeros_like(u)
-    unew = way*0.5*(u[2:-2,2:-2]+u[2:-2,3:-1])
-    uplus = jnp.where(unew<0, 0, unew)
-    uminus = jnp.where(unew>0, 0, unew)
+    u_avg = way*0.5*(u[2:-2,2:-2]+u[2:-2,3:-1])
+    uplus, uminus = plusminus(u_avg)
     return uplus, uminus
     # u = diff_x(u)
     # return plusminus(u, way=way)
 
 def v_plusminus(v: Array, way: int=1) -> tp.Tuple[Array,Array]:
-    vnew = jnp.zeros_like(v)
-    vnew = way*0.5*(v[2:-2,2:-2]+v[3:-1,2:-2])
-    vplus = jnp.where(vnew<0, 0, vnew)
-    vminus = jnp.where(vnew>0, 0, vnew)
+    v_avg = way*0.5*(v[2:-2,2:-2]+v[3:-1,2:-2])
+    vplus, vminus = plusminus(v_avg)
     return vplus, vminus
     # v = diff_y(v)
     # return plusminus(v, way=way)
 
-def plusminus(u: Array, way: int=1) -> tp.Tuple[Array, Array]:
+def plusminus(u: Array) -> tp.Tuple[Array, Array]:
     
-    u_plus = jnp.where(way * u < 0.0, 0.0, u)
-    u_minus = jnp.where(way * u > 0.0, 0.0, u)
+    # u_plus = jnp.where(u < 0.0, 0.0, u)
+    # u_minus = jnp.where(u > 0.0, 0.0, u)
+    u_plus = jax.nn.relu(u)
+    u_minus = - 1. * jax.nn.relu(- 1. * u)
     return u_plus, u_minus
 
 
@@ -205,11 +212,14 @@ def rhs_fn(q, psi, f0, dx, dy, way=1, bc="dirichlet", upwind=True, beta: bool=Tr
     return - out
         
     
-def beta_term(f0, dy, v):
+def beta_term(psi, f, dx, dy):
     
-    dv_dy = fdx.difference(v, axis=1, step_size=(dy), accuracy=2, method="central", derivative=1)
-        
-    return beta_cdiff(f0, dy) * dv_dy
+    _, v = streamfn_to_velocity(psi, dx, dy) 
+    
+    dv_dy = fdx.difference(v, axis=1, step_size=dy, accuracy=1, method="central", derivative=1)
+    
+    # return f0 * dv_dy
+    return beta_cdiff(f, dy) * dv_dy
 
 
 
@@ -231,14 +241,12 @@ def advection_term_upwind(q, psi, dx, dy, way: int=1):
     u, v = streamfn_to_velocity(psi, dx, dy)
     
     term = jnp.zeros_like(q)
-
-    u_plus, u_minus = u_plusminus(u, way)
-    v_plus, v_minus = v_plusminus(v, way)
     
-    # dq_dx_f = forward_diff_x(q, dx)
-    # dq_dy_f = forward_diff_y(q, dy)
-    # dq_dx_b = backward_diff_x(q, dx)
-    # dq_dy_b = backward_diff_y(q, dy)
+    v_avg = way * 0.25 * (v[1:-1, 1:-1] + v[:-2, 1:-1] + v[1:-1, 2:] + v[:-2, 2:])
+    v_plus, v_minus = plusminus(v_avg)
+    
+    u_avg = way * 0.25 * (u[1:-1, 1:-1] + u[:-2, 1:-1] + u[1:-1, 2:] + u[:-2, 2:])
+    u_plus, u_minus = plusminus(u_avg)
     
     # forward methods
     dq_dx_f = fdx.difference(q, step_size=dx, axis=0, derivative=1, accuracy=1, method="forward")
@@ -247,9 +255,9 @@ def advection_term_upwind(q, psi, dx, dy, way: int=1):
     dq_dx_b = fdx.difference(q, step_size=dx, axis=0, derivative=1, accuracy=1, method="backward")
     dq_dy_b = fdx.difference(q, step_size=dy, axis=1, derivative=1, accuracy=1, method="backward")
     
-    t1 = u_plus * dq_dx_b[2:-2,2:-2] + u_minus * dq_dx_f[2:-2,2:-2]
-    t2 = v_plus * dq_dy_b[2:-2,2:-2] + v_minus * dq_dy_f[2:-2,2:-2]
+    t1 = u_plus * dq_dx_b[1:-1,1:-1] + u_minus * dq_dx_f[1:-1,1:-1]
+    t2 = v_plus * dq_dy_b[1:-1,1:-1] + v_minus * dq_dy_f[1:-1,1:-1]
     
-    term = term.at[2:-2,2:-2].set(t1 + t2)
+    term = term.at[1:-1,1:-1].set(t1 + t2)
     
     return term
