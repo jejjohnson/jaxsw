@@ -156,10 +156,10 @@ def v_plusminus(v: Array, way: int=1) -> tp.Tuple[Array,Array]:
 
 def plusminus(u: Array) -> tp.Tuple[Array, Array]:
     
-    # u_plus = jnp.where(u < 0.0, 0.0, u)
-    # u_minus = jnp.where(u > 0.0, 0.0, u)
-    u_plus = jax.nn.relu(u)
-    u_minus = - 1. * jax.nn.relu(- 1. * u)
+    u_plus = jnp.where(u < 0.0, 0.0, u)
+    u_minus = jnp.where(u > 0.0, 0.0, u)
+    # u_plus = jax.nn.relu(u)
+    # u_minus = - 1. * jax.nn.relu(- 1. * u)
     return u_plus, u_minus
 
 
