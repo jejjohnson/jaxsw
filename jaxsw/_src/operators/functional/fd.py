@@ -84,6 +84,9 @@ def jacobian(
     )
 
     return jac / (12.0 * dx * dy)
+
+
+
     # det = jnp.mean(jnp.asarray([jnp.mean(dx),jnp.mean(dy)]))
     # return jac / (12. * det)
 

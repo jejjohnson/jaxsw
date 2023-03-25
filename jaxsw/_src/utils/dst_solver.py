@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 import jax.numpy as jnp
 from jaxtyping import Array
 
@@ -30,20 +30,31 @@ def laplacian_dist(nx, ny, dx, dy, mean: bool=True) -> Array:
            2 * (jnp.cos(jnp.pi / (ny -1) * y) - 1) / dy ** 2
 
 
-def helmholtz_dist(dx, dy, kappa: float=0.0):
-    return laplacian_dist(dx, dy) - kappa
+def helmholtz_dist(
+    nx: int, ny: int, 
+    dx: Union[float, Array], 
+    dy: Union[float, Array], 
+    alpha: float=1.0, beta: float=0.0, mean:bool=True
+) -> Array:
+    laplace_op = laplacian_dist(nx=nx, ny=ny, dx=dx, dy=dy, mean=mean)
+    return alpha * laplace_op - beta
 
-def inverse_elliptical_dst_solver(q, nx, ny, dx, dy, kappa: Optional[float]=None, mean:bool=True):
+
+def inverse_elliptical_dst_solver(
+    q: Array, nx: int, ny: int, 
+    dx: Union[float, Array], 
+    dy: Union[float, Array], 
+    alpha: float=1.0, beta: float=0.0, mean:bool=True
+) -> Array:
     """Solves the Poisson Equation
     with Dirichlet Boundaries using the Discrete Sine
     transform
-    """
-    out = jnp.zeros_like(q)
+    """    
+    assert q.shape == (nx-2, ny-2)
     
-    operator = laplacian_dist(nx, ny, dx, dy, mean=mean)
-    
-    if kappa is not None:
-        operator = operator - kappa
-    
+    operator = helmholtz_dist(
+        nx=nx, ny=ny, dx=dx, dy=dy, mean=mean, alpha=alpha, beta=beta
+    )
+        
     return inverse_elliptic_dst(q, operator)
 
