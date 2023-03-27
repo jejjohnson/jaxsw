@@ -81,7 +81,7 @@ class Domain(eqx.Module):
             
             
 def make_coords(xmin, xmax, delta):
-    return jnp.arange(xmin, xmax + delta, delta)
+    return jnp.arange(xmin, xmax, delta)
 
 def make_grid_from_coords(coords: tp.Iterable) -> Float[Array, "D"]:
     if isinstance(coords, tp.Iterable):

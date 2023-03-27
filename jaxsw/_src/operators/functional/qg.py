@@ -6,16 +6,16 @@ from jaxsw._src.utils.dst_solver import inverse_elliptical_dst_solver
 from jaxsw._src.boundaries.helmholtz import enforce_boundaries_helmholtz
 
 
-def ssh_to_streamfn(ssh: Array, f0: Array, g=GRAVITY) -> Array:
+def ssh_to_streamfn(ssh: Array, f0: Array, g: float=GRAVITY) -> Array:
     """Calculates the ssh to stream function
     
     Eq:
-        η = (g/f0) Ψ
+        η = (g/f₀) Ψ
     
     Args:
         ssh (Array): the sea surface height [m]
         f0 (Array|float): the coriolis parameter
-        g (Array|float): the acceleration due to gravity
+        g (float): the acceleration due to gravity
     
     Returns:
         psi (Array): the stream function
@@ -23,16 +23,16 @@ def ssh_to_streamfn(ssh: Array, f0: Array, g=GRAVITY) -> Array:
     return (g / f0) * ssh
 
 
-def streamfn_to_ssh(psi: Array, f0: Array, g=GRAVITY) -> Array:
+def streamfn_to_ssh(psi: Array, f0: Array, g: float=GRAVITY) -> Array:
     """Calculates the stream function to ssh
     
     Eq:
-        Ψ = (f0/g) η
+        Ψ = (f₀/g) η
     
     Args:
         psi (Array): the stream function
         f0 (Array|float): the coriolis parameter
-        g (Array|float): the acceleration due to gravity
+        g (float): the acceleration due to gravity
     
     Returns:
         ssh (Array): the sea surface height [m]
@@ -51,7 +51,7 @@ def streamfn_to_pv(
     """Calculates the potential vorticity to the streamfunction
     
     Eq:
-        q = ∇²Ψ - (f0²/c1²) Ψ
+        q = ∇²Ψ - (f₀²/c₁²) Ψ
     
     Args:
         psi (Array): The stream function
@@ -78,41 +78,44 @@ def pv_to_streamfn(
     """Does the inverse problem for the PV and SF. We use a trick
     where we decompse the problem into interior and exterior points.
     For this, we use the Discrete Sine Transformation which
-    is very fast for inhomogeneous boundary conditions. This function
+    is very fast for Dirichlet boundary conditions. This function
     works the best when dx=dy but we do leave it open...
     
-    Ψ = (∇²-(f0²/c1²))^-1 q
+    Eqn:
+        Ψ = [∇² - f₀²/c₁²]⁻¹ q
     
     Args:
         q (Array): Potential Vorticity
         psi_bcs (Array): the psi where we enforce the boundaries.
-        dx (Array): the change in x
-        dy (Array): the change in y
-        f0 (Array): the Coriolis parameter
-        c1 (Array): the ...
+        dx (Array|float): the change in x
+        dy (Array|float): the change in y
+        f0 (Array|float): the Coriolis parameter
+        c1 (Array|float): the ...
         
     Returns:
         psi (Array): the stream function from the linear solver
     """
     
-    
-    
     beta = (f0/c1)**2
     
     # calculate the interior potential vorticity
     psi_bcs = psi_bcs.at[1:-1,1:-1].set(0.0)
+    
     q_exterior = streamfn_to_pv(psi_bcs, dx=dx, dy=dy, f0=f0, c1=c1, **kwargs)
+    
     q_exterior = enforce_boundaries_helmholtz(q_exterior, psi_bcs, beta=beta)
-    # remove interior
+    
+    # remove interior influence
     q_interior = q[1:-1,1:-1] - q_exterior[1:-1,1:-1]
     
+    # do inverse linear solver
     nx, ny = q.shape
     
-    # do inverse
     psi_interior = inverse_elliptical_dst_solver(
         q_interior, nx=nx, ny=ny, dx=dx, dy=dy, beta=beta
     )
     
+    # add boundaries to the solution
     psi = psi_bcs.at[1:-1,1:-1].set(psi_interior)
     
     return psi
@@ -126,7 +129,6 @@ def geostrophic_velocity(
     Eqn:
         u = -∂Ψ/∂y
         v =  ∂Ψ/∂x
-        
     
     Args:
         psi (Array): the stream function
@@ -137,15 +139,108 @@ def geostrophic_velocity(
     Return:
         u (Array): the meridonial velocty [m/s^2]
         v (Array): the zonal velocity [m/s^2]
-    
     """
     
-    u = - fdx.difference(psi, axis=1, step_size=dy, **kwargs)
+    u = - fdx.difference(
+        psi, axis=1, step_size=dy, derivative=1, **kwargs)
     
-    v = fdx.difference(psi, axis=0, step_size=dx, **kwargs)
+    v = fdx.difference(
+        psi, axis=0, step_size=dx, derivative=1, **kwargs)
     
     return u, v
 
 
+def geostrophic_divergence(
+    u: Array, v: Array, dx: Array, dy: Array, **kwargs
+) -> Array:
+    """Calculates the geostrophic divergence by using
+    finite difference in the x and y direction for the
+    u and v velocities respectively
+    
+    Eqn:
+        geodiv(u,v) = ∂u/∂x + ∂v/∂y
+        
+    Args:
+        u (Array): the u-velocity
+        v (Array): the v-velocity
+        dx (Array): the change in x
+        dy (Array): the change in y
+        **kwargs: all kwargs for the derivatives
+        
+    Returns:
+        div (Array): the geostrophic divergence
+    """
+    
+    du_dx = fdx.difference(
+        u, axis=0, step_size=dx, derivative=1, **kwargs
+    )
+    
+    dv_dy = fdx.difference(
+        v, axis=0, step_size=dy, derivative=1, **kwargs
+    )
+    
+    return du_dx + dv_dy
 
 
+def geostrophic_vorticity(
+    u: Array, v: Array, dx: Array, dy: Array, **kwargs
+) -> Array:
+    """Calculates the geostrophic vorticity by using
+    finite difference in the y and x direction for the
+    u and v velocities respectively
+    
+    Eqn:
+        geodiv(u,v) = ∂u/∂y - ∂v/∂x
+        
+    Args:
+        u (Array): the u-velocity
+        v (Array): the v-velocity
+        dx (Array): the change in x
+        dy (Array): the change in y
+        **kwargs: all kwargs for the derivatives
+        
+    Returns:
+        vort (Array): the geostrophic vorticity
+    """
+    du_dy = fdx.difference(
+        u, axis=1, step_size=dy, derivative=1, **kwargs
+    )
+    
+    dv_dx = fdx.difference(
+        v, axis=0, step_size=dx, derivative=1, **kwargs
+    )
+    return du_dy - dv_dx
+
+
+def kinetic_energy(
+    u: Array, v: Array) -> Array:
+    """Calculates the kinetic energy via an
+    arbitrary magnitude of the u and v velocities
+    
+    Eqn:
+        ke(u,v) = 0.5 * (u² + v²)
+        
+    Args:
+        u (Array): the u-velocity
+        v (Array): the v-velocity
+        
+    Returns:
+        ke (Array): the geostrophic vorticity
+    """
+    return 0.5 * (u**2 + v**2)
+
+
+def potential_energy(q: Array) -> Array:
+    """Calculates the potential energy via an
+    arbitrary magnitude of the potential vorticity
+    
+    Eqn:
+        pq(q) = 0.5 (q²)
+        
+    Args:
+        q (Array): the potential vorticity
+        
+    Returns:
+        pe (Array): the potential energy
+    """
+    return 0.5 * q ** 2

@@ -143,3 +143,4 @@ datasets/*
 .jupyter/desktop-settings.json
 .jupyter/desktop-workspaces/default-37a8.jupyterlab-workspace
 *.DS_STORE
+notebooks/dev/eman/advection/mitgcm_example_dataset_v2.nc
