@@ -1,0 +1,23 @@
+"""Generic 2D Diffusion Term
+Advection:
+    ∂u/∂t = a ∂u/∂x + b ∂u/∂y
+
+Diffusion:
+    ∂u/∂t = ν (∂²u/∂x² + ∂²u/∂y²)
+   
+\nVelocity Product:
+    ∂u/∂t =  -ρ(∂u/∂x ∂u/∂x + ∂u/∂y ∂v/∂x + ∂v/∂y ∂v/∂y)
+    
+Inversion Term:
+    Ax = b
+    Δu = f
+    
+ssh - η
+stream function - ψ, Ψ
+helmholtz params - α, β
+Δ, ∇
+ϕ,θ
+
+coriorlis
+Ω
+"""
