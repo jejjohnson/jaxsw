@@ -1,0 +1,9 @@
+_target_: "diffrax.PIDController"
+rtol: 1e-5
+atol: 1e-5
+dtmax:
+  _target_: "jaxsw._src.steppers.utils.freq_to_seconds"
+  freq: 4
+  unit: "hour"
+pcoeff: 0.3
+icoeff: 0.4

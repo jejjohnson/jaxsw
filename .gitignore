@@ -133,3 +133,15 @@ datasets/*
 *.pckl
 *.pkl
 *.pickle
+.vscode/settings.json
+.idea/.gitignore
+.idea/jaxsw.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.jupyter/desktop-settings.json
+.jupyter/desktop-workspaces/default-37a8.jupyterlab-workspace
+*.DS_STORE
+notebooks/dev/eman/advection/mitgcm_example_dataset_v2.nc
+\outputs/
