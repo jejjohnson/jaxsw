@@ -1,0 +1,9 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - data: default.yaml
+  - model: default.yaml
+  - timestepper: default.yaml
+  - solver: euler.yaml
+  - controller: default.yaml

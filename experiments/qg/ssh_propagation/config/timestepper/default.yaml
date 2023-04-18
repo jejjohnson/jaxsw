@@ -1,0 +1,21 @@
+tmin:
+  _target_: "jaxsw._src.steppers.utils.freq_to_seconds"
+  freq: 0.0
+  unit: "seconds"
+
+dt:
+  _target_: "jaxsw._src.steppers.utils.freq_to_seconds"
+  freq: 30
+  unit: "minutes"
+
+tmax:
+  _target_: "jaxsw._src.steppers.utils.freq_to_seconds"
+  freq: 5
+  unit: "days"
+
+tsave:
+  _target_: "jaxsw._src.steppers.utils.freq_to_seconds"
+  freq: 6
+  unit: "hours"
+
+max_steps: 10_000
