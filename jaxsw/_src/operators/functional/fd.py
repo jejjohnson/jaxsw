@@ -1,9 +1,10 @@
+import functools as ft
 import typing as tp
+
 import finitediffx as fdx
 import jax
-import jax.numpy as jnp
 from jaxtyping import Array
-import functools as ft
+
 from jaxsw._src.boundaries.functional import apply_bcs_2d
 from jaxsw._src.operators.functional.padding import (
     generate_backward_padding,
@@ -84,8 +85,6 @@ def jacobian(
     )
 
     return jac / (12.0 * dx * dy)
-
-
 
     # det = jnp.mean(jnp.asarray([jnp.mean(dx),jnp.mean(dy)]))
     # return jac / (12. * det)

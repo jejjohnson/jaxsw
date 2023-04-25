@@ -1,6 +1,5 @@
-import autoroot
+import autoroot  # noqa: F401, I001
 import xarray as xr
-import jax
 import jax.numpy as jnp
 from jaxtyping import Array
 from jaxsw._src.domain.base import Domain
@@ -16,7 +15,6 @@ from jaxsw._src.operators.functional.geostrophic import (
 from jaxsw._src.boundaries.helmholtz import enforce_boundaries_helmholtz
 from typing import NamedTuple
 from jaxsw._src.models.pde import DynamicalSystem
-from jaxsw._src.domain.time import TimeDomain
 
 
 class StateParams(NamedTuple):

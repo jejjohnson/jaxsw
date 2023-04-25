@@ -1,49 +1,105 @@
-import pytreeclass as pytc
-from .base import DynamicalSystem
+from typing import NamedTuple, Optional, Tuple
+
+import diffrax as dfx
 import jax.numpy as jnp
 import jax.random as jrandom
-from jaxtyping import Array, Int, Float, PyTree
+from equinox import static_field
 from jax.random import PRNGKeyArray
+from jaxtyping import Array, PyTree
+
+from .base import DynamicalSystem
 
 
+class L63State(NamedTuple):
+    x: Array
+    y: Array
+    z: Array
 
-@pytc.treeclass
+    @classmethod
+    def init_state(
+        cls,
+        noise: float = 0.01,
+        key: jrandom.PRNGKey = jrandom.PRNGKey(123),
+    ):
+        x0, y0, z0 = jnp.ones((3,))
+
+        perturb = noise * jrandom.normal(key, shape=())
+
+        return cls(x=x0 + perturb, y=y0, z=z0)
+
+    @classmethod
+    def init_state_batch(
+        cls,
+        batchsize: int = 10,
+        noise: float = 0.01,
+        key: jrandom.PRNGKey = jrandom.PRNGKey(123),
+    ):
+        x0, y0, z0 = jnp.array_split(jnp.ones((batchsize, 3)), 3, axis=-1)
+
+        perturb = noise * jrandom.normal(key, shape=(batchsize, 1))
+
+        return cls(x=x0 + perturb, y=y0, z=z0)
+
+    @staticmethod
+    def update_state(state, **kwargs):
+        return L63State(
+            x=kwargs.get("x", state.x),
+            y=kwargs.get("y", state.y),
+            z=kwargs.get("z", state.z),
+        )
+
+
 class Lorenz63(DynamicalSystem):
-    observe_every: int = pytc.field(nondiff=True)
-    s: float = pytc.field(nondiff=True)
-    r: float = pytc.field(nondiff=True)
-    b: float = pytc.field(nondiff=True)
+    # observe_every: int = static_field()
+    s: float = static_field()
+    r: float = static_field()
+    b: float = static_field()
     key: jrandom.PRNGKey = jrandom.PRNGKey(0)
 
     def __init__(
-            self, dt: float, observe_every: int=1,
-            s: float=8, r: float=28, b: float=8./3.,
-            key: PRNGKeyArray=jrandom.PRNGKey(0)
+        self,
+        tmin: float,
+        tmax: float,
+        s: float = 8,
+        r: float = 28,
+        b: float = 8.0 / 3.0,
+        key: PRNGKeyArray = jrandom.PRNGKey(0),
+        solver: dfx.AbstractSolver = dfx.Euler(),
+        stepsize_controller: dfx.PIDController = dfx.ConstantStepSize(),
     ):
-        self.dt = dt
+        super().__init__(
+            tmin=tmin,
+            tmax=tmax,
+            solver=solver,
+            stepsize_controller=stepsize_controller,
+        )
         self.s = s
         self.r = r
         self.b = b
-        self.observe_every = observe_every
+        # self.observe_every = observe_every
         self.key = key
 
-    @property
-    def state_dim(self):
-        return (self.grid_size,)
+    def equation_of_motion(
+        self, t: float, state: L63State, args: Optional[PyTree] = None
+    ) -> L63State:
+        # compute RHS
+        x_dot, y_dot, z_dot = rhs_lorenz_63(state=state, s=self.s, r=self.r, b=self.b)
 
-    def equation_of_motion(self, x: Float[Array, "dim"], t: float) -> Float[Array, "dim"]:
-        return rhs_lorenz_63(x=x, t=t, s=self.s, r=self.r, b=self.b)
+        # update state
+        state = state.update_state(state, x=x_dot, y=y_dot, z=z_dot)
 
-    def observe(self, x: Float[Array, "dim"], n_steps: int):
-        t = jnp.asarray([n*self.dt for n in range(n_steps)])
-        return x[::self.observe_every], t[::self.observe_every]
+        return state
 
-    def init_x0(self, noise: float=0.01):
+    # def observe(self, x: Float[Array, " dim"], n_steps: int):
+    #     t = jnp.asarray([n * self.dt for n in range(n_steps)])
+    #     return x[:: self.observe_every], t[:: self.observe_every]
+
+    def init_x0(self, noise: float = 0.01):
         x0 = jnp.ones((3,))
         perturb = noise * jrandom.normal(self.key, shape=())
         return x0.at[0].set(x0[0] + perturb)
 
-    def init_x0_batch(self, batchsize: int, noise: float=0.01):
+    def init_x0_batch(self, batchsize: int, noise: float = 0.01):
         # initial state (equilibrium)
         x0 = jnp.ones((batchsize, 3))
 
@@ -54,10 +110,13 @@ class Lorenz63(DynamicalSystem):
 
 
 def rhs_lorenz_63(
-        x: Float[Array, "dim"], t: float, s: float=10, r: float=28, b: float=2.667
-) -> Float[Array, "dim"]:
-    x, y, z = x
+    state: Tuple[Array, Array, Array],
+    s: float = 10,
+    r: float = 28,
+    b: float = 2.667,
+) -> Tuple[Array, Array, Array]:
+    x, y, z = state
     x_dot = s * (y - x)
     y_dot = r * x - y - x * z
     z_dot = x * y - b * z
-    return jnp.array([x_dot, y_dot, z_dot])
+    return x_dot, y_dot, z_dot

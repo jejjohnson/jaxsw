@@ -55,7 +55,7 @@ We will use the `diffrax` package to do the time integration. We'll use the meth
 
 **Params, State & Equations of Motion**
 
-We will have a general API for how we can keep store parameters, initialize states and pass thew both through the equation of motion.
+We will have a general API for how we can keep store parameters, initialize states and pass thew both through the equation of motion. To handle what's differentiable and what is not, we will use the `equinox` package.
 
 
 **Configs**
@@ -65,8 +65,46 @@ We will use the `hydra` package to keep track of the configurations and to initi
 ---
 ## Installation
 
+### pip
+
+We can directly install it via pip from the
+
+```bash
+pip install "git+https://github.com/jejjohnson/jaxsw.git"
+```
+
+### Cloning
+
+We can also clone the git repository
+
+```bash
+git clone https://github.com/jejjohnson/jaxsw.git
+cd jaxsw
+```
+
+#### poetry
+
+The easiest way to get started is to simply use the poetry package which installs all necessary dev packages as well
+
+```bash
+poetry install
+```
+
+#### pip
+
+We can also install via `pip` as well
+
+```bash
+pip install .
+```
+
+### Conda
+
+We also have a conda environment with all of the equivalent dependencies.
+
 ```bash
 conda env create -f environments/jax_linux_cpu.yaml
+conda activate jaxsw
 ```
 
 ---

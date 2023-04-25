@@ -2,7 +2,7 @@
 .DEFAULT_GOAL = help
 
 PYTHON = python
-VERSION = 3.8
+VERSION = 3.10
 NAME = py_name
 ROOT = ./
 PIP = pip
@@ -16,15 +16,15 @@ help:	## Display this help
 
 ##@ Formatting
 black:  ## Format code in-place using black.
-		black ${PKGROOT}/ tests/ -l 79 .
+		black ${PKGROOT}/ -l 79 .
 
 isort:  ## Format imports in-place using isort.
-		isort ${PKGROOT}/ tests/
+		isort ${PKGROOT}/ 
 
 format: ## Code styling - black, isort
-		black ${PKGROOT}/ tests/ -l 100 .
+		black ${PKGROOT}/ -l 100 .
 		@printf "\033[1;34mBlack passes!\033[0m\n\n"
-		isort ${PKGROOT}/ tests/
+		isort ${PKGROOT}/
 		@printf "\033[1;34misort passes!\033[0m\n\n"
 
 ##@ Testing
@@ -32,3 +32,8 @@ test:  ## Test code using pytest.
 		@printf "\033[1;34mRunning tests with pytest...\033[0m\n\n"
 		pytest -v jaxsw tests
 		@printf "\033[1;34mPyTest passes!\033[0m\n\n"
+
+precommit: ## Run recommit
+		@printf "\033[1;34mRunning precommit routine...\033[0m\n\n"
+		pre-commit run --all-files
+		@printf "\033[1;34mFinished!\033[0m\n\n"

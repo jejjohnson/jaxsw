@@ -1,4 +1,4 @@
-import autoroot
+import autoroot  # noqa: F401, I001
 import hydra
 import pde
 import jax
@@ -17,15 +17,15 @@ import time
 
 @hydra.main(config_path="config", config_name="main", version_base="1.2")
 def main(cfg):
-    logger.info(f"Starting QG experiment...")
+    logger.info("Starting QG experiment...")
 
-    logger.info(f"Loading SSH Dataset...")
+    logger.info("Loading SSH Dataset...")
     ssh_init = xr.open_dataset(cfg.data.filename).ssh[0]
 
     t0_semantic = ssh_init.time.values
     logger.info(f"Starting at: {t0_semantic}")
 
-    logger.info(f"Choosing Time Steps... ")
+    logger.info("Choosing Time Steps... ")
     t0 = hydra.utils.instantiate(cfg.timestepper.tmin)
     t1 = hydra.utils.instantiate(cfg.timestepper.tmax)
     dt = hydra.utils.instantiate(cfg.timestepper.dt)
@@ -41,14 +41,14 @@ def main(cfg):
     saveat = dfx.SaveAt(ts=ts)
 
     # choose solver
-    logger.info(f"Initializing solver...")
+    logger.info("Initializing solver...")
     solver = hydra.utils.instantiate(cfg.solver)
 
-    logger.info(f"Initializing stepsize controller...")
+    logger.info("Initializing stepsize controller...")
     stepsize_controller = hydra.utils.instantiate(cfg.controller)
 
     # dynamical system
-    logger.info(f"Initializing PDE...")
+    logger.info("Initializing PDE...")
     dyn_model = pde.QG(
         t_domain=t_domain,
         saveat=saveat,
@@ -56,14 +56,14 @@ def main(cfg):
         stepsize_controller=stepsize_controller,
     )
 
-    logger.info(f"Initializing state...")
+    logger.info("Initializing state...")
     state_init, params = pde.State.init_state(ssh_init, c1=cfg.model.c1)
 
-    logger.info(f"Test run...")
-    state_out = pde.QG.equation_of_motion(0, state_init, params)
-    logger.info(f"Success..!")
+    logger.info("Test run...")
+    _ = pde.QG.equation_of_motion(0, state_init, params)
+    logger.info("Success..!")
 
-    logger.info(f"Starting Integration...")
+    logger.info("Starting Integration...")
     tstart = time.time()
     state_sol = dyn_model.integrate(
         state_init, dt, params, max_steps=cfg.timestepper.max_steps
@@ -71,10 +71,10 @@ def main(cfg):
     tfin = time.time() - tstart
     logger.info(f"Finished in {tfin:.2f} [s]...!")
 
-    logger.info(f"Calculating SSH from Saved States...")
+    logger.info("Calculating SSH from Saved States...")
     ssh_t = jax.vmap(pde.QG.ssh_from_state, in_axes=(0, None))(state_sol, params)
 
-    logger.info(f"Creating xr.Dataset...")
+    logger.info("Creating xr.Dataset...")
     ts_semantic = t0_semantic + pd.to_timedelta(ts, unit="seconds")
 
     out_ds = xr.Dataset(
@@ -89,10 +89,10 @@ def main(cfg):
         },
     )
     out_ds = out_ds.transpose("time", "lat", "lon")
-    logger.info(f"Saving...")
+    logger.info("Saving...")
     out_ds.to_netcdf(cfg.data.save_name)
 
-    logger.info(f"Done experiment...!")
+    logger.info("Done experiment...!")
 
 
 if __name__ == "__main__":
