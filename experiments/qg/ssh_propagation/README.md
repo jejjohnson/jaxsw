@@ -32,5 +32,5 @@ python main.py solver=Dopri5
 *Here we add a lot of bells and whistles with some special stepsize controllers*
 
 ```bash
-python main.py ++timestepper.tmax.arg=10 ++timestepper.dt.arg=600 ++timestepper.dt.unit="seconds" solver=Tsit5 controller=adaptive ++controller.dtmax.freq=6
+python main.py data=jeanzay ++timestepper.tmax.freq=10 ++timestepper.dt.freq=600 ++timestepper.dt.unit="seconds" solver=tsit5 controller=adaptive ++controller.dtmax.freq=6
 ```
