@@ -7,6 +7,7 @@ repos:
     rev: "v0.0.255"
     hooks:
       - id: ruff
+        args: ["--ignore=I001,E402,E721,E731,E741,F722"]
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.6.3
     hooks:

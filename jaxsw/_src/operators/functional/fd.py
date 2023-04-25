@@ -12,7 +12,6 @@ from jaxsw._src.operators.functional.padding import (
     generate_forward_padding,
 )
 
-
 # TODO: Forward Different Init
 # TODO: Backward Difference Init
 # TODO: Mixed Difference Init

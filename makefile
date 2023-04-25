@@ -16,15 +16,15 @@ help:	## Display this help
 
 ##@ Formatting
 black:  ## Format code in-place using black.
-		black ${PKGROOT}/ tests/ -l 79 .
+		black ${PKGROOT}/ -l 79 .
 
 isort:  ## Format imports in-place using isort.
-		isort ${PKGROOT}/ tests/
+		isort ${PKGROOT}/ 
 
 format: ## Code styling - black, isort
-		black ${PKGROOT}/ tests/ -l 100 .
+		black ${PKGROOT}/ -l 100 .
 		@printf "\033[1;34mBlack passes!\033[0m\n\n"
-		isort ${PKGROOT}/ tests/
+		isort ${PKGROOT}/
 		@printf "\033[1;34misort passes!\033[0m\n\n"
 
 ##@ Testing

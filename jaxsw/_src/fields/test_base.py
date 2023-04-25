@@ -4,7 +4,7 @@ import pytest
 
 from ..domain.base import Domain
 from .base import Field
-from .utils import check_discretization, DiscretizationError
+from .utils import DiscretizationError, check_discretization
 
 
 @pytest.fixture

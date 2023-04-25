@@ -4,7 +4,7 @@ import diffrax as dfx
 import equinox as eqx
 from jaxtyping import PyTree
 
-from jaxsw._src.domain import TimeDomain
+from jaxsw._src.domain.time import TimeDomain
 
 
 class DynamicalSystem(eqx.Module):
