@@ -16,8 +16,8 @@ def test_1d_domain():
     domain = Domain(xmin=demo.xmin, xmax=demo.xmax, dx=demo.dx)
 
     assert domain.ndim == 1
-    assert domain.size == (21,)
-    assert domain.grid.shape == (21, 1)
+    assert domain.size == (20,)
+    assert domain.grid.shape == (20, 1)
     assert domain.cell_volume == 0.1
 
 
@@ -26,6 +26,6 @@ def test_2d_domain():
     domain = Domain(xmin=demo.xmin, xmax=demo.xmax, dx=demo.dx)
 
     assert domain.ndim == 2
-    assert domain.size == (21, 21)
-    assert domain.grid.shape == (21, 21, 2)
+    assert domain.size == (20, 20)
+    assert domain.grid.shape == (20, 20, 2)
     assert domain.cell_volume == 0.05

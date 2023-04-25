@@ -27,7 +27,7 @@ def domain_1d(domain_1d_params):
 def field_1d(domain_1d):
     domain = domain_1d
 
-    u = jnp.ones_like(domain.grid, dtype=jnp.float64)
+    u = jnp.ones_like(domain.grid)
 
     u = u.at[int(0.5 / domain.dx[0]) : int(1 / domain.dx[0] + 1)].set(2.0)
 
@@ -66,7 +66,7 @@ def test_fails():
 def test_field_operations_1d(domain_1d):
     domain = domain_1d
     """Initial condition from grid"""
-    u = jnp.ones_like(domain.grid, dtype=jnp.float64)
+    u = jnp.ones_like(domain.grid)
 
     u = u.at[int(0.5 / domain.dx[0]) : int(1 / domain.dx[0] + 1)].set(2.0)
 

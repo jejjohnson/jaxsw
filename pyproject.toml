@@ -5,6 +5,20 @@ authors = ["J. Emmanuel Johnson <jemanjohnson34@gmail.com>"]
 version = "0.0.1"
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/jejjohnson/jaxsw"
+keywords = ["jax", "ocean", "lorenz", "shallow-water", "quasigeostrophic"]
+classifiers = [
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.9",
+    "Operating System :: MACOS/Linux",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 2 - Pre-Alpha copy",
+
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -63,3 +77,6 @@ order-by-type = false
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["jaxsw"]
