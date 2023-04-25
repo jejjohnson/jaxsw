@@ -32,3 +32,8 @@ test:  ## Test code using pytest.
 		@printf "\033[1;34mRunning tests with pytest...\033[0m\n\n"
 		pytest -v jaxsw tests
 		@printf "\033[1;34mPyTest passes!\033[0m\n\n"
+
+precommit: ## Run recommit
+		@printf "\033[1;34mRunning precommit routine...\033[0m\n\n"
+		pre-commit run --all-files
+		@printf "\033[1;34mFinished!\033[0m\n\n"

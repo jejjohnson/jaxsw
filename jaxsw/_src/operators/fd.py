@@ -1,12 +1,10 @@
-import typing as tp
-
 # from .functional.conv import fd_convolve
 import equinox as eqx
 import finitediffx as fdx
-from jaxtyping import Array, Float
 
 from jaxsw._src.domain.base import Domain
 from jaxsw._src.fields.base import Field
+
 
 # from finitediffx._src.utils import _check_and_return
 # from .functional.fd import (

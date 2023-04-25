@@ -1,13 +1,13 @@
 """
-Original Code: https://github.com/leguillf/MASSH/blob/main/mapping/models/model_sw1l/jswm.py
+Original Code: 
+https://github.com/leguillf/MASSH/blob/main/mapping/models/model_sw1l/jswm.py
 """
 import jax.numpy as jnp
 from jax import jit, jvp, vjp
 from jax.config import config
 
+
 config.update("jax_enable_x64", True)
-import matplotlib.pylab as plt
-import numpy as np
 
 
 class Swm:

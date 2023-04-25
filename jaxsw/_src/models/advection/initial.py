@@ -19,7 +19,7 @@ def fin_bump(x: Array) -> Array:
     if x <= 0 or x >= 1:
         return 0
     else:
-        return 100 * jnp.exp(-1.0 / (x - np.power(x, 2.0)))
+        return 100 * jnp.exp(-1.0 / (x - jnp.power(x, 2.0)))
 
 
 def init_smooth(domain: Domain) -> Array:

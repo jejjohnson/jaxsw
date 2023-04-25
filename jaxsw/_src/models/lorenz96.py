@@ -32,11 +32,11 @@ class Lorenz96(DynamicalSystem):
         return (self.grid_size,)
 
     def equation_of_motion(
-        self, x: Float[Array, "dim"], t: float
-    ) -> Float[Array, "dim"]:
+        self, x: Float[Array, " dim"], t: float
+    ) -> Float[Array, " dim"]:
         return rhs_lorenz_96(x=x, t=t, F=self.F)
 
-    def observe(self, x: Float[Array, "dim"], n_steps: int):
+    def observe(self, x: Float[Array, " dim"], n_steps: int):
         t = jnp.asarray([n * self.dt for n in range(n_steps)])
         return x[:: self.observe_every], t[:: self.observe_every]
 
@@ -56,8 +56,8 @@ class Lorenz96(DynamicalSystem):
 
 
 def rhs_lorenz_96(
-    x: Float[Array, "dim"], t: float, F: float = 80
-) -> Float[Array, "dim"]:
+    x: Float[Array, " dim"], t: float, F: float = 80
+) -> Float[Array, " dim"]:
     x_plus_1 = jnp.roll(x, -1)
     x_minus_2 = jnp.roll(x, 2)
     x_minus_1 = jnp.roll(x, 1)

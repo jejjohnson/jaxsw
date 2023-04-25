@@ -1,15 +1,16 @@
 """
-Original Code: https://github.com/leguillf/MASSH/blob/main/mapping/models/model_qg1l/jqgm.py
+Original Code: 
+https://github.com/leguillf/MASSH/blob/main/mapping/models/model_qg1l/jqgm.py
 """
 
 from functools import partial
 
 import jax
 import jax.numpy as jnp
-import matplotlib.pylab as plt
 import numpy
 import numpy as np
 from jax import jit, jvp, vjp
+
 
 jax.config.update("jax_enable_x64", True)
 
@@ -162,7 +163,9 @@ class Qgm:
             if mdu is None or mdv is None:
                 self.ubar, self.vbar = self.h2uv(self.mdt)
                 # self.ubar,self.vbar = self.h2uv_jit(self.mdt)
-                # self.qbar = self.h2pv_jit(self.mdt,c=np.nanmean(self.c)*np.ones_like(self.dx))
+                # self.qbar = self.h2pv_jit(self.mdt,c=np.nanmean(self.c)*
+                # np.ones_like(self.dx))
+
                 self.qbar = self.h2pv(
                     self.mdt, hbc=self.hbc, c=np.nanmean(self.c) * np.ones_like(self.dx)
                 )
@@ -176,7 +179,8 @@ class Qgm:
                 self.mdt = self.pv2h(self.qbar, +mdt)
             # self.ubar,self.vbar = self.h2uv_jit(self.mdt,ubc=mdu,vbc=mdv)
             # self.qbar = self.h2pv_jit(self.mdt)
-            # self.qbar = self.huv2pv(self.ubar,self.vbar,self.mdt,c=np.nanmean(self.c)*np.ones_like(self.dx))
+            # self.qbar = self.huv2pv(self.ubar,self.vbar,self.mdt,c=np.nanmean(self.c)*
+            # np.ones_like(self.dx))
             # self.mdt = self.pv2h_jit(self.qbar,+mdt)
             # For qrhs
             self.uplusbar = 0.5 * (self.ubar[2:-2, 2:-2] + self.ubar[2:-2, 3:-1])
@@ -377,7 +381,8 @@ class Qgm:
                     rq[2:-2, 2:-2]
                     + self._rq_jit(uplusbar, vplusbar, uminusbar, vminusbar, q)
                 )
-                # rq[2:-2,2:-2] = rq[2:-2,2:-2] + self._rq_jit(uplus,vplus,uminus,vminus,self.qbar)
+                # rq[2:-2,2:-2] = rq[2:-2,2:-2] +
+                # #self._rq_jit(uplus,vplus,uminus,vminus,self.qbar)
                 rq = rq.at[2:-2, 2:-2].set(
                     rq[2:-2, 2:-2]
                     + self._rq_jit(uplus, vplus, uminus, vminus, self.qbar)

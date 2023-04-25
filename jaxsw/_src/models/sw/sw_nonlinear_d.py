@@ -12,6 +12,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # grid setup
 n_x = 200
 dx = 5e3

@@ -85,12 +85,12 @@ def make_coords(xmin, xmax, delta):
     return jnp.arange(xmin, xmax, delta)
 
 
-def make_grid_from_coords(coords: tp.Iterable) -> Float[Array, "D"]:
+def make_grid_from_coords(coords: tp.Iterable) -> Float[Array, " D"]:
     if isinstance(coords, tp.Iterable):
         coords = jnp.meshgrid(*coords, indexing="ij")
     elif isinstance(coords, (jnp.ndarray, np.ndarray)):
         coords = jnp.meshgrid(coords, indexing="ij")
     else:
-        raise ValueError(f"Unrecognized dtype for inputs")
+        raise ValueError("Unrecognized dtype for inputs")
 
     return jnp.stack(coords, axis=-1)

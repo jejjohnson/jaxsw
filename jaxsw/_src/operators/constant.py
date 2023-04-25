@@ -1,9 +1,9 @@
 import typing as tp
 
 import equinox as eqx
+
 # from .functional.conv import fd_convolve
 import jax.numpy as jnp
-from jaxtyping import Array, Float
 
 from jaxsw._src.domain.base import Domain
 from jaxsw._src.fields.base import Field

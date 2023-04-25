@@ -4,7 +4,6 @@ import finitediffx as fdx
 import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
-import numpy as np
 from einops import rearrange
 from jaxopt.linear_solve import solve_cg
 from jaxtyping import Array
@@ -23,7 +22,7 @@ def ekman_number(AV, f0, H):
     Returns:
         kappa (Array): Ekman number (delta/H)
     """
-    return jnp.sqrt(Av * f0 / 2.0) / H
+    return jnp.sqrt(AV * f0 / 2.0) / H
 
 
 def boundary_layer_width(kappa, beta):
@@ -136,7 +135,7 @@ def diff_y(u: Array) -> Array:
 
 
 def u_plusminus(u: Array, way: int = 1) -> tp.Tuple[Array, Array]:
-    unew = jnp.zeros_like(u)
+    jnp.zeros_like(u)
     u_avg = way * 0.5 * (u[2:-2, 2:-2] + u[2:-2, 3:-1])
     uplus, uminus = plusminus(u_avg)
     return uplus, uminus
@@ -212,9 +211,7 @@ def rhs_fn(q, psi, f0, dx, dy, way=1, bc="dirichlet", upwind=True, beta: bool = 
 def beta_term(psi, f, dx, dy):
     _, v = streamfn_to_velocity(psi, dx, dy)
 
-    dv_dy = fdx.difference(
-        v, axis=1, step_size=dy, accuracy=1, method="central", derivative=1
-    )
+    fdx.difference(v, axis=1, step_size=dy, accuracy=1, method="central", derivative=1)
 
     df_dy = fdx.difference(f, step_size=dy, accuracy=1, method="central", derivative=1)
 

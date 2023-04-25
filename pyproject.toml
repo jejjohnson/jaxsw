@@ -40,6 +40,7 @@ black = "23.1.0"
 isort = "5.12.0"
 beartype = "^0.13.1"
 ruff = "^0.0.263"
+nbqa = {extras = ["ruff"], version = "^1.7.0"}
 
 [tool.poetry.group.exp.dependencies]
 wandb = "^0.15.0"

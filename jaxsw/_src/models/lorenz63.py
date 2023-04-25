@@ -2,7 +2,7 @@ import jax.numpy as jnp
 import jax.random as jrandom
 import pytreeclass as pytc
 from jax.random import PRNGKeyArray
-from jaxtyping import Array, Float, Int, PyTree
+from jaxtyping import Array, Float
 
 from .base import DynamicalSystem
 
@@ -36,11 +36,11 @@ class Lorenz63(DynamicalSystem):
         return (self.grid_size,)
 
     def equation_of_motion(
-        self, x: Float[Array, "dim"], t: float
-    ) -> Float[Array, "dim"]:
+        self, x: Float[Array, " dim"], t: float
+    ) -> Float[Array, " dim"]:
         return rhs_lorenz_63(x=x, t=t, s=self.s, r=self.r, b=self.b)
 
-    def observe(self, x: Float[Array, "dim"], n_steps: int):
+    def observe(self, x: Float[Array, " dim"], n_steps: int):
         t = jnp.asarray([n * self.dt for n in range(n_steps)])
         return x[:: self.observe_every], t[:: self.observe_every]
 
@@ -60,8 +60,8 @@ class Lorenz63(DynamicalSystem):
 
 
 def rhs_lorenz_63(
-    x: Float[Array, "dim"], t: float, s: float = 10, r: float = 28, b: float = 2.667
-) -> Float[Array, "dim"]:
+    x: Float[Array, " dim"], t: float, s: float = 10, r: float = 28, b: float = 2.667
+) -> Float[Array, " dim"]:
     x, y, z = x
     x_dot = s * (y - x)
     y_dot = r * x - y - x * z

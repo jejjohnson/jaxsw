@@ -1,4 +1,4 @@
-from typing import Callable, NamedTuple, Optional, Union
+from typing import Callable, NamedTuple, Union
 
 from jaxtyping import Array
 
@@ -29,10 +29,11 @@ class State(NamedTuple):
 
     def update_state(state, **kwargs):
         return State(
-            eta=kwargs.get(eta, state.eta),
-            psi=kwargs.get(psi, state.psi),
-            q=kwargs.get(q, state.q),
-            f0=kwargs.get(f0, state.f0),
-            beta=kwargs.get(beta, state.beta),
-            c1=kwargs.get(c1, state.c1),
+            domain=kwargs.get("domain", state.domain),
+            eta=kwargs.get("eta", state.eta),
+            psi=kwargs.get("psi", state.psi),
+            q=kwargs.get("q", state.q),
+            f0=kwargs.get("f0", state.f0),
+            beta=kwargs.get("beta", state.beta),
+            c1=kwargs.get("c1", state.c1),
         )

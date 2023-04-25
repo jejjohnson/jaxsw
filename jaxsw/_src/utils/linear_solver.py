@@ -45,7 +45,7 @@ def steepest_descent(
     elif criterion == "l2":
         criterion = l2_norm
     else:
-        raise ValueError(f"Unrecognized criterion")
+        raise ValueError("Unrecognized criterion")
 
     def condition_fn(state) -> bool:
         return (state.iteration < max_iterations) & (state.loss > target_criterion)
@@ -121,7 +121,7 @@ def conjugate_gradient(
     elif criterion == "l2":
         criterion = l2_norm
     else:
-        raise ValueError(f"Unrecognized criterion")
+        raise ValueError("Unrecognized criterion")
 
     def condition_fn(state) -> bool:
         return (state.iteration < max_iterations) & (state.loss > target_criterion)

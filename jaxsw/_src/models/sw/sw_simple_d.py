@@ -6,6 +6,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # set parameters
 n_x = 100
 dx = 20e3
