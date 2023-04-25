@@ -3,8 +3,8 @@
 2D shallow water model with Coriolis force (f-plane).
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # set parameters
 n_x = 100

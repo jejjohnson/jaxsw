@@ -1,7 +1,8 @@
-from typing import NamedTuple, Optional, Callable
-from jaxtyping import Array
-import jax.numpy as jnp
+from typing import Callable, NamedTuple, Optional
+
 import jax
+import jax.numpy as jnp
+from jaxtyping import Array
 
 
 class SDResults(NamedTuple):

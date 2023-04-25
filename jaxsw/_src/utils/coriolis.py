@@ -1,6 +1,7 @@
-from jaxtyping import Array
 import jax.numpy as jnp
-from jaxsw._src.utils.constants import R_EARTH, OMEGA, GRAVITY
+from jaxtyping import Array
+
+from jaxsw._src.utils.constants import GRAVITY, OMEGA, R_EARTH
 
 
 def beta_plane(lat: Array, omega: float = OMEGA, radius: float = R_EARTH) -> Array:

@@ -2,14 +2,14 @@
 Original Code: https://github.com/leguillf/MASSH/blob/main/mapping/models/model_qg1l/jqgm.py
 """
 
+from functools import partial
+
+import jax
 import jax.numpy as jnp
-import numpy as np
-from jax import jit
-from jax import jvp, vjp
 import matplotlib.pylab as plt
 import numpy
-import jax
-from functools import partial
+import numpy as np
+from jax import jit, jvp, vjp
 
 jax.config.update("jax_enable_x64", True)
 

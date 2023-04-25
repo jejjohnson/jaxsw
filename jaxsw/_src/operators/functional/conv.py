@@ -1,9 +1,10 @@
 import typing as tp
-from jaxtyping import Array
+
 import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
 from einops import rearrange
+from jaxtyping import Array
 
 
 def fd_kernel_init(dims: tp.Tuple[int], coeffs: tp.Tuple[int], axis: int = 0) -> Array:

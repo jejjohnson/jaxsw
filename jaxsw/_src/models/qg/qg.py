@@ -1,5 +1,7 @@
-from typing import Optional, NamedTuple, Callable, Union
+from typing import Callable, NamedTuple, Optional, Union
+
 from jaxtyping import Array
+
 from jaxsw._src.domain.base import Domain
 
 

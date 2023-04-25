@@ -1,10 +1,10 @@
-import pytest
-from ..domain.base import Domain
-from .utils import check_discretization, DiscretizationError
-
-from .base import Field
 import jax.numpy as jnp
 import numpy as np
+import pytest
+
+from ..domain.base import Domain
+from .base import Field
+from .utils import DiscretizationError, check_discretization
 
 
 @pytest.fixture

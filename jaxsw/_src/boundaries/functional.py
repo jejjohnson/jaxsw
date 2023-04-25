@@ -1,5 +1,5 @@
-from jaxtyping import Array
 import jax.numpy as jnp
+from jaxtyping import Array
 
 
 def apply_bcs_1d(x: Array, bc: str = "dirichlet", pad: bool = True) -> Array:

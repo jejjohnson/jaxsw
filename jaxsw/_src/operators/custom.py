@@ -1,5 +1,7 @@
 from typing import Callable
+
 import equinox as eqx
+
 from jaxsw._src.fields.base import Field
 
 

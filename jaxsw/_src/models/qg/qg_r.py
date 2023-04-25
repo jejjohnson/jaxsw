@@ -1,14 +1,16 @@
 import typing as tp
-import numpy as np
+
+import finitediffx as fdx
 import jax
 import jax.numpy as jnp
 import jax.scipy as jsp
+import numpy as np
+from einops import rearrange
 from jaxopt.linear_solve import solve_cg
 from jaxtyping import Array
-from einops import rearrange
-import finitediffx as fdx
-from jaxsw._src.utils.constants import R_EARTH, OMEGA, GRAVITY
+
 from jaxsw._src.operators.functional.fd import jacobian
+from jaxsw._src.utils.constants import GRAVITY, OMEGA, R_EARTH
 
 
 def ekman_number(AV, f0, H):

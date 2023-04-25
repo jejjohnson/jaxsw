@@ -1,10 +1,11 @@
 import typing as tp
-import numpy as np
-import jax.numpy as jnp
-import equinox as eqx
 from functools import reduce
 from operator import mul
-from jaxtyping import Float, Array
+
+import equinox as eqx
+import jax.numpy as jnp
+import numpy as np
+from jaxtyping import Array, Float
 
 
 def _fix_iterable_input(x) -> tp.Iterable:

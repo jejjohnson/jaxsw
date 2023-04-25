@@ -1,10 +1,12 @@
 import typing as tp
-from jaxsw._src.domain.base import Domain
+
+import equinox as eqx
 import jax.numpy as jnp
 from jaxtyping import Array
-import equinox as eqx
-from jaxsw._src.utils.coriolis import beta_plane, coriolis_param
+
+from jaxsw._src.domain.base import Domain
 from jaxsw._src.utils.constants import R_EARTH
+from jaxsw._src.utils.coriolis import beta_plane, coriolis_param
 
 
 class LatLonMeanDomain(Domain):

@@ -1,10 +1,11 @@
-import pytreeclass as pytc
-import jax.numpy as jnp
-import jax
-from jax.experimental.ode import odeint
 from functools import partial
-from jaxtyping import Array, Int, Float, PyTree
 from typing import Union
+
+import jax
+import jax.numpy as jnp
+import pytreeclass as pytc
+from jax.experimental.ode import odeint
+from jaxtyping import Array, Float, Int, PyTree
 
 
 @pytc.treeclass

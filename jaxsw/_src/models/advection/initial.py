@@ -1,6 +1,7 @@
 import jax.numpy as jnp
-from jaxsw._src.domain.base import Domain
 from jaxtyping import Array
+
+from jaxsw._src.domain.base import Domain
 
 
 def init_hat(domain: Domain) -> Array:

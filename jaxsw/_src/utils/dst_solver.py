@@ -1,4 +1,5 @@
 from typing import Optional, Union
+
 import jax.numpy as jnp
 from jaxtyping import Array
 

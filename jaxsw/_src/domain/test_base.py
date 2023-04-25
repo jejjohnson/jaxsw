@@ -1,5 +1,7 @@
 import typing as tp
+
 import pytest
+
 from jaxsw._src.domain.base import Domain
 
 

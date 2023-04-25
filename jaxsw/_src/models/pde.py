@@ -1,7 +1,9 @@
 from typing import Optional
-from jaxtyping import PyTree
-import equinox as eqx
+
 import diffrax as dfx
+import equinox as eqx
+from jaxtyping import PyTree
+
 from jaxsw._src.domain import TimeDomain
 
 

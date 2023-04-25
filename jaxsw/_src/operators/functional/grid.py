@@ -1,5 +1,5 @@
-import kernex as kex
 import jax.numpy as jnp
+import kernex as kex
 from jaxtyping import Array
 
 

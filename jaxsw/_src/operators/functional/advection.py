@@ -1,8 +1,9 @@
 import typing as tp
+
+import finitediffx as fdx
 import jax
 import jax.numpy as jnp
 from jaxtyping import Array
-import finitediffx as fdx
 
 
 def plusminus(u: Array, way: int = 1) -> tp.Tuple[Array, Array]:

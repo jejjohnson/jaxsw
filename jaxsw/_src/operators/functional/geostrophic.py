@@ -1,9 +1,11 @@
 import typing as tp
-from jaxtyping import Array
-from jaxsw._src.utils.constants import GRAVITY
+
 import finitediffx as fdx
-from jaxsw._src.utils.dst_solver import inverse_elliptical_dst_solver
+from jaxtyping import Array
+
 from jaxsw._src.boundaries.helmholtz import enforce_boundaries_helmholtz
+from jaxsw._src.utils.constants import GRAVITY
+from jaxsw._src.utils.dst_solver import inverse_elliptical_dst_solver
 
 
 def ssh_to_streamfn(ssh: Array, f0: float = 1e-5, g: float = GRAVITY) -> Array:

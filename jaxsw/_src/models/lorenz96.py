@@ -1,8 +1,9 @@
-import pytreeclass as pytc
-from .base import DynamicalSystem
 import jax.numpy as jnp
 import jax.random as jrandom
-from jaxtyping import Array, Int, Float, PyTree
+import pytreeclass as pytc
+from jaxtyping import Array, Float, Int, PyTree
+
+from .base import DynamicalSystem
 
 
 @pytc.treeclass
