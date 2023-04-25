@@ -16,24 +16,23 @@ class DynamicalSystem(eqx.Module):
         t_domain,
         solver=dfx.Euler(),
         stepsize_controller=dfx.ConstantStepSize(),
-        saveat=None
+        saveat=None,
     ):
         self.solver = solver
         self.t_domain = t_domain
         self.saveat = saveat
         self.stepsize_controller = stepsize_controller
-        
+
     def init_u0(self, domain: PyTree):
         raise NotImplementedError()
-        
+
     def boundary(self, u: PyTree):
         raise NotImplementedError()
-        
+
     def equation_of_motion(self, t: float, u: PyTree, args):
         raise NotImplementedError()
-        
+
     def integrate(self, u: PyTree, dt: float, args, **kwargs) -> PyTree:
-        
         sol = dfx.diffeqsolve(
             terms=dfx.ODETerm(self.equation_of_motion),
             solver=self.solver,

@@ -12,13 +12,21 @@ import matplotlib.pylab as plt
 
 
 class Swm:
-
     ###########################################################################
     #                             Initialization                              #
     ###########################################################################
 
-    def __init__(self, X=None, Y=None, dt=None, bc_kind='1d', g=9.81, f=1e-4, Heb=0.7, **arr_kwargs):
-
+    def __init__(
+        self,
+        X=None,
+        Y=None,
+        dt=None,
+        bc_kind="1d",
+        g=9.81,
+        f=1e-4,
+        Heb=0.7,
+        **arr_kwargs
+    ):
         self.X = X
         self.Y = Y
         self.Xu = self.rho_on_u(X)
@@ -48,16 +56,16 @@ class Swm:
         self.nBc = 2 * (self.ny + self.nx)
         self.nparams = self.nHe + self.nBc
 
-        self.sliceu = slice(0,
-                            self.nu)
-        self.slicev = slice(self.nu,
-                            self.nu + self.nv)
-        self.sliceh = slice(self.nu + self.nv,
-                            self.nu + self.nv + self.nh)
-        self.sliceHe = slice(self.nu + self.nv + self.nh,
-                             self.nu + self.nv + self.nh + self.nHe)
-        self.sliceBc = slice(self.nu + self.nv + self.nh + self.nHe,
-                             self.nu + self.nv + self.nh + self.nHe + self.nBc)
+        self.sliceu = slice(0, self.nu)
+        self.slicev = slice(self.nu, self.nu + self.nv)
+        self.sliceh = slice(self.nu + self.nv, self.nu + self.nv + self.nh)
+        self.sliceHe = slice(
+            self.nu + self.nv + self.nh, self.nu + self.nv + self.nh + self.nHe
+        )
+        self.sliceBc = slice(
+            self.nu + self.nv + self.nh + self.nHe,
+            self.nu + self.nv + self.nh + self.nHe + self.nBc,
+        )
 
         self.shapeu = self.Xu.shape
         self.shapev = self.Xv.shape
@@ -82,21 +90,17 @@ class Swm:
     ###########################################################################
 
     def rho_on_u(self, rho):
-
         return (rho[:, 1:] + rho[:, :-1]) / 2
 
     def rho_on_v(self, rho):
-
         return (rho[1:, :] + rho[:-1, :]) / 2
 
     def u_on_v(self, u):
-
         um = 0.25 * (u[2:-1, :-1] + u[2:-1, 1:] + u[1:-2, :-1] + u[1:-2, 1:])
 
         return um
 
     def v_on_u(self, v):
-
         vm = 0.25 * (v[:-1, 2:-1] + v[:-1, 1:-2] + v[1:, 2:-1] + v[1:, 1:-2])
 
         return vm
@@ -106,30 +110,39 @@ class Swm:
     ###########################################################################
 
     def rhs_u(self, vm, h):
-
         rhs_u = jnp.zeros(self.Xu.shape)
 
-        rhs_u = rhs_u.at[1:-1, 1:-1].set((self.f[1:-1, 2:-1] + self.f[1:-1, 1:-2]) / 2 * vm - \
-                                         self.g * (h[1:-1, 2:-1] - h[1:-1, 1:-2]) / (
-                                         (self.X[1:-1, 2:-1] - self.X[1:-1, 1:-2])))
+        rhs_u = rhs_u.at[1:-1, 1:-1].set(
+            (self.f[1:-1, 2:-1] + self.f[1:-1, 1:-2]) / 2 * vm
+            - self.g
+            * (h[1:-1, 2:-1] - h[1:-1, 1:-2])
+            / ((self.X[1:-1, 2:-1] - self.X[1:-1, 1:-2]))
+        )
 
         return rhs_u
 
     def rhs_v(self, um, h):
-
         rhs_v = jnp.zeros_like(self.Xv)
 
-        rhs_v = rhs_v.at[1:-1, 1:-1].set(-(self.f[2:-1, 1:-1] + self.f[1:-2, 1:-1]) / 2 * um - \
-                                         self.g * (h[2:-1, 1:-1] - h[1:-2, 1:-1]) / (
-                                         (self.Y[2:-1, 1:-1] - self.Y[1:-2, 1:-1])))
+        rhs_v = rhs_v.at[1:-1, 1:-1].set(
+            -(self.f[2:-1, 1:-1] + self.f[1:-2, 1:-1]) / 2 * um
+            - self.g
+            * (h[2:-1, 1:-1] - h[1:-2, 1:-1])
+            / ((self.Y[2:-1, 1:-1] - self.Y[1:-2, 1:-1]))
+        )
 
         return rhs_v
 
     def rhs_h(self, u, v, He):
         rhs_h = jnp.zeros_like(self.X)
-        rhs_h = rhs_h.at[1:-1, 1:-1].set(- He[1:-1, 1:-1] * ( \
-                    (u[1:-1, 1:] - u[1:-1, :-1]) / (self.Xu[1:-1, 1:] - self.Xu[1:-1, :-1]) + \
-                    (v[1:, 1:-1] - v[:-1, 1:-1]) / (self.Yv[1:, 1:-1] - self.Yv[:-1, 1:-1])))
+        rhs_h = rhs_h.at[1:-1, 1:-1].set(
+            -He[1:-1, 1:-1]
+            * (
+                (u[1:-1, 1:] - u[1:-1, :-1]) / (self.Xu[1:-1, 1:] - self.Xu[1:-1, :-1])
+                + (v[1:, 1:-1] - v[:-1, 1:-1])
+                / (self.Yv[1:, 1:-1] - self.Yv[:-1, 1:-1])
+            )
+        )
 
         return rhs_h
 
@@ -138,7 +151,6 @@ class Swm:
     ###########################################################################
 
     def obcs(self, u, v, h, u0, v0, h0, He, w1ext):
-
         g = self.g
 
         #######################################################################
@@ -146,15 +158,15 @@ class Swm:
         #######################################################################
         HeS = (He[0, :] + He[1, :]) / 2
         cS = jnp.sqrt(g * HeS)
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             cS *= self.dt / (self.Y[1, :] - self.Y[0, :])
 
         # 1. w1
         w1extS = +w1ext[0]
 
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w1S = w1extS
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             # dw1dy0
             w10 = v0[0, :] + jnp.sqrt(g / HeS) * (h0[0, :] + h0[1, :]) / 2
             w10_ = (v0[0, :] + v0[1, :]) / 2 + jnp.sqrt(g / HeS) * h0[1, :]
@@ -162,7 +174,9 @@ class Swm:
             dw1dy0 = (w10_ - _w10) / self.dy
             # dudx0
             dudx0 = jnp.zeros(self.nx)
-            dudx0[1:-1] = ((u0[0, 1:] + u0[1, 1:] - u0[0, :-1] - u0[1, :-1]) / 2) / self.dx
+            dudx0[1:-1] = (
+                (u0[0, 1:] + u0[1, 1:] - u0[0, :-1] - u0[1, :-1]) / 2
+            ) / self.dx
             dudx0[0] = dudx0[1]
             dudx0[-1] = dudx0[-2]
             # w1S
@@ -170,18 +184,18 @@ class Swm:
 
         # 2. w2
         w20 = (u0[0, :] + u0[1, :]) / 2
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w2S = w20
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             dhdx0 = ((h0[0, 1:] + h0[1, 1:] - h0[0, :-1] - h0[1, :-1]) / 2) / self.dx
             w2S = w20 - self.dt * g * dhdx0
 
             # 3. w3
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             _vS = (1 - 3 / 2 * cS) * v0[0, :] + cS / 2 * (4 * v0[1, :] - v0[2, :])
             _hS = (1 / 2 + cS) * h0[1, :] + (1 / 2 - cS) * h0[0, :]
             w3S = _vS - jnp.sqrt(g / HeS) * _hS
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w30 = v0[0, :] - jnp.sqrt(g / HeS) * (h0[0, :] + h0[1, :]) / 2
             w30_ = (v0[0, :] + v0[1, :]) / 2 - jnp.sqrt(g / HeS) * h0[1, :]
             w30__ = v0[1, :] - jnp.sqrt(g / HeS) * (h0[1, :] + h0[2, :]) / 2
@@ -198,38 +212,42 @@ class Swm:
         #######################################################################
         HeN = (He[-1, :] + He[-2, :]) / 2
         cN = jnp.sqrt(g * HeN)
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             cN *= self.dt / (self.Y[-1, :] - self.Y[-2, :])
 
         # 1. w1
         w1extN = +w1ext[1]
 
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w1N = w1extN
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w10 = v0[-1, :] - jnp.sqrt(g / HeN) * (h0[-1, :] + h0[-2, :]) / 2
             w10_ = (v0[-1, :] + v0[-2, :]) / 2 - jnp.sqrt(g / HeN) * h0[-2, :]
             _w10 = w1extN
             dw1dy0 = (_w10 - w10_) / self.dy
             dudx0 = jnp.zeros(self.nx)
-            dudx0[1:-1] = ((u0[-1, 1:] + u0[-2, 1:] - u0[-1, :-1] - u0[-2, :-1]) / 2) / self.dx
+            dudx0[1:-1] = (
+                (u0[-1, 1:] + u0[-2, 1:] - u0[-1, :-1] - u0[-2, :-1]) / 2
+            ) / self.dx
             dudx0[0] = dudx0[1]
             dudx0[-1] = dudx0[-2]
             w1N = w10 + self.dt * cN * (dw1dy0 + dudx0)
 
             # 2. w2
         w20 = (u0[-1, :] + u0[-2, :]) / 2
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w2N = w20
-        elif self.bc_kind == '2d':
-            dhdx0 = ((h0[-1, 1:] + h0[-2, 1:] - h0[-1, :-1] - h0[-2, :-1]) / 2) / self.dx
+        elif self.bc_kind == "2d":
+            dhdx0 = (
+                (h0[-1, 1:] + h0[-2, 1:] - h0[-1, :-1] - h0[-2, :-1]) / 2
+            ) / self.dx
             w2N = w20 - self.dt * g * dhdx0
             # 3. w3
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             _vN = (1 - 3 / 2 * cN) * v0[-1, :] + cN / 2 * (4 * v0[-2, :] - v0[-3, :])
             _hN = (1 / 2 + cN) * h0[-2, :] + (1 / 2 - cN) * h0[-1, :]
             w3N = _vN + jnp.sqrt(g / HeN) * _hN
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w30 = v0[-1, :] + jnp.sqrt(g / HeN) * (h0[-1, :] + h0[-2, :]) / 2
             w30_ = (v0[-1, :] + v0[-2, :]) / 2 + jnp.sqrt(g / HeN) * h0[-2, :]
             w30__ = v0[-2, :] + jnp.sqrt(g / HeN) * (h0[-2, :] + h0[-3, :]) / 2
@@ -246,39 +264,41 @@ class Swm:
         #######################################################################
         HeW = (He[:, 0] + He[:, 1]) / 2
         cW = jnp.sqrt(g * HeW)
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             cW *= self.dt / (self.X[:, 1] - self.X[:, 0])
 
         # 1. w1
         w1extW = +w1ext[2]
 
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w1W = w1extW
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w10 = u0[:, 0] + jnp.sqrt(g / HeW) * (h0[:, 0] + h0[:, 1]) / 2
             w10_ = (u0[:, 0] + u0[:, 1]) / 2 + jnp.sqrt(g / HeW) * h0[:, 1]
             _w10 = w1extW
             dw1dx0 = (w10_ - _w10) / self.dx
             dvdy0 = jnp.zeros(self.ny)
-            dvdy0[1:-1] = ((v0[1:, 0] + v0[1:, 1] - v0[:-1, 0] - v0[:-1, 1]) / 2) / self.dy
+            dvdy0[1:-1] = (
+                (v0[1:, 0] + v0[1:, 1] - v0[:-1, 0] - v0[:-1, 1]) / 2
+            ) / self.dy
             dvdy0[0] = dvdy0[1]
             dvdy0[-1] = dvdy0[-2]
             w1W = w10 - self.dt * cW * (dw1dx0 + dvdy0)
 
             # 2. w2
         w20 = (v0[:, 0] + v0[:, 1]) / 2
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w2W = w20
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             dhdy0 = ((h0[1:, 0] + h0[1:, 1] - h0[:-1, 0] - h0[:-1, 1]) / 2) / self.dy
             w2W = w20 - self.dt * g * dhdy0
 
             # 3. w3
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             _uW = (1 - 3 / 2 * cW) * u0[:, 0] + cW / 2 * (4 * u0[:, 1] - u0[:, 2])
             _hW = (1 / 2 + cW) * h0[:, 1] + (1 / 2 - cW) * h0[:, 0]
             w3W = _uW - jnp.sqrt(g / HeW) * _hW
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w30 = u0[:, 0] - jnp.sqrt(g / HeW) * (h0[:, 0] + h0[:, 1]) / 2
             w30_ = (u0[:, 0] + u0[:, 1]) / 2 - jnp.sqrt(g / HeW) * h0[:, 1]
             w30__ = u0[:, 1] - jnp.sqrt(g / HeW) * (h0[:, 1] + h0[:, 2]) / 2
@@ -295,38 +315,42 @@ class Swm:
         #######################################################################
         HeE = (He[:, -1] + He[:, -2]) / 2
         cE = jnp.sqrt(g * HeE)
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             cE *= self.dt / (self.X[:, -1] - self.X[:, -2])
 
         # 1. w1
         w1extE = +w1ext[3]
 
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w1E = w1extE
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w10 = u0[:, -1] - jnp.sqrt(g / HeE) * (h0[:, -1] + h0[:, -2]) / 2
             w10_ = (u0[:, -1] + u0[:, -2]) / 2 - jnp.sqrt(g / HeE) * h0[:, -2]
             _w10 = w1extE
             dw1dx0 = (_w10 - w10_) / self.dx
             dvdy0 = jnp.zeros(self.ny)
-            dvdy0[1:-1] = ((v0[1:, -1] + v0[1:, -2] - v0[:-1, -1] - v0[:-1, -2]) / 2) / self.dy
+            dvdy0[1:-1] = (
+                (v0[1:, -1] + v0[1:, -2] - v0[:-1, -1] - v0[:-1, -2]) / 2
+            ) / self.dy
             dvdy0[0] = dvdy0[1]
             dvdy0[-1] = dvdy0[-2]
             w1E = w10 + self.dt * cE * (dw1dx0 + dvdy0)
             # 2. w2
         w20 = (v0[:, -1] + v0[:, -2]) / 2
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             w2E = w20
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w20 = (v0[:, -1] + v0[:, -2]) / 2
-            dhdy0 = ((h0[1:, -1] + h0[1:, -2] - h0[:-1, -1] - h0[:-1, -2]) / 2) / self.dy
+            dhdy0 = (
+                (h0[1:, -1] + h0[1:, -2] - h0[:-1, -1] - h0[:-1, -2]) / 2
+            ) / self.dy
             w2E = w20 - self.dt * g * dhdy0
             # 3. w3
-        if self.bc_kind == '1d':
+        if self.bc_kind == "1d":
             _uE = (1 - 3 / 2 * cE) * u0[:, -1] + cE / 2 * (4 * u0[:, -2] - u0[:, -3])
-            _hE = ((1 / 2 + cE) * h0[:, -2] + (1 / 2 - cE) * h0[:, -1])
+            _hE = (1 / 2 + cE) * h0[:, -2] + (1 / 2 - cE) * h0[:, -1]
             w3E = _uE + jnp.sqrt(g / HeE) * _hE
-        elif self.bc_kind == '2d':
+        elif self.bc_kind == "2d":
             w30 = u0[:, -1] + jnp.sqrt(g / HeE) * (h0[:, -1] + h0[:, -2]) / 2
             w30_ = (u0[:, -1] + u0[:, -2]) / 2 + jnp.sqrt(g / HeE) * h0[:, -2]
             w30__ = u0[:, -2] + jnp.sqrt(g / HeE) * (h0[:, -2] + h0[:, -3]) / 2
@@ -381,7 +405,6 @@ class Swm:
     ###########################################################################
 
     def step_euler(self, X0):
-
         #######################
         #       Reshaping     #
         #######################
@@ -392,10 +415,12 @@ class Swm:
         if X0.size == (self.nstates + self.nparams):
             He = X0[self.sliceHe].reshape(self.shapeHe)
             Bc = X0[self.sliceBc]
-            w1ext = (Bc[:self.nx],
-                     Bc[self.nx:2 * self.nx],
-                     Bc[2 * self.nx:2 * self.nx + self.ny],
-                     Bc[2 * self.nx + self.ny:2 * self.nx + 2 * self.ny])
+            w1ext = (
+                Bc[: self.nx],
+                Bc[self.nx : 2 * self.nx],
+                Bc[2 * self.nx : 2 * self.nx + self.ny],
+                Bc[2 * self.nx + self.ny : 2 * self.nx + 2 * self.ny],
+            )
         else:
             He = self.Heb
             w1ext = None
@@ -438,7 +463,6 @@ class Swm:
         return X1
 
     def step_rk4(self, X0):
-
         X0 = jnp.asarray(X0)
 
         #######################
@@ -451,10 +475,12 @@ class Swm:
         if X0.size == (self.nstates + self.nparams):
             He = X0[self.sliceHe].reshape(self.shapeHe)
             Bc = X0[self.sliceBc]
-            w1ext = (Bc[:self.nx],
-                     Bc[self.nx:2 * self.nx],
-                     Bc[2 * self.nx:2 * self.nx + self.ny],
-                     Bc[2 * self.nx + self.ny:2 * self.nx + 2 * self.ny])
+            w1ext = (
+                Bc[: self.nx],
+                Bc[self.nx : 2 * self.nx],
+                Bc[2 * self.nx : 2 * self.nx + self.ny],
+                Bc[2 * self.nx + self.ny : 2 * self.nx + 2 * self.ny],
+            )
         else:
             He = self.Heb
             w1ext = None
@@ -510,32 +536,27 @@ class Swm:
         return X1
 
     def step_euler_tgl(self, dX0, X0):
-
         _, dX1 = jvp(self.step_euler_jit, (X0,), (dX0,))
 
         return dX1
 
     def step_rk4_tgl(self, dX0, X0):
-
         _, dX1 = jvp(self.step_rk4_jit, (X0,), (dX0,))
 
         return dX1
 
     def step_euler_adj(self, adX0, X0):
-
         _, adf = vjp(self.step_euler_jit, X0)
 
         return adf(adX0)[0]
 
     def step_rk4_adj(self, adX0, X0):
-
         _, adf = vjp(self.step_rk4_jit, X0)
 
         return adf(adX0)[0]
 
 
 if __name__ == "__main__":
-
     import numpy
 
     x = numpy.arange(0, 1e6, 10e3)
@@ -551,7 +572,7 @@ if __name__ == "__main__":
     X0 = numpy.zeros((N,))
 
     X0[swm.sliceHe] = 0.7
-    X0[swm.sliceBc][:swm.nx] = 0.02
+    X0[swm.sliceBc][: swm.nx] = 0.02
 
     for i in range(100):
         X0 = swm.step_rk4(X0)
@@ -560,7 +581,7 @@ if __name__ == "__main__":
     dX0 = numpy.random.random((N,))
     adX0 = numpy.random.random((N,))
 
-    print('Tangent test:')
+    print("Tangent test:")
     X2 = swm.step_rk4_jit(X0)
     for p in range(10):
         lambd = 10 ** (-p)
@@ -571,9 +592,9 @@ if __name__ == "__main__":
 
         ps = numpy.linalg.norm(X1 - X2 - dX1) / jnp.linalg.norm(dX1)
 
-        print('%.E' % lambd, '%.E' % ps)
+        print("%.E" % lambd, "%.E" % ps)
 
-    print('\nAdjoint test:')
+    print("\nAdjoint test:")
     dX1 = swm.step_rk4_tgl_jit(dX0=dX0, X0=X0)
     adX1 = swm.step_rk4_adj_jit(adX0, X0)
 

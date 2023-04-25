@@ -21,7 +21,6 @@ class Constant(eqx.Module):
         self.constant = constant
 
     def __call__(self, u: Field) -> Field:
-        
         u = eqx.tree_at(lambda x: x.values, u, self.constant * u.values)
 
         return u

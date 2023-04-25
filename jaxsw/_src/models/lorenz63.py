@@ -6,7 +6,6 @@ from jaxtyping import Array, Int, Float, PyTree
 from jax.random import PRNGKeyArray
 
 
-
 @pytc.treeclass
 class Lorenz63(DynamicalSystem):
     observe_every: int = pytc.field(nondiff=True)
@@ -16,9 +15,13 @@ class Lorenz63(DynamicalSystem):
     key: jrandom.PRNGKey = jrandom.PRNGKey(0)
 
     def __init__(
-            self, dt: float, observe_every: int=1,
-            s: float=8, r: float=28, b: float=8./3.,
-            key: PRNGKeyArray=jrandom.PRNGKey(0)
+        self,
+        dt: float,
+        observe_every: int = 1,
+        s: float = 8,
+        r: float = 28,
+        b: float = 8.0 / 3.0,
+        key: PRNGKeyArray = jrandom.PRNGKey(0),
     ):
         self.dt = dt
         self.s = s
@@ -31,19 +34,21 @@ class Lorenz63(DynamicalSystem):
     def state_dim(self):
         return (self.grid_size,)
 
-    def equation_of_motion(self, x: Float[Array, "dim"], t: float) -> Float[Array, "dim"]:
+    def equation_of_motion(
+        self, x: Float[Array, "dim"], t: float
+    ) -> Float[Array, "dim"]:
         return rhs_lorenz_63(x=x, t=t, s=self.s, r=self.r, b=self.b)
 
     def observe(self, x: Float[Array, "dim"], n_steps: int):
-        t = jnp.asarray([n*self.dt for n in range(n_steps)])
-        return x[::self.observe_every], t[::self.observe_every]
+        t = jnp.asarray([n * self.dt for n in range(n_steps)])
+        return x[:: self.observe_every], t[:: self.observe_every]
 
-    def init_x0(self, noise: float=0.01):
+    def init_x0(self, noise: float = 0.01):
         x0 = jnp.ones((3,))
         perturb = noise * jrandom.normal(self.key, shape=())
         return x0.at[0].set(x0[0] + perturb)
 
-    def init_x0_batch(self, batchsize: int, noise: float=0.01):
+    def init_x0_batch(self, batchsize: int, noise: float = 0.01):
         # initial state (equilibrium)
         x0 = jnp.ones((batchsize, 3))
 
@@ -54,7 +59,7 @@ class Lorenz63(DynamicalSystem):
 
 
 def rhs_lorenz_63(
-        x: Float[Array, "dim"], t: float, s: float=10, r: float=28, b: float=2.667
+    x: Float[Array, "dim"], t: float, s: float = 10, r: float = 28, b: float = 2.667
 ) -> Float[Array, "dim"]:
     x, y, z = x
     x_dot = s * (y - x)

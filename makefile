@@ -2,7 +2,7 @@
 .DEFAULT_GOAL = help
 
 PYTHON = python
-VERSION = 3.8
+VERSION = 3.10
 NAME = py_name
 ROOT = ./
 PIP = pip

@@ -1,9 +1,0 @@
-pytest
-isort
-black
-pylint
-flake8
-wandb
-loguru
-hydra
-pre-commit

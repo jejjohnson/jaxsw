@@ -11,7 +11,7 @@ class State(NamedTuple):
     f0: Union[float, Array]
     beta: Union[float, Array]
     c1: Union[float, Array]
-    
+
     @classmethod
     def init_state(
         cls, domain: Domain, f0: float, beta: float, c1: float, init_fn: Callable
@@ -22,12 +22,10 @@ class State(NamedTuple):
         f0 = init_fn(domain, "f0")
         beta = init_fn(domain, "beta")
         c1 = init_fn(domain, "c1")
-        
+
         return cls(eta=eta, psi=psi, q=q, c1=c1, domain=domain, f0=f0, beta=beta)
-    
-    def update_state(
-        state, **kwargs
-    ):
+
+    def update_state(state, **kwargs):
         return State(
             eta=kwargs.get(eta, state.eta),
             psi=kwargs.get(psi, state.psi),
