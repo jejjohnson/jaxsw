@@ -1,0 +1,6 @@
+autoroot
+wandb
+loguru
+hydra
+xarray
+netcdf4

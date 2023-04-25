@@ -1,82 +1,63 @@
 name: jaxsw
 channels:
-- defaults
-- conda-forge
-- pytorch
+  - defaults
+  - conda-forge
+  - pytorch
 dependencies:
-- python=3.9
-# Standard Libraries
-- numpy             # Numerical Linear Algebra
-- scipy             # Scientific Computing
-- conda-forge::xarray            # Data structures
-- pandas            # Data structure
-- scikit-learn      # Machine Learning
-- scikit-image      # Image Processing
-- conda-forge::statsmodels       # Statistical Learning
-- conda-forge::pyinterp
-- conda-forge::xbatcher
-# PLOTTING LIBRARY
-- matplotlib                      # standard plotting library
-- seaborn                         # Stats viz library
-- pyviz::geoviews                 # holoviews for geo data
-- conda-forge::cartopy            # EO plotting
-- pyviz::hvplot                   # interactive plots
-- pyviz::datashader                      # scale plots
-- conda-forge::xmovie             # xarray movies/gifs
-# Storage
-- conda-forge::netCDF4
-- conda-forge::zarr
-# CUDA ECOSYSTEM
-- nvidia::cudatoolkit=11.7   # CUDA libraries
-# GUI
-- conda-forge::ipywidgets
-- ipykernel
-- conda-forge::tqdm
-- pip
-- pip:
-  # Jax framework
-  - '"jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html'
-  - einops
-  - jaxtyping
-  - equinox
-  - kernex
-  - FiniteDiffX
-  # deep learning
-  - serket
-  - diffrax
-  - flax
-  - ciclo
-  # optimization
-  - optax
-  - jaxopt
-  # probabilistic
-  - tinygp
-  - distrax
-  - dynamax
-  # OTHER
-  - plum-dispatch
-  # formatting
-  - black
-  - pylint
-  - isort
-  - flake8
-  - mypy
-  - pytest
-  - pre-commit
-  - rich
-  - sh
-  - pudb
-  # Notebook stuff
-  - pyprojroot
-  - python-dotenv
-  # logging
-  - wandb
-  - loguru
-  # plotting
-  - celluloid
-  - corner
-  - tabulate
-  # experiment
-  - hydra-core
-  - hydra-colorlog
-  - hydra-optuna-sweeper
+  - python=3.10
+  # Standard Libraries
+  - numpy # Numerical Linear Algebra
+  - scipy # Scientific Computing
+  - conda-forge::xarray # Data structures
+  - pandas # Data structure
+  - scikit-learn # Machine Learning
+  # PLOTTING LIBRARY
+  - matplotlib # standard plotting library
+  - seaborn # Stats viz library
+  # Storage
+  - conda-forge::netCDF4
+  - conda-forge::zarr
+  # GUI
+  - conda-forge::ipywidgets
+  - ipykernel
+  - conda-forge::tqdm
+  - pip
+  - pip:
+      # Jax framework
+      - '"jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html'
+      - einops
+      - jaxtyping
+      - equinox
+      - kernex
+      - FiniteDiffX
+      # deep learning
+      - diffrax
+      # optimization
+      - optax
+      - jaxopt
+      # probabilistic
+      - dynamax
+      # OTHER
+      - plum-dispatch
+      # formatting
+      - black
+      - pylint
+      - isort
+      - flake8
+      - mypy
+      - pytest
+      - pre-commit
+      # Notebook stuff
+      - pyprojroot
+      - python-dotenv
+      # logging
+      - wandb
+      - loguru
+      # plotting
+      - celluloid
+      - corner
+      - tabulate
+      # experiment
+      - hydra-core
+      - hydra-colorlog
+      - hydra-optuna-sweeper
