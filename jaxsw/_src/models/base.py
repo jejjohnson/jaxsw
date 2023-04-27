@@ -38,7 +38,9 @@ class DynamicalSystem(eqx.Module):
         raise NotImplementedError()
 
     def integrate(self, state: PyTree, dt: float, args=None, **kwargs) -> PyTree:
-        ts = self.saveat(dt=kwargs.pop("dtsave", dt))
+        # ts = self.saveat(dt=kwargs.pop("dtsave", dt))
+        dt = kwargs.pop("dtsave", dt)
+        ts = jnp.arange(self.tmin, self.tmax + dt, dt)
         sol = dfx.diffeqsolve(
             terms=dfx.ODETerm(self.equation_of_motion),
             solver=self.solver,
