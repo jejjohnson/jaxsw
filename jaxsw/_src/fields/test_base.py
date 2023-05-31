@@ -4,7 +4,7 @@ import pytest
 
 from ..domain.base import Domain
 from .base import Field
-from .utils import DiscretizationError, check_discretization
+from .utils import check_discretization, DiscretizationError
 
 
 @pytest.fixture
@@ -18,7 +18,9 @@ def domain_1d_params():
 @pytest.fixture
 def domain_1d(domain_1d_params):
     domain = Domain.from_numpoints(
-        xmin=domain_1d_params[0], xmax=domain_1d_params[1], N=domain_1d_params[2]
+        xmin=domain_1d_params[0],
+        xmax=domain_1d_params[1],
+        N=domain_1d_params[2],
     )
     return domain
 

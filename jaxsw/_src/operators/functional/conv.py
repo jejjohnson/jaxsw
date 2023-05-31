@@ -22,7 +22,10 @@ def fd_kernel_init(dims: tp.Tuple[int], coeffs: tp.Tuple[int], axis: int = 0) ->
 
 
 def fd_convolution(
-    x: Array, kernel: Array, pad: tp.Optional[tp.Tuple[int]] = None, mode: str = "edge"
+    x: Array,
+    kernel: Array,
+    pad: tp.Optional[tp.Tuple[int]] = None,
+    mode: str = "edge",
 ) -> Array:
     if pad is not None:
         x = jnp.pad(x, pad_width=pad, mode=mode)

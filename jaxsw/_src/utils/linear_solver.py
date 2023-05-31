@@ -37,7 +37,11 @@ def steepest_descent(
 
     # initialize state
     state = SDResults(
-        u=u_init, residual=residual, b=b, iteration=0, loss=1 + target_criterion
+        u=u_init,
+        residual=residual,
+        b=b,
+        iteration=0,
+        loss=1 + target_criterion,
     )
 
     if criterion == "l1":

@@ -6,6 +6,7 @@ from jaxtyping import Array, Float
 from ..domain.base import Domain
 from .utils import check_discretization
 
+
 # TODO: add power operation
 # TODO: add negative operation
 

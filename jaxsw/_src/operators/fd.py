@@ -5,6 +5,7 @@ import finitediffx as fdx
 from jaxsw._src.domain.base import Domain
 from jaxsw._src.fields.base import Field
 
+
 # from finitediffx._src.utils import _check_and_return
 # from .functional.fd import (
 #     generate_central_diff,

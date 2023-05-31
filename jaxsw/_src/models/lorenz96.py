@@ -1,7 +1,7 @@
 from typing import NamedTuple, Optional
 
-import equinox as eqx
 import diffrax as dfx
+import equinox as eqx
 import jax.numpy as jnp
 import jax.random as jrandom
 from equinox import static_field

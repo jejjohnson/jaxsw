@@ -15,7 +15,12 @@ class State(NamedTuple):
 
     @classmethod
     def init_state(
-        cls, domain: Domain, f0: float, beta: float, c1: float, init_fn: Callable
+        cls,
+        domain: Domain,
+        f0: float,
+        beta: float,
+        c1: float,
+        init_fn: Callable,
     ):
         eta = init_fn(domain, "eta")
         psi = init_fn(domain, "psi")
