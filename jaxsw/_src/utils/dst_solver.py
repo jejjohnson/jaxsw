@@ -67,6 +67,6 @@ def inverse_elliptical_dst_solver(
 
     operator = helmholtz_dist(
         nx=nx, ny=ny, dx=dx, dy=dy, mean=mean, alpha=alpha, beta=beta
-    )
+    ).T
 
     return inverse_elliptic_dst(q, operator)
