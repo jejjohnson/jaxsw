@@ -3,11 +3,11 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
-  # - repo: https://github.com/charliermarsh/ruff-pre-commit
-  #   rev: "v0.0.255"
-  #   hooks:
-  #     - id: ruff
-  #       args: ["--ignore=I001,E402,E721,E731,E741,F722"]
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.255"
+    hooks:
+      - id: ruff
+        args: ["--ignore=I001,E402,E721,E731,E741,F722,E501"]
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.6.3
     hooks:
