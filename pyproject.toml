@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 jax = "^0.4.8"
 jaxlib = "^0.4.7"
 finitediffx = "^0.0.2"
@@ -32,7 +32,8 @@ einops = "^0.6.1"
 numpy = "^1.24.3"
 xarray = "^2023.4.2"
 urllib3 = "1.26.15"
-jaxtyping = "^0.2.20"
+jaxtyping = "^0.2.0"
+jaxopt = "^0.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
@@ -54,7 +55,7 @@ matplotlib = "^3.7.1"
 seaborn = "^0.12.2"
 netcdf4 = "^1.6.3"
 autoroot = "^1.0.0"
-
+optax = "^0.1.5"
 
 [tool.poetry.group.jlab.dependencies]
 ipykernel = "^6.23.1"
