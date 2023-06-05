@@ -56,6 +56,7 @@ seaborn = "^0.12.2"
 netcdf4 = "^1.6.3"
 autoroot = "^1.0.0"
 optax = "^0.1.5"
+tqdm = "^4.65.0"
 
 [tool.poetry.group.jlab.dependencies]
 ipykernel = "^6.23.1"

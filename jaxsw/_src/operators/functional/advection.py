@@ -6,6 +6,42 @@ import jax.numpy as jnp
 from jaxtyping import Array
 
 
+def advection_1D(
+    u: Array,
+    a: Array,
+    step_size: Array,
+    axis: int = 0,
+    method: str = "backward",
+    accuracy: int = 1,
+):
+    """simple 1D advection scheme using backwards finite
+    difference.
+
+        Advection = a ∂u/∂x
+
+    Args:
+        u (Array): the field
+        a (Array): the field or constant
+        step_size (Array): the stepsize for the FD scheme
+        axis (int, optional): the axis to operate the FD. Defaults to 0.
+        method (str, optional): the method for FD. Defaults to "backward".
+        accuracy (int, optional): the accuracy for the FD scheme. Defaults to 1.
+
+    Returns:
+        Array: the RHS for the advection term
+    """
+    du_dx = fdx.difference(
+        u,
+        axis=axis,
+        method=method,
+        accuracy=accuracy,
+        step_size=step_size,
+        derivative=1,
+    )
+
+    return a * du_dx
+
+
 def plusminus(u: Array, way: int = 1) -> tp.Tuple[Array, Array]:
     """Plus Minus Scheme
     It returns the + and - for the array whereby
