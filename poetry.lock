@@ -1786,6 +1786,23 @@ files = [
 six = ">=1.4.1"
 
 [[package]]
+name = "lineax"
+version = "0.0.1"
+description = "Linear solvers in JAX and Equinox."
+optional = false
+python-versions = "~=3.9"
+files = [
+    {file = "lineax-0.0.1-py3-none-any.whl", hash = "sha256:5aef28e69bff50e42a28ba97f6e533f226b61357ab528e23b69eeaa27ce47100"},
+    {file = "lineax-0.0.1.tar.gz", hash = "sha256:4b73f0ccb3fffe67e73813b4b9324c3c302d381e3bbfa6e4e82864eb11516e47"},
+]
+
+[package.dependencies]
+equinox = ">=0.10.5"
+jax = ">=0.4.11"
+jaxtyping = ">=0.2.20"
+typing-extensions = ">=4.5.0"
+
+[[package]]
 name = "linkify-it-py"
 version = "2.0.2"
 description = "Links recognition library with FULL unicode support."
@@ -4361,4 +4378,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "23fbbd27dc17a29c9e1a0c5f21ce8855781908bc45603ab76cc01c569cc1ec01"
+content-hash = "894cada55c01ece15e443bc0af676be13ac79dc4013c81aa8f69a51e1509cf19"

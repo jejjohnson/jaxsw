@@ -26,6 +26,8 @@ format: ## Code styling - black, isort
 		@printf "\033[1;34mBlack passes!\033[0m\n\n"
 		isort ${PKGROOT}/
 		@printf "\033[1;34misort passes!\033[0m\n\n"
+		ruff ${PKGROOT}/ --fix --ignore=I001,E402,E721,E731,E741,F722,E501
+		@printf "\033[1;34misort passes!\033[0m\n\n"
 
 ##@ Testing
 test:  ## Test code using pytest.

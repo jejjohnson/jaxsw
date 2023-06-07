@@ -61,10 +61,16 @@ def diffusion_2D(
     Returns:
         Array: the RHS for the advection term
     """
+    if u.ndim > 2:
+        u = u[..., :1]
 
-    u_lap = fdx.laplacian(u, method="central", accuracy=1, step_size=step_size)
-
-    return diffusivity * u_lap
+    return diffusion_3D(
+        u=u,
+        diffusivity=diffusivity,
+        method=method,
+        accuracy=accuracy,
+        step_size=step_size,
+    )
 
 
 def diffusion_3D(
@@ -90,31 +96,6 @@ def diffusion_3D(
     Returns:
         Array: the RHS for the advection term
     """
-    d2u_dx2 = fdx.difference(
-        u,
-        axis=0,
-        method=method,
-        accuracy=accuracy,
-        step_size=step_size,
-        derivative=2,
+    return diffusivity * fdx.laplacian(
+        u, method=method, accuracy=accuracy, step_size=step_size
     )
-
-    d2u_dy2 = fdx.difference(
-        u,
-        axis=1,
-        method=method,
-        accuracy=accuracy,
-        step_size=step_size,
-        derivative=2,
-    )
-
-    d2u_dz2 = fdx.difference(
-        u,
-        axis=2,
-        method=method,
-        accuracy=accuracy,
-        step_size=step_size,
-        derivative=2,
-    )
-
-    return diffusivity * (d2u_dx2 + d2u_dy2 + d2u_dz2)
