@@ -22,7 +22,7 @@ isort:  ## Format imports in-place using isort.
 		isort ${PKGROOT}/ 
 
 format: ## Code styling - black, isort
-		black ${PKGROOT}/ -l 100 .
+		black ${PKGROOT}/
 		@printf "\033[1;34mBlack passes!\033[0m\n\n"
 		isort ${PKGROOT}/
 		@printf "\033[1;34misort passes!\033[0m\n\n"

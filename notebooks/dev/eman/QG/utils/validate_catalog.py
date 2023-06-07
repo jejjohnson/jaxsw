@@ -1,6 +1,6 @@
 import sys
-from pathlib import Path
 from itertools import product
+from pathlib import Path
 
 import intake
 

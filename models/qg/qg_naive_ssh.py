@@ -1,6 +1,8 @@
+from typing import Callable, NamedTuple, Union
+
 import autoroot  # noqa: F401, I001
-from typing import NamedTuple, Callable, Union
 from jaxtyping import Array
+
 from jaxsw._src.domain.base import Domain
 
 
