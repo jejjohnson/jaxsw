@@ -47,13 +47,12 @@ def advection_2D(
     a: Array,
     b: Array,
     step_size: Array,
-    method: str = "backward",
     accuracy: int = 1,
 ):
     """simple 1D advection scheme using backwards finite
     difference.
 
-        Advection = a ∂u/∂x
+        Advection = a ∂u/∂x + b ∂u/∂y
 
     Args:
         u (Array): the field
@@ -66,25 +65,10 @@ def advection_2D(
     Returns:
         Array: the RHS for the advection term
     """
-    du_dx = fdx.difference(
-        u,
-        axis=0,
-        method=method,
-        accuracy=accuracy,
-        step_size=step_size,
-        derivative=1,
-    )
 
-    du_dy = fdx.difference(
-        u,
-        axis=1,
-        method=method,
-        accuracy=accuracy,
-        step_size=step_size,
-        derivative=1,
-    )
+    du_dx = fdx.gradient(u, method="backward", accuracy=accuracy, step_size=step_size)
 
-    return a * du_dx + b * du_dy
+    return a * du_dx[0] + b * du_dx[1]
 
 
 def plusminus(u: Array, way: int = 1) -> tp.Tuple[Array, Array]:
@@ -108,7 +92,7 @@ def plusminus(u: Array, way: int = 1) -> tp.Tuple[Array, Array]:
 
 
 def plusminus_fn(
-    u: Array, way: int = 1, fn: tp.Optional[tp.Callable] = jax.nn.relu
+    u: Array, way: int = 1, fn: tp.Callable = jax.nn.relu
 ) -> tp.Tuple[Array, Array]:
     """Plus Minus Scheme with an "activation" function
     It returns the + and - for the array whereby
