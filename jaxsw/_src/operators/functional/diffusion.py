@@ -61,25 +61,10 @@ def diffusion_2D(
     Returns:
         Array: the RHS for the advection term
     """
-    d2u_dx2 = fdx.difference(
-        u,
-        axis=0,
-        method=method,
-        accuracy=accuracy,
-        step_size=step_size,
-        derivative=2,
-    )
 
-    d2u_dy2 = fdx.difference(
-        u,
-        axis=1,
-        method=method,
-        accuracy=accuracy,
-        step_size=step_size,
-        derivative=2,
-    )
+    u_lap = fdx.laplacian(u, method="central", accuracy=1, step_size=step_size)
 
-    return diffusivity * (d2u_dx2 + d2u_dy2)
+    return diffusivity * u_lap
 
 
 def diffusion_3D(
