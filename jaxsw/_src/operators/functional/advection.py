@@ -2,8 +2,8 @@ import typing as tp
 
 import finitediffx as fdx
 import jax.numpy as jnp
-from jaxtyping import Array
 from finitediffx._src.utils import _check_and_return
+from jaxtyping import Array
 
 
 def advection_1D(
@@ -199,11 +199,23 @@ def advection_upwind_2D(
     step_size = _check_and_return(value=step_size, ndim=2, name="accuracy")
 
     a_du_dx = advection_upwind_1D(
-        u=u, a=a, axis=0, way=way, step_size=step_size[0], accuracy=accuracy, fn=fn
+        u=u,
+        a=a,
+        axis=0,
+        way=way,
+        step_size=step_size[0],
+        accuracy=accuracy,
+        fn=fn,
     )
 
     b_du_dy = advection_upwind_1D(
-        u=u, a=b, axis=1, way=way, step_size=step_size[1], accuracy=accuracy, fn=fn
+        u=u,
+        a=b,
+        axis=1,
+        way=way,
+        step_size=step_size[1],
+        accuracy=accuracy,
+        fn=fn,
     )
 
     return a_du_dx + b_du_dy

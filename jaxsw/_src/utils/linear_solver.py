@@ -2,9 +2,9 @@ from typing import Callable, NamedTuple, Optional
 
 import jax
 import jax.numpy as jnp
-from jaxtyping import Array
 import lineax as lx
 from jaxopt import linear_solve as jopt_linear_solver
+from jaxtyping import Array
 
 
 class SDResults(NamedTuple):

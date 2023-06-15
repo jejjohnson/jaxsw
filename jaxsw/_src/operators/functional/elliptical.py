@@ -1,6 +1,7 @@
 import typing as tp
-from jaxtyping import Array
+
 import finitediffx as fdx
+from jaxtyping import Array
 
 
 def laplacian_matvec(
