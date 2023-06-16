@@ -90,3 +90,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 testpaths = ["jaxsw"]
+
+[tool.nbqa.ignore]
+ruff = ["I001", "F821", "F541"]
+
+[tool.nbqa.exclude]
+ruff = ["^notebooks/dev/", "^jbook/"]

@@ -39,3 +39,14 @@ precommit: ## Run recommit
 		@printf "\033[1;34mRunning precommit routine...\033[0m\n\n"
 		pre-commit run --all-files
 		@printf "\033[1;34mFinished!\033[0m\n\n"
+
+##@ JupyterBook
+jb_build: ## Build Jupyterbook
+	rm -rf docs/_build/
+	jupyter-book build jbook --all
+
+jb_clean: ## Clean JupyterBook
+	jupyter-book clean jbook
+
+jb_publish: ## Clean JupyterBook
+	ghp-import -n -p -f _build/html

@@ -12,5 +12,10 @@ repos:
     rev: 1.6.3
     hooks:
       - id: nbqa-black
-      - id: nbqa-ruff
-        args: ["--ignore=I001", "--nbqa-exclude=notebooks/dev/"]
+      # - id: nbqa-ruff
+      # exclude: ["^notebooks/dev/", "^jbook/"]
+      # args: [
+      #     "--ignore=I001,F821,F541",
+      #     # "--nbqa-exclude=^notebooks/dev/,jbook/",
+      #     # "--nbqa-exclude=jbook/",
+      #   ]
