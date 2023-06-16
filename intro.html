@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Welcome to your Jupyter Book &#8212; jaxsw</title>
+    <title>Home &#8212; jaxsw</title>
   
   
   
@@ -348,7 +348,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -359,11 +361,33 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Welcome to your Jupyter Book</h1>
+    <h1>Home</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#apis-for-pdes-todo"><strong>3 APIs for PDEs (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pde-elements-todo"><strong>PDE Elements (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-discretization-todo"><strong>Spatial Discretization (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#timesteppers-todo"><strong>TimeSteppers (TODO)</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorials">Tutorials</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lorenz-odes"><span class="xref myst"><strong>Lorenz ODEs</strong></span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#steps-to-navier-stokes"><span class="xref myst"><strong>12 Steps to Navier-Stokes</strong></span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quasi-geostrophic-equations"><span class="xref myst"><strong>Quasi-Geostrophic Equations</strong></span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shallow-water-equations-todo"><strong>Shallow Water Equations (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-todo"><strong>Learning (TODO)</strong></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -373,13 +397,85 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-your-jupyter-book">
-<h1>Welcome to your Jupyter Book<a class="headerlink" href="#welcome-to-your-jupyter-book" title="Permalink to this heading">#</a></h1>
-<p>This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out <a class="reference external" href="https://jupyterbook.org">the Jupyter Book documentation</a> for more information.</p>
-<p>Check out the content pages bundled with this sample book to see more.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="home">
+<h1>Home<a class="headerlink" href="#home" title="Permalink to this heading">#</a></h1>
+<blockquote>
+<div><p>A simple package for doing simple differential ocean model approximations in <code class="docutils literal notranslate"><span class="pre">JAX</span></code>.</p>
+</div></blockquote>
+<hr class="docutils" />
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this heading">#</a></h2>
+<section id="apis-for-pdes-todo">
+<h3><strong>3 APIs for PDEs (TODO)</strong><a class="headerlink" href="#apis-for-pdes-todo" title="Permalink to this heading">#</a></h3>
+<p>In this 3 part tutorial, we describe three hierarchies for describing PDEs:</p>
+<ul class="simple">
+<li><p><strong>Low-Level</strong>: Fully explicit where we make everything explicit</p></li>
+<li><p><strong>Mid-Level</strong>: Semi-explicit where we specify some parts but don’t specify others.</p></li>
+<li><p><strong>High-Level</strong>: Fully implicit where we hide many of the mechanics underneath syntactic sugar.</p></li>
+</ul>
+</section>
+<section id="pde-elements-todo">
+<h3><strong>PDE Elements (TODO)</strong><a class="headerlink" href="#pde-elements-todo" title="Permalink to this heading">#</a></h3>
+<p>This goes through a full example looking at the components of the <code class="docutils literal notranslate"><span class="pre">jaxsw</span></code> framework.
+We explicitly describe the components of the PDE which will be important for this package.
+This includes:</p>
+<ol class="arabic simple">
+<li><p>State</p></li>
+<li><p>Params</p></li>
+<li><p>Geometry</p></li>
+<li><p>Spatial Discretization</p></li>
+<li><p>Equation of motion</p></li>
+<li><p>Time Stepping</p></li>
+</ol>
+<p>To accomplish this, I will showcase how we can use many other libraries as the backbone to do many canonical PDEs, e.g. <span class="xref myst">FiniteDiffX</span>, , <span class="xref myst">jaxdf</span>, and <span class="xref myst">kernex</span> for spatial discretizations and <span class="xref myst">Diffrax</span> for timestepping schemes.
+In addition, I will do my best to use some of the best elements of <code class="docutils literal notranslate"><span class="pre">JAX</span></code> to really take advantage of some of the native elements, e.g. <code class="docutils literal notranslate"><span class="pre">vmap</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>.</p>
+</section>
+<section id="spatial-discretization-todo">
+<h3><strong>Spatial Discretization (TODO)</strong><a class="headerlink" href="#spatial-discretization-todo" title="Permalink to this heading">#</a></h3>
+<p>This tutorial goes through how to do some spatial discretizations using this library.
+We will look at how we can define a simple geometry and then choose various ways to do operations such as finite difference, e.g. slicing, convolutions, or spectral methods.
+In addition, we will look at how we can do some simple procedures to get staggered grids which can greatly improve the accuracy of methods.</p>
+</section>
+<section id="timesteppers-todo">
+<h3><strong>TimeSteppers (TODO)</strong><a class="headerlink" href="#timesteppers-todo" title="Permalink to this heading">#</a></h3>
+<p>This tutorial goes through how to do time stepping in with JAX.
+I’ll show how this can be accomplished from scratch and through the native <code class="docutils literal notranslate"><span class="pre">JAX</span></code> package.
+We also look at the <code class="docutils literal notranslate"><span class="pre">diffrax</span></code> which allows us to remove a lot of the complexity.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="tutorials">
+<h2>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this heading">#</a></h2>
+<p>This are more in-depth tutorials about we can use this package for various canonical PDEs that are necessary for understanding and constructing simple differentiable ocean models.</p>
+<section id="lorenz-odes">
+<h3><span class="xref myst"><strong>Lorenz ODEs</strong></span><a class="headerlink" href="#lorenz-odes" title="Permalink to this heading">#</a></h3>
+<p>I look at the canonical Lorenz ODEs.
+In particular, we look at the Lorenz-63, the Lorenz-96 and the two level Lorenz-96 ODEs.</p>
+<hr class="docutils" />
+</section>
+<section id="steps-to-navier-stokes">
+<h3><span class="xref myst"><strong>12 Steps to Navier-Stokes</strong></span><a class="headerlink" href="#steps-to-navier-stokes" title="Permalink to this heading">#</a></h3>
+<p>In this tutorial, I revisit step-by-step through the original <span class="xref myst">12 Steps to Navier-Stokes</span> that was created by Lorena Barber.
+This includes going through elements of typical PDEs such as advection, diffusion and elliptical equations.</p>
+<hr class="docutils" />
+</section>
+<section id="quasi-geostrophic-equations">
+<h3><span class="xref myst"><strong>Quasi-Geostrophic Equations</strong></span><a class="headerlink" href="#quasi-geostrophic-equations" title="Permalink to this heading">#</a></h3>
+<p>In this tutorial, we look at the quasi-geostrophic (QG) equations and demonstrate how we can use elements of this package</p>
+<hr class="docutils" />
+</section>
+<section id="shallow-water-equations-todo">
+<h3><strong>Shallow Water Equations (TODO)</strong><a class="headerlink" href="#shallow-water-equations-todo" title="Permalink to this heading">#</a></h3>
+<p>In this tutorial, we look at the shallow water (SW) equations and demonstrate how we can use elements of this package.</p>
+<hr class="docutils" />
+</section>
+<section id="learning-todo">
+<h3><strong>Learning (TODO)</strong><a class="headerlink" href="#learning-todo" title="Permalink to this heading">#</a></h3>
+<p>In these set of tutorials, we will look at how one can use these differentiable models to do some learning.
+We will look at parameter estimation, state estimation and the joint bi-level optimization scheme.
+Some applications will include hybrid models for parameterizations and inverse problems for interpolation schemes.</p>
+</section>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -422,6 +518,34 @@ It does not go in-depth into any particular topic - check out <a class="referenc
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#apis-for-pdes-todo"><strong>3 APIs for PDEs (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pde-elements-todo"><strong>PDE Elements (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-discretization-todo"><strong>Spatial Discretization (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#timesteppers-todo"><strong>TimeSteppers (TODO)</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorials">Tutorials</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lorenz-odes"><span class="xref myst"><strong>Lorenz ODEs</strong></span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#steps-to-navier-stokes"><span class="xref myst"><strong>12 Steps to Navier-Stokes</strong></span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quasi-geostrophic-equations"><span class="xref myst"><strong>Quasi-Geostrophic Equations</strong></span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shallow-water-equations-todo"><strong>Shallow Water Equations (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-todo"><strong>Learning (TODO)</strong></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
