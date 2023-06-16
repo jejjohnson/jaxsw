@@ -16,6 +16,9 @@ In this 3 part tutorial, we describe three hierarchies for describing PDEs:
 * **Mid-Level**: Semi-explicit where we specify some parts but don't specify others.
 * **High-Level**: Fully implicit where we hide many of the mechanics underneath syntactic sugar.
 
+
+### **PDE Elements (TODO)**
+
 This goes through a full example looking at the components of the `jaxsw` framework.
 We explicitly describe the components of the PDE which will be important for this package.
 This includes:
@@ -26,18 +29,20 @@ This includes:
 5. Equation of motion
 6. Time Stepping
 
-To accomplish this, I will showcase how we can use many other libraries as the backbone to do many canonical PDEs, e.g. [FiniteDiffX](), [Diffrax](), [jaxdf](), and [kernex]().
+To accomplish this, I will showcase how we can use many other libraries as the backbone to do many canonical PDEs, e.g. [FiniteDiffX](), , [jaxdf](), and [kernex]() for spatial discretizations and [Diffrax]() for timestepping schemes.
 In addition, I will do my best to use some of the best elements of `JAX` to really take advantage of some of the native elements, e.g. `vmap`, `scan`.
 
 ### **Spatial Discretization (TODO)**
 
 This tutorial goes through how to do some spatial discretizations using this library.
 We will look at how we can define a simple geometry and then choose various ways to do operations such as finite difference, e.g. slicing, convolutions, or spectral methods.
+In addition, we will look at how we can do some simple procedures to get staggered grids which can greatly improve the accuracy of methods.
 
 
 ### **TimeSteppers (TODO)**
 
-This tutorial goes through how to do time stepping in with JAX. 
+This tutorial goes through how to do time stepping in with JAX.
+I'll show how this can be accomplished from scratch and through the native `JAX` package.
 We also look at the `diffrax` which allows us to remove a lot of the complexity.
 
 
@@ -76,3 +81,4 @@ In this tutorial, we look at the shallow water (SW) equations and demonstrate ho
 
 In these set of tutorials, we will look at how one can use these differentiable models to do some learning. 
 We will look at parameter estimation, state estimation and the joint bi-level optimization scheme.
+Some applications will include hybrid models for parameterizations and inverse problems for interpolation schemes.

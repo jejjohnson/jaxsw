@@ -374,6 +374,7 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#apis-for-pdes-todo"><strong>3 APIs for PDEs (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pde-elements-todo"><strong>PDE Elements (TODO)</strong></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-discretization-todo"><strong>Spatial Discretization (TODO)</strong></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#timesteppers-todo"><strong>TimeSteppers (TODO)</strong></a></li>
 </ul>
@@ -413,6 +414,9 @@ document.write(`
 <li><p><strong>Mid-Level</strong>: Semi-explicit where we specify some parts but don’t specify others.</p></li>
 <li><p><strong>High-Level</strong>: Fully implicit where we hide many of the mechanics underneath syntactic sugar.</p></li>
 </ul>
+</section>
+<section id="pde-elements-todo">
+<h3><strong>PDE Elements (TODO)</strong><a class="headerlink" href="#pde-elements-todo" title="Permalink to this heading">#</a></h3>
 <p>This goes through a full example looking at the components of the <code class="docutils literal notranslate"><span class="pre">jaxsw</span></code> framework.
 We explicitly describe the components of the PDE which will be important for this package.
 This includes:</p>
@@ -424,17 +428,19 @@ This includes:</p>
 <li><p>Equation of motion</p></li>
 <li><p>Time Stepping</p></li>
 </ol>
-<p>To accomplish this, I will showcase how we can use many other libraries as the backbone to do many canonical PDEs, e.g. <span class="xref myst">FiniteDiffX</span>, <span class="xref myst">Diffrax</span>, <span class="xref myst">jaxdf</span>, and <span class="xref myst">kernex</span>.
+<p>To accomplish this, I will showcase how we can use many other libraries as the backbone to do many canonical PDEs, e.g. <span class="xref myst">FiniteDiffX</span>, , <span class="xref myst">jaxdf</span>, and <span class="xref myst">kernex</span> for spatial discretizations and <span class="xref myst">Diffrax</span> for timestepping schemes.
 In addition, I will do my best to use some of the best elements of <code class="docutils literal notranslate"><span class="pre">JAX</span></code> to really take advantage of some of the native elements, e.g. <code class="docutils literal notranslate"><span class="pre">vmap</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>.</p>
 </section>
 <section id="spatial-discretization-todo">
 <h3><strong>Spatial Discretization (TODO)</strong><a class="headerlink" href="#spatial-discretization-todo" title="Permalink to this heading">#</a></h3>
 <p>This tutorial goes through how to do some spatial discretizations using this library.
-We will look at how we can define a simple geometry and then choose various ways to do operations such as finite difference, e.g. slicing, convolutions, or spectral methods.</p>
+We will look at how we can define a simple geometry and then choose various ways to do operations such as finite difference, e.g. slicing, convolutions, or spectral methods.
+In addition, we will look at how we can do some simple procedures to get staggered grids which can greatly improve the accuracy of methods.</p>
 </section>
 <section id="timesteppers-todo">
 <h3><strong>TimeSteppers (TODO)</strong><a class="headerlink" href="#timesteppers-todo" title="Permalink to this heading">#</a></h3>
 <p>This tutorial goes through how to do time stepping in with JAX.
+I’ll show how this can be accomplished from scratch and through the native <code class="docutils literal notranslate"><span class="pre">JAX</span></code> package.
 We also look at the <code class="docutils literal notranslate"><span class="pre">diffrax</span></code> which allows us to remove a lot of the complexity.</p>
 </section>
 </section>
@@ -467,7 +473,8 @@ This includes going through elements of typical PDEs such as advection, diffusio
 <section id="learning-todo">
 <h3><strong>Learning (TODO)</strong><a class="headerlink" href="#learning-todo" title="Permalink to this heading">#</a></h3>
 <p>In these set of tutorials, we will look at how one can use these differentiable models to do some learning.
-We will look at parameter estimation, state estimation and the joint bi-level optimization scheme.</p>
+We will look at parameter estimation, state estimation and the joint bi-level optimization scheme.
+Some applications will include hybrid models for parameterizations and inverse problems for interpolation schemes.</p>
 </section>
 </section>
 <div class="toctree-wrapper compound">
@@ -538,6 +545,7 @@ We will look at parameter estimation, state estimation and the joint bi-level op
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#apis-for-pdes-todo"><strong>3 APIs for PDEs (TODO)</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pde-elements-todo"><strong>PDE Elements (TODO)</strong></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-discretization-todo"><strong>Spatial Discretization (TODO)</strong></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#timesteppers-todo"><strong>TimeSteppers (TODO)</strong></a></li>
 </ul>
