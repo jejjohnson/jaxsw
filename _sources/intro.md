@@ -21,6 +21,7 @@ In this 3 part tutorial, we describe three hierarchies for describing PDEs:
 This goes through a full example looking at the components of the `jaxsw` framework.
 We explicitly describe the components of the PDE which will be important for this package.
 This includes:
+
 1. State
 2. Params
 3. Geometry
