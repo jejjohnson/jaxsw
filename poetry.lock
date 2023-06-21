@@ -2139,8 +2139,8 @@ files = [
 [package.dependencies]
 numpy = [
     {version = ">1.20", markers = "python_version <= \"3.9\""},
-    {version = ">=1.23.3", markers = "python_version > \"3.10\""},
     {version = ">=1.21.2", markers = "python_version > \"3.9\""},
+    {version = ">=1.23.3", markers = "python_version > \"3.10\""},
 ]
 
 [package.extras]
@@ -4391,6 +4391,22 @@ parallel = ["dask[complete]"]
 viz = ["matplotlib", "nc-time-axis", "seaborn"]
 
 [[package]]
+name = "xrpatcher"
+version = "0.0.1"
+description = "A ML-oriented generic patcher for xarray data structures."
+optional = false
+python-versions = ">=3.8,<3.12"
+files = [
+    {file = "xrpatcher-0.0.1-py3-none-any.whl", hash = "sha256:ba874b2f70320cce1f10a07ed7270814cee52987c9f1fff00bfa3335fd102019"},
+    {file = "xrpatcher-0.0.1.tar.gz", hash = "sha256:d98663430ee3070512e44ae65b2bc47b335e866a0d4a3ab864129c932a2ec97f"},
+]
+
+[package.dependencies]
+tqdm = ">=4.65.0,<5.0.0"
+urllib3 = "1.26.15"
+xarray = ">=2022.3"
+
+[[package]]
 name = "zarr"
 version = "2.15.0"
 description = "An implementation of chunked, compressed, N-dimensional arrays for Python"
@@ -4428,4 +4444,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "a981e9832d7aeae097270692a9305fa5dcf59d5c1e8b7fd366ccab2adcdc640c"
+content-hash = "82fd89dd481cd03d85a60ce2f5b556014a3b2a689f5849aff180cb15d8f779c7"

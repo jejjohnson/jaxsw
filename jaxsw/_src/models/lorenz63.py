@@ -28,7 +28,7 @@ class L63State(NamedTuple):
         sigma: float = 8,
         rho: float = 28,
         beta: float = 8.0 / 3.0,
-        key: PRNGKeyArray = jrandom.PRNGKey(123),
+        key: PyTree = jrandom.PRNGKey(123),
     ):
         x0, y0, z0 = jnp.ones((3,))
 
@@ -55,6 +55,10 @@ class L63State(NamedTuple):
         return cls(x=x0 + perturb, y=y0, z=z0), L63Params(
             sigma=sigma, rho=rho, beta=beta
         )
+
+    @property
+    def array(self):
+        return jnp.hstack([self.x, self.y, self.z]).squeeze()
 
 
 class Lorenz63(DynamicalSystem):
