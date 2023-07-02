@@ -145,3 +145,4 @@ datasets/*
 *.DS_STORE
 notebooks/dev/eman/advection/mitgcm_example_dataset_v2.nc
 \outputs/
+\jbook/_build/

@@ -1,14 +1,16 @@
+import time
+
 import autoroot  # noqa: F401, I001
+import diffrax as dfx
 import hydra
-import pde
 import jax
 import jax.numpy as jnp
-import xarray as xr
 import pandas as pd
-import diffrax as dfx
+import pde
+import xarray as xr
 from loguru import logger
+
 from jaxsw._src.domain.time import TimeDomain
-import time
 
 # from jax.config import config
 

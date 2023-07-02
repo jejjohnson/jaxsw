@@ -27,7 +27,8 @@ def laplacian_dist(nx, ny, dx, dy, mean: bool = True) -> Array:
         dx = dy = jnp.mean(jnp.asarray([dx, dy]))
 
     x, y = jnp.meshgrid(
-        jnp.arange(1, nx - 1, dtype=dx.dtype), jnp.arange(1, ny - 1, dtype=dx.dtype)
+        jnp.arange(1, nx - 1, dtype=dx.dtype),
+        jnp.arange(1, ny - 1, dtype=dx.dtype),
     )
 
     return (
@@ -67,6 +68,8 @@ def inverse_elliptical_dst_solver(
 
     operator = helmholtz_dist(
         nx=nx, ny=ny, dx=dx, dy=dy, mean=mean, alpha=alpha, beta=beta
-    )
+    ).T
+
+    # print(q.shape, operator.shape)
 
     return inverse_elliptic_dst(q, operator)

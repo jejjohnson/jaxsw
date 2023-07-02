@@ -7,10 +7,15 @@ repos:
     rev: "v0.0.255"
     hooks:
       - id: ruff
-        args: ["--ignore=I001,E402,E721,E731,E741,F722"]
+        args: ["--ignore=I001,E402,E721,E731,E741,F722,E501"]
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.6.3
     hooks:
       - id: nbqa-black
-      - id: nbqa-ruff
-        args: ["--ignore=I001", "--nbqa-exclude=notebooks/dev/"]
+      # - id: nbqa-ruff
+      # exclude: ["^notebooks/dev/", "^jbook/"]
+      # args: [
+      #     "--ignore=I001,F821,F541",
+      #     # "--nbqa-exclude=^notebooks/dev/,jbook/",
+      #     # "--nbqa-exclude=jbook/",
+      #   ]

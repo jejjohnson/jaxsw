@@ -52,7 +52,10 @@ class Domain(eqx.Module):
 
     @classmethod
     def from_numpoints(
-        cls, xmin: tp.Iterable[float], xmax: tp.Iterable[float], N: tp.Iterable[int]
+        cls,
+        xmin: tp.Iterable[float],
+        xmax: tp.Iterable[float],
+        N: tp.Iterable[int],
     ):
         f = lambda xmin, xmax, N: (xmax - xmin) / (float(N) - 1)
 

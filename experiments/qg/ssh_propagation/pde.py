@@ -1,20 +1,22 @@
+from typing import NamedTuple
+
 import autoroot  # noqa: F401, I001
-import xarray as xr
 import jax.numpy as jnp
+import xarray as xr
 from jaxtyping import Array
+
+from jaxsw._src.boundaries.helmholtz import enforce_boundaries_helmholtz
 from jaxsw._src.domain.base import Domain
 from jaxsw._src.domain.latlon import LatLonMeanDomain
+from jaxsw._src.models.pde import DynamicalSystem
 from jaxsw._src.operators.functional.advection import upwind_2D
-from jaxsw._src.operators.functional.geostrophic import uv_velocity
 from jaxsw._src.operators.functional.geostrophic import (
-    streamfn_to_pvort,
     pvort_to_streamfn,
     ssh_to_streamfn,
+    streamfn_to_pvort,
     streamfn_to_ssh,
+    uv_velocity,
 )
-from jaxsw._src.boundaries.helmholtz import enforce_boundaries_helmholtz
-from typing import NamedTuple
-from jaxsw._src.models.pde import DynamicalSystem
 
 
 class StateParams(NamedTuple):

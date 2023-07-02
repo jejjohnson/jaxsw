@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 jax = "^0.4.8"
 jaxlib = "^0.4.7"
 finitediffx = "^0.0.2"
@@ -31,30 +31,39 @@ kernex = "^0.1.3"
 einops = "^0.6.1"
 numpy = "^1.24.3"
 xarray = "^2023.4.2"
+urllib3 = "1.26.15"
+jaxtyping = "^0.2.0"
+jaxopt = "^0.7"
+lineax = "^0.0.1"
+jaxdf = "^0.2.4"
 
 [tool.poetry.group.dev.dependencies]
-pytest = ">=7.2.1"
-pytest-cov = ">=4.0.0"
-pre-commit = ">=3.0.4"
-black = "23.1.0"
-isort = "5.12.0"
-beartype = "^0.13.1"
-ruff = "^0.0.263"
-nbqa = {extras = ["ruff"], version = "^1.7.0"}
+pytest = "^7.3.1"
+pytest-cov = "^4.1.0"
+pre-commit = "^3.3.2"
+black = "^23.3.0"
+isort = "^5.12.0"
+beartype = "^0.14.0"
+ruff = "^0.0.270"
+nbqa = "^1.7.0"
+intake-xarray = "^0.7.0"
+numba = "^0.57.0"
+
 
 [tool.poetry.group.exp.dependencies]
-wandb = "^0.15.0"
+wandb = "^0.15.3"
 loguru = "^0.7.0"
 hydra-core = "^1.3.2"
 matplotlib = "^3.7.1"
 seaborn = "^0.12.2"
 netcdf4 = "^1.6.3"
 autoroot = "^1.0.0"
-
+optax = "^0.1.5"
+tqdm = "^4.65.0"
+xrpatcher = "^0.0.1"
 
 [tool.poetry.group.jlab.dependencies]
-ipykernel = "^6.22.0"
-jupyterlab = "^3.6.3"
+ipykernel = "^6.23.1"
 
 
 [tool.poetry.group.jbook.dependencies]
@@ -62,11 +71,13 @@ jupyter-book = "^0.15.1"
 ghp-import = "^2.1.0"
 sphinx-proof = "^0.1.3"
 jupytext = "^1.14.5"
+myst-nb = "^0.17.2"
 
 [tool.ruff]
 select = ["E", "F", "I001"]
 ignore = ["E402", "E721", "E731", "E741", "F722"]
 ignore-init-module-imports = true
+src = ["jaxsw"]
 
 [tool.ruff.isort]
 combine-as-imports = true
@@ -81,3 +92,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 testpaths = ["jaxsw"]
+
+[tool.nbqa.ignore]
+ruff = ["I001", "F821", "F541"]
+
+[tool.nbqa.exclude]
+ruff = ["^notebooks/dev/", "^jbook/"]

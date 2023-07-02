@@ -18,7 +18,9 @@ def domain_1d_params():
 @pytest.fixture
 def domain_1d(domain_1d_params):
     domain = Domain.from_numpoints(
-        xmin=domain_1d_params[0], xmax=domain_1d_params[1], N=domain_1d_params[2]
+        xmin=domain_1d_params[0],
+        xmax=domain_1d_params[1],
+        N=domain_1d_params[2],
     )
     return domain
 

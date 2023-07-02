@@ -2,6 +2,8 @@ from typing import Callable, NamedTuple, Optional
 
 import jax
 import jax.numpy as jnp
+import lineax as lx
+from jaxopt import linear_solve as jopt_linear_solver
 from jaxtyping import Array
 
 
@@ -37,7 +39,11 @@ def steepest_descent(
 
     # initialize state
     state = SDResults(
-        u=u_init, residual=residual, b=b, iteration=0, loss=1 + target_criterion
+        u=u_init,
+        residual=residual,
+        b=b,
+        iteration=0,
+        loss=1 + target_criterion,
     )
 
     if criterion == "l1":
@@ -163,3 +169,39 @@ def conjugate_gradient(
     state = jax.lax.while_loop(condition_fn, body_fn, state)
 
     return state
+
+
+def lx_linear_solver(
+    matvec_fn: Callable,
+    b: Array,
+    solver: lx.AbstractLinearSolver = lx.GMRES,
+    x0: Optional[Array] = None,
+    verbose: bool = False,
+):
+    # get the size of structure
+    in_structure = jax.eval_shape(lambda: b)
+
+    # define operator based on vector
+    operator = lx.FunctionLinearOperator(matvec_fn, in_structure)
+
+    # get solution
+    if x0 is None:
+        x0 = matvec_fn(b)
+    solution = lx.linear_solve(operator, b, solver, options=dict(y0=x0))
+
+    if verbose:
+        print(solution.stats)
+
+    return solution.value
+
+
+def jaxopt_linear_solver(
+    matvec_fn: Callable,
+    b: Array,
+    x0: Optional[Array] = None,
+    solver: Callable = jopt_linear_solver.solve_cg,
+    **kwargs
+):
+    if x0 is None:
+        x0 = matvec_fn(b)
+    return solver(matvec=matvec_fn, b=b, init=x0, **kwargs)
