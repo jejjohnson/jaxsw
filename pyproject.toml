@@ -61,6 +61,7 @@ autoroot = "^1.0.0"
 optax = "^0.1.5"
 tqdm = "^4.65.0"
 xrpatcher = "^0.0.1"
+pooch = "^1.7.0"
 
 [tool.poetry.group.jlab.dependencies]
 ipykernel = "^6.23.1"

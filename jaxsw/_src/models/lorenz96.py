@@ -21,34 +21,33 @@ class L96State(NamedTuple):
     def init_state(
         cls,
         ndim: int = 10,
-        F: float = 8,
         noise: float = 0.01,
+        batchsize: int = 1,
+        F: float = 8.0,
         key: PRNGKeyArray = jrandom.PRNGKey(123),
     ):
-        x0 = F * jnp.ones(shape=(ndim,))
-
-        perturb = noise * jrandom.normal(key, shape=())
-
-        x0 = x0.at[0].set(x0[0] + perturb)
-
-        return cls(x=x0), L96Params(F=jnp.asarray(F))
-
-    @classmethod
-    def init_state_batch(
-        cls,
-        ndim: int = 10,
-        batchsize: int = 5,
-        F: float = 8,
-        noise: float = 0.01,
-        key: PRNGKeyArray = jrandom.PRNGKey(123),
-    ):
-        x0 = F * jnp.ones(shape=(batchsize, ndim))
-
-        perturb = noise * jrandom.normal(key, shape=(batchsize,))
+        if batchsize > 1:
+            x0 = F * jnp.ones(shape=(batchsize, ndim))
+            perturb = noise * jrandom.normal(key, shape=(batchsize,))
+        else:
+            x0 = F * jnp.ones(shape=(ndim,))
+            perturb = noise * jrandom.normal(key, shape=())
 
         x0 = x0.at[..., 0].set(x0[..., 0] + perturb)
 
-        return cls(x=x0), L96Params(F=F)
+        return cls(x=x0)
+
+    @staticmethod
+    def init_state_and_params(
+        ndim: int = 10,
+        noise: float = 0.01,
+        F: float = 8,
+        batchsize: int = 1,
+        key: PRNGKeyArray = jrandom.PRNGKey(123),
+    ):
+        return L96State.init_state(
+            ndim=ndim, noise=noise, batchsize=batchsize, F=F, key=key
+        ), L96Params(F=F)
 
 
 class Lorenz96(DynamicalSystem):

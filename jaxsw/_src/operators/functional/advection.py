@@ -221,53 +221,16 @@ def advection_upwind_2D(
     return a_du_dx + b_du_dy
 
 
-def x_average_1D(u: Array) -> Array:
-    """Returns the 2-point average at the centres between 1D grid points.
-
-    Grid:
-        + ------- +
-        u    u̅    u
-        + ------- +
-
-    Args:
-        u (Array): the field [Nx]
-
-    Returns:
-        ubar (Array): the field averaged [Nx-1]
-
-    """
-    return 0.5 * (u[:-1] + u[1:])
-
-
-def x_average_2D(u: Array) -> Array:
-    return u
-
-
-def y_average_2D(u: Array) -> Array:
-    return u
-
-
-def center_average_2D(u: Array) -> Array:
-    """Returns the four-point average at the centres between grid points.
-
-    Grid:
-        u -- ⋅ -- u
-        |         |
-        ⋅    u̅    ⋅
-        |         |
-        u -- ⋅ -- u
-
-    Args:
-        u (Array): the field [Nx,Ny]
-
-    Returns:
-        ubar (Array): the field averaged [Nx-1, Ny-1]
-
-    """
-    return 0.25 * (u[:-1, :-1] + u[:-1, 1:] + u[1:, :-1] + u[1:, 1:])
-
-
-def upwind_2D(u: Array, a: Array, dx: Array, way: int = 1, **kwargs) -> Array:
+def advection_upwind_3D(
+    u: Array,
+    a: Array,
+    b: Array,
+    c: Array,
+    step_size: Array,
+    way: int = 1,
+    accuracy: int = 1,
+    fn: tp.Optional[tp.Callable] = None,
+) -> Array:
     """Calculates an advection term using and upwind scheme.
     1. We use a cell-centered average for the factor, a
     2. We clamp the negative values and positive values for the
@@ -275,8 +238,10 @@ def upwind_2D(u: Array, a: Array, dx: Array, way: int = 1, **kwargs) -> Array:
     3. We do the backward and foward difference for the field, u
 
     Eqn:
-
+        Advection := a ∂u/∂x + b ∂u/∂y
         a ∂u/∂x := a̅⁺ D₋[∂u/∂x] + a̅⁻ D₊[∂u/∂x]
+        b ∂u/∂y := b⁺ D₋[∂u/∂y] + b⁻ D₊[∂u/∂y]
+        c ∂u/∂y := c⁺ D₋[∂u/∂z] + c⁻ D₊[∂u/∂z]
 
     where:
         * a̅ : cell-centered average term
@@ -286,19 +251,48 @@ def upwind_2D(u: Array, a: Array, dx: Array, way: int = 1, **kwargs) -> Array:
     Args:
         u (Array): the field
         a (Array): the multiplicative factor on the field
-        dx (Array): the step size for the field
+        b (Array): the multiplicative factor on the field
+        c (Array): the multiplicative factor on the field
+        step_size (Array): the step size for the field
         way (int): the direction
+        axis (int): the axis for the 1D, default=0
+        accuracy (int): the accuracy of the method
+        fn (Callable): optional method for the way method, default=None
 
     Returns:
         u (Array): the field
     """
-    a = jnp.pad(a, pad_width=((1, 0), (1, 0)), mode="constant")
 
-    a_avg = center_average_2D(a)
+    step_size = _check_and_return(value=step_size, ndim=3, name="accuracy")
 
-    a_plus, a_minus = plusminus(a_avg, way=way)
+    a_du_dx = advection_upwind_1D(
+        u=u,
+        a=a,
+        axis=0,
+        way=way,
+        step_size=step_size[0],
+        accuracy=accuracy,
+        fn=fn,
+    )
 
-    du_dx_f = fdx.difference(u, step_size=dx, method="forward", **kwargs)
-    du_dx_b = fdx.difference(u, step_size=dx, method="backward", **kwargs)
+    b_du_dy = advection_upwind_1D(
+        u=u,
+        a=b,
+        axis=1,
+        way=way,
+        step_size=step_size[1],
+        accuracy=accuracy,
+        fn=fn,
+    )
 
-    return a_plus * du_dx_b + a_minus * du_dx_f
+    c_du_dz = advection_upwind_1D(
+        u=u,
+        a=c,
+        axis=2,
+        way=way,
+        step_size=step_size[2],
+        accuracy=accuracy,
+        fn=fn,
+    )
+
+    return a_du_dx + b_du_dy + c_du_dz

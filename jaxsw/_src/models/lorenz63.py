@@ -25,40 +25,37 @@ class L63State(NamedTuple):
     def init_state(
         cls,
         noise: float = 0.01,
-        sigma: float = 8,
-        rho: float = 28,
-        beta: float = 8.0 / 3.0,
-        key: PyTree = jrandom.PRNGKey(123),
+        batchsize: int = 1,
+        key: PRNGKeyArray = jrandom.PRNGKey(123),
     ):
-        x0, y0, z0 = jnp.ones((3,))
+        msg = f"batchsize not >= 1, {batchsize}"
+        assert batchsize >= 1, msg
 
-        perturb = noise * jrandom.normal(key, shape=())
+        if batchsize > 1:
+            x0, y0, z0 = jnp.array_split(jnp.ones((batchsize, 3)), 3, axis=-1)
+            perturb = noise * jrandom.normal(key, shape=(batchsize, 1))
+        else:
+            x0, y0, z0 = jnp.array_split(jnp.ones((3,)), 3, axis=-1)
+            perturb = noise * jrandom.normal(key, shape=())
 
-        return cls(x=x0 + perturb, y=y0, z=z0), L63Params(
-            sigma=sigma, rho=rho, beta=beta
-        )
+        return cls(x=x0 + perturb, y=y0, z=z0)
 
-    @classmethod
-    def init_state_batch(
-        cls,
-        batchsize: int = 10,
+    @staticmethod
+    def init_state_and_params(
         noise: float = 0.01,
+        batchsize: int = 1,
         sigma: float = 8,
         rho: float = 28,
         beta: float = 8.0 / 3.0,
         key: PRNGKeyArray = jrandom.PRNGKey(123),
     ):
-        x0, y0, z0 = jnp.array_split(jnp.ones((batchsize, 3)), 3, axis=-1)
-
-        perturb = noise * jrandom.normal(key, shape=(batchsize, 1))
-
-        return cls(x=x0 + perturb, y=y0, z=z0), L63Params(
-            sigma=sigma, rho=rho, beta=beta
-        )
+        return L63State.init_state(
+            noise=noise, batchsize=batchsize, key=key
+        ), L63Params(sigma=sigma, rho=rho, beta=beta)
 
     @property
     def array(self):
-        return jnp.hstack([self.x, self.y, self.z]).squeeze()
+        return jnp.stack([self.x, self.y, self.z], axis=1).squeeze()
 
 
 class Lorenz63(DynamicalSystem):
