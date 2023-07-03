@@ -1,10 +1,10 @@
+import typing as tp
 import jax.numpy as jnp
 import kernex as kex
 from jaxtyping import Array
 
 
-@kex.kmap(kernel_size=(2,))
-def x_average_1D(u: Array) -> Array:
+def x_average_1D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the two-point average at the centres between grid points.
 
     Grid:
@@ -19,7 +19,12 @@ def x_average_1D(u: Array) -> Array:
         ubar (Array): the field averaged [Nx-1,]
 
     """
-    return jnp.mean(u)
+
+    @kex.kmap(kernel_size=(2,), padding=padding)
+    def kernel_fn(u):
+        return jnp.mean(u)
+
+    return kernel_fn(u)
 
 
 @kex.kmap(kernel_size=(2, 2))
@@ -43,8 +48,7 @@ def center_average_2D(u: Array) -> Array:
     return jnp.mean(u)
 
 
-@kex.kmap(kernel_size=(2, 1))
-def x_average_2D(u: Array) -> Array:
+def x_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the two-point average at the centres between grid points.
 
     Grid:
@@ -61,7 +65,12 @@ def x_average_2D(u: Array) -> Array:
         ubar (Array): the field averaged [Nx-1, Ny]
 
     """
-    return jnp.mean(u)
+
+    @kex.kmap(kernel_size=(2, 1), padding=padding)
+    def kernel_fn(u):
+        return jnp.mean(u)
+
+    return kernel_fn(u)
 
 
 @kex.kmap(kernel_size=(1, 2), padding=((), ()))
