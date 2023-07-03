@@ -457,7 +457,6 @@ document.write(`
 <span class="kn">from</span> <span class="nn">einops</span> <span class="kn">import</span> <span class="n">rearrange</span><span class="p">,</span> <span class="n">repeat</span><span class="p">,</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">tqdm.notebook</span> <span class="kn">import</span> <span class="n">tqdm</span><span class="p">,</span> <span class="n">trange</span>
 <span class="kn">from</span> <span class="nn">jaxtyping</span> <span class="kn">import</span> <span class="n">Array</span><span class="p">,</span> <span class="n">Float</span>
-<span class="kn">import</span> <span class="nn">wandb</span>
 
 <span class="n">sns</span><span class="o">.</span><span class="n">reset_defaults</span><span class="p">()</span>
 <span class="n">sns</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="s2">&quot;talk&quot;</span><span class="p">,</span> <span class="n">font_scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -895,35 +894,35 @@ Coordinates:
   * lat      (lat) float64 33.0 33.05 33.1 33.15 33.2 ... 42.85 42.9 42.95 43.0
   * time     (time) datetime64[ns] 2012-10-01 2012-10-02 ... 2013-09-30
 Data variables:
-    ssh      (time, lat, lon) float64 ...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-e1d7b3df-4517-4055-a776-06c6355d05f6' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-e1d7b3df-4517-4055-a776-06c6355d05f6' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 365</li><li><span class='xr-has-index'>lat</span>: 201</li><li><span class='xr-has-index'>lon</span>: 201</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-d88deab5-f062-4322-9955-61d961009b07' class='xr-section-summary-in' type='checkbox'  checked><label for='section-d88deab5-f062-4322-9955-61d961009b07' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lon</span></div><div class='xr-var-dims'>(lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-65.0 -64.95 -64.9 ... -55.05 -55.0</div><input id='attrs-326fcc5e-bfe2-4e6d-8309-6c13a7f537c8' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-326fcc5e-bfe2-4e6d-8309-6c13a7f537c8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d7713081-95f6-4fb0-bbe9-e0c7aebc84e4' class='xr-var-data-in' type='checkbox'><label for='data-d7713081-95f6-4fb0-bbe9-e0c7aebc84e4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([-65.  , -64.95, -64.9 , ..., -55.1 , -55.05, -55.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lat</span></div><div class='xr-var-dims'>(lat)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>33.0 33.05 33.1 ... 42.9 42.95 43.0</div><input id='attrs-f5e1dbfa-43eb-4688-979d-fc3c83be353b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f5e1dbfa-43eb-4688-979d-fc3c83be353b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2fac4fa3-d81f-4c0c-a82f-3f676a68c1a0' class='xr-var-data-in' type='checkbox'><label for='data-2fac4fa3-d81f-4c0c-a82f-3f676a68c1a0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([33.  , 33.05, 33.1 , ..., 42.9 , 42.95, 43.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2012-10-01 ... 2013-09-30</div><input id='attrs-3739befe-9733-4d6a-8fd4-a2e189cdffaa' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3739befe-9733-4d6a-8fd4-a2e189cdffaa' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-64b3c36b-75ea-4338-a7d2-b47b5287dc7a' class='xr-var-data-in' type='checkbox'><label for='data-64b3c36b-75ea-4338-a7d2-b47b5287dc7a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2012-10-01T00:00:00.000000000&#x27;, &#x27;2012-10-02T00:00:00.000000000&#x27;,
+    ssh      (time, lat, lon) float64 ...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-e6bb3b0e-e701-4738-b53f-6a1c8ce3e88c' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-e6bb3b0e-e701-4738-b53f-6a1c8ce3e88c' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 365</li><li><span class='xr-has-index'>lat</span>: 201</li><li><span class='xr-has-index'>lon</span>: 201</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-848ec191-d194-4896-a80c-252760d5bf75' class='xr-section-summary-in' type='checkbox'  checked><label for='section-848ec191-d194-4896-a80c-252760d5bf75' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lon</span></div><div class='xr-var-dims'>(lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-65.0 -64.95 -64.9 ... -55.05 -55.0</div><input id='attrs-72694a3e-cfcd-4e76-b03d-eed90246fed9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-72694a3e-cfcd-4e76-b03d-eed90246fed9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-80c9643e-d099-4664-a343-a813cc9829e3' class='xr-var-data-in' type='checkbox'><label for='data-80c9643e-d099-4664-a343-a813cc9829e3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([-65.  , -64.95, -64.9 , ..., -55.1 , -55.05, -55.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lat</span></div><div class='xr-var-dims'>(lat)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>33.0 33.05 33.1 ... 42.9 42.95 43.0</div><input id='attrs-281152f3-66ea-48a9-bb71-e9b942c3e76f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-281152f3-66ea-48a9-bb71-e9b942c3e76f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-965e031c-0347-4a94-9b2f-6730b198b49f' class='xr-var-data-in' type='checkbox'><label for='data-965e031c-0347-4a94-9b2f-6730b198b49f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([33.  , 33.05, 33.1 , ..., 42.9 , 42.95, 43.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2012-10-01 ... 2013-09-30</div><input id='attrs-24dcbde9-bcfe-4864-b618-7df05355d8a0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-24dcbde9-bcfe-4864-b618-7df05355d8a0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-94bb9f37-2eec-440f-abe1-1535c91407cb' class='xr-var-data-in' type='checkbox'><label for='data-94bb9f37-2eec-440f-abe1-1535c91407cb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2012-10-01T00:00:00.000000000&#x27;, &#x27;2012-10-02T00:00:00.000000000&#x27;,
        &#x27;2012-10-03T00:00:00.000000000&#x27;, ..., &#x27;2013-09-28T00:00:00.000000000&#x27;,
        &#x27;2013-09-29T00:00:00.000000000&#x27;, &#x27;2013-09-30T00:00:00.000000000&#x27;],
-      dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-a3fac9cd-06be-4495-9225-b092364962d0' class='xr-section-summary-in' type='checkbox'  checked><label for='section-a3fac9cd-06be-4495-9225-b092364962d0' class='xr-section-summary' >Data variables: <span>(1)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>ssh</span></div><div class='xr-var-dims'>(time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-4173981f-2bb6-4216-9acc-c320f13805a5' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-4173981f-2bb6-4216-9acc-c320f13805a5' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6ff6e7cc-2fe4-4d9a-95c1-b1ac6763f25c' class='xr-var-data-in' type='checkbox'><label for='data-6ff6e7cc-2fe4-4d9a-95c1-b1ac6763f25c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[14746365 values with dtype=float64]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-643371f3-4fb1-4ed0-9490-7d8671363df7' class='xr-section-summary-in' type='checkbox'  ><label for='section-643371f3-4fb1-4ed0-9490-7d8671363df7' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>lon</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-805a8f4a-3323-4c49-a913-8e7d0b234e48' class='xr-index-data-in' type='checkbox'/><label for='index-805a8f4a-3323-4c49-a913-8e7d0b234e48' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Float64Index([              -65.0,              -64.95,               -64.9,
-               -64.85000000000001,  -64.80000000000001,  -64.75000000000001,
-               -64.70000000000002,  -64.65000000000002,  -64.60000000000002,
-               -64.55000000000003,
-              ...
-               -55.45000000000054, -55.400000000000546,  -55.35000000000055,
-               -55.30000000000055, -55.250000000000554,  -55.20000000000056,
-               -55.15000000000056,  -55.10000000000056, -55.050000000000566,
-               -55.00000000000057],
-             dtype=&#x27;float64&#x27;, name=&#x27;lon&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>lat</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-c92a4638-fee5-41a9-b894-ee2ab5f7fcbc' class='xr-index-data-in' type='checkbox'/><label for='index-c92a4638-fee5-41a9-b894-ee2ab5f7fcbc' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Float64Index([              33.0,              33.05, 33.099999999999994,
-               33.14999999999999,  33.19999999999999, 33.249999999999986,
-               33.29999999999998,  33.34999999999998,  33.39999999999998,
-              33.449999999999974,
-              ...
-               42.54999999999946, 42.599999999999454,  42.64999999999945,
-               42.69999999999945, 42.749999999999446,  42.79999999999944,
-               42.84999999999944,  42.89999999999944, 42.949999999999434,
-               42.99999999999943],
-             dtype=&#x27;float64&#x27;, name=&#x27;lat&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-3eb1ca38-fa95-4678-8a81-0ec011fe90c6' class='xr-index-data-in' type='checkbox'/><label for='index-3eb1ca38-fa95-4678-8a81-0ec011fe90c6' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(DatetimeIndex([&#x27;2012-10-01&#x27;, &#x27;2012-10-02&#x27;, &#x27;2012-10-03&#x27;, &#x27;2012-10-04&#x27;,
+      dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-1de35672-2c43-41f9-b0c6-654bc55a7d86' class='xr-section-summary-in' type='checkbox'  checked><label for='section-1de35672-2c43-41f9-b0c6-654bc55a7d86' class='xr-section-summary' >Data variables: <span>(1)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>ssh</span></div><div class='xr-var-dims'>(time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-9dc50b02-78eb-4430-a9f0-c71ec7a6ad21' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9dc50b02-78eb-4430-a9f0-c71ec7a6ad21' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b34ead1c-e447-4619-bf60-374757369c10' class='xr-var-data-in' type='checkbox'><label for='data-b34ead1c-e447-4619-bf60-374757369c10' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[14746365 values with dtype=float64]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-8336d2be-664e-4bab-8afe-02d9e4102ece' class='xr-section-summary-in' type='checkbox'  ><label for='section-8336d2be-664e-4bab-8afe-02d9e4102ece' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>lon</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-596b6d0a-3c8c-4617-a87f-a330aa1bb97b' class='xr-index-data-in' type='checkbox'/><label for='index-596b6d0a-3c8c-4617-a87f-a330aa1bb97b' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([              -65.0,              -64.95,               -64.9,
+        -64.85000000000001,  -64.80000000000001,  -64.75000000000001,
+        -64.70000000000002,  -64.65000000000002,  -64.60000000000002,
+        -64.55000000000003,
+       ...
+        -55.45000000000054, -55.400000000000546,  -55.35000000000055,
+        -55.30000000000055, -55.250000000000554,  -55.20000000000056,
+        -55.15000000000056,  -55.10000000000056, -55.050000000000566,
+        -55.00000000000057],
+      dtype=&#x27;float64&#x27;, name=&#x27;lon&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>lat</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-a571d7c0-35f8-4376-a1fd-a3678b018dd4' class='xr-index-data-in' type='checkbox'/><label for='index-a571d7c0-35f8-4376-a1fd-a3678b018dd4' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([              33.0,              33.05, 33.099999999999994,
+        33.14999999999999,  33.19999999999999, 33.249999999999986,
+        33.29999999999998,  33.34999999999998,  33.39999999999998,
+       33.449999999999974,
+       ...
+        42.54999999999946, 42.599999999999454,  42.64999999999945,
+        42.69999999999945, 42.749999999999446,  42.79999999999944,
+        42.84999999999944,  42.89999999999944, 42.949999999999434,
+        42.99999999999943],
+      dtype=&#x27;float64&#x27;, name=&#x27;lat&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-3199feb8-19fa-42b8-a945-1b7076f9ec98' class='xr-index-data-in' type='checkbox'/><label for='index-3199feb8-19fa-42b8-a945-1b7076f9ec98' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(DatetimeIndex([&#x27;2012-10-01&#x27;, &#x27;2012-10-02&#x27;, &#x27;2012-10-03&#x27;, &#x27;2012-10-04&#x27;,
                &#x27;2012-10-05&#x27;, &#x27;2012-10-06&#x27;, &#x27;2012-10-07&#x27;, &#x27;2012-10-08&#x27;,
                &#x27;2012-10-09&#x27;, &#x27;2012-10-10&#x27;,
                ...
                &#x27;2013-09-21&#x27;, &#x27;2013-09-22&#x27;, &#x27;2013-09-23&#x27;, &#x27;2013-09-24&#x27;,
                &#x27;2013-09-25&#x27;, &#x27;2013-09-26&#x27;, &#x27;2013-09-27&#x27;, &#x27;2013-09-28&#x27;,
                &#x27;2013-09-29&#x27;, &#x27;2013-09-30&#x27;],
-              dtype=&#x27;datetime64[ns]&#x27;, name=&#x27;time&#x27;, length=365, freq=None))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-c139bcaa-6411-498e-8e87-4183ef344ae7' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-c139bcaa-6411-498e-8e87-4183ef344ae7' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div></div>
+              dtype=&#x27;datetime64[ns]&#x27;, name=&#x27;time&#x27;, length=365, freq=None))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-4714b7bf-c123-41c2-aad7-2936f18e299c' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-4714b7bf-c123-41c2-aad7-2936f18e299c' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -932,10 +931,10 @@ Data variables:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.collections.QuadMesh at 0x1783cd340&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.collections.QuadMesh at 0x16c4fded0&gt;
 </pre></div>
 </div>
-<img alt="../../_images/28c992259f527bd6de9de9b68e2277412cd297b8a0ebf8d3fd87609d3d78b66a.png" src="../../_images/28c992259f527bd6de9de9b68e2277412cd297b8a0ebf8d3fd87609d3d78b66a.png" />
+<img alt="../../_images/9308251ec2bd4d6be0e3c655d53de7b173eb66b7cd7f12e1d840a46bfbb40997.png" src="../../_images/9308251ec2bd4d6be0e3c655d53de7b173eb66b7cd7f12e1d840a46bfbb40997.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -956,26 +955,10 @@ Data variables:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x17a6d0070&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x16cea3590&gt;
 </pre></div>
 </div>
-<img alt="../../_images/e1d8b4de580beab6c96aa3ced18e001064dfdb4dea44efe53000a2ac029196da.png" src="../../_images/e1d8b4de580beab6c96aa3ced18e001064dfdb4dea44efe53000a2ac029196da.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">min_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">arrays</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
-    <span class="n">arrays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">arrays</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="o">*</span><span class="n">arrays</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-
-
-<span class="k">def</span> <span class="nf">max_arrays</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="n">arrays</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
-    <span class="n">arrays</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">arrays</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="o">*</span><span class="n">arrays</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-</pre></div>
-</div>
+<img alt="../../_images/0d59755526dd24f154ca1d5fbc40d1d87a932e32af56175e95b015689b1297bd.png" src="../../_images/0d59755526dd24f154ca1d5fbc40d1d87a932e32af56175e95b015689b1297bd.png" />
 </div>
 </div>
 </section>
@@ -1240,6 +1223,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional.advection</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">advection_upwind_2D</span><span class="p">,</span>
     <span class="n">plusminus</span><span class="p">,</span>
     <span class="n">center_average_2D</span><span class="p">,</span>
     <span class="n">upwind_2D</span><span class="p">,</span>
@@ -1258,7 +1242,28 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">advection_term_upwind</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># def advection_term_upwind(q, psi, dx, dy, **kwargs) -&gt; Array:</span>
+<span class="c1">#     # u,v schemes</span>
+<span class="c1">#     u, v = uv_velocity(psi, dx=dx, dy=dy, accuracy=kwargs.get(&quot;accuracy&quot;, 1))</span>
+
+<span class="c1">#     u_avg = jnp.pad(u, pad_width=((1, 0), (1, 0)), mode=&quot;constant&quot;)</span>
+<span class="c1">#     v_avg = jnp.pad(v, pad_width=((1, 0), (1, 0)), mode=&quot;constant&quot;)</span>
+
+<span class="c1">#     u_avg = center_average_2D(u_avg)</span>
+<span class="c1">#     v_avg = center_average_2D(v_avg)</span>
+
+<span class="c1">#     udq_dx = advection_upwind_2D(q, a=u_avg, b=u_avg, step_size=dx)</span>
+
+<span class="c1">#     vdq_dy = advection_upwind_2D(q, a=v_avg, b=v_avg, step_size=dx)</span>
+
+<span class="c1">#     rhs = jnp.zeros_like(q)</span>
+
+<span class="c1">#     rhs = rhs.at[1:-1, 1:-1].set(udq_dx[1:-1, 1:-1] + vdq_dy[1:-1, 1:-1])</span>
+
+<span class="c1">#     return rhs</span>
+
+
+<span class="k">def</span> <span class="nf">advection_term_upwind</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
     <span class="c1"># u,v schemes</span>
     <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">uv_velocity</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
@@ -1277,6 +1282,78 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dx</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span>
+<span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">uv_velocity</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;central&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;U-Velocity&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;V-Velocity&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/c022dbf27dce4ce5a149df402196543b8205fbb30e2afaa6cb9cbf86a54b48dc.png" src="../../_images/c022dbf27dce4ce5a149df402196543b8205fbb30e2afaa6cb9cbf86a54b48dc.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># method I</span>
+<span class="n">udq_dx</span> <span class="o">=</span> <span class="n">upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">vdq_dy</span> <span class="o">=</span> <span class="n">upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># method 2</span>
+<span class="n">u_avg</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">pad_width</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">)</span>
+<span class="n">v_avg</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">pad_width</span><span class="o">=</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">)</span>
+<span class="n">u_avg</span> <span class="o">=</span> <span class="n">center_average_2D</span><span class="p">(</span><span class="n">u_avg</span><span class="p">)</span>
+<span class="n">v_avg</span> <span class="o">=</span> <span class="n">center_average_2D</span><span class="p">(</span><span class="n">v_avg</span><span class="p">)</span>
+<span class="n">udq_dx_</span> <span class="o">=</span> <span class="n">advection_upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">u_avg</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">u_avg</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">dx</span><span class="p">)</span>
+<span class="n">vdq_dy_</span> <span class="o">=</span> <span class="n">advection_upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">v_avg</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">v_avg</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">dx</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="c1"># Method I</span>
+<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">udq_dx</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$u\partial_x q$&quot;</span><span class="p">)</span>
+<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">vdq_dy</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$v\partial_y q$&quot;</span><span class="p">)</span>
+
+<span class="c1"># METHOD II</span>
+<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">udq_dx_</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$u\partial_x q$&quot;</span><span class="p">)</span>
+<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">vdq_dy_</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$v\partial_y q$&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/8d797174f604d7ae6b76bf5692ce542eb891ee81030ecf7a273c7c3e2b48329d.png" src="../../_images/8d797174f604d7ae6b76bf5692ce542eb891ee81030ecf7a273c7c3e2b48329d.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rhs</span> <span class="o">=</span> <span class="n">advection_term_upwind</span><span class="p">(</span>
     <span class="n">q</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;central&quot;</span><span class="p">,</span> <span class="n">way</span><span class="o">=-</span><span class="mi">1</span>
 <span class="p">)</span>
@@ -1288,7 +1365,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 
-<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rhs</span><span class="p">)</span>
+<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">rhs</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1296,7 +1373,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/870f066c79bb5b4874a9d9c55fa9b19ff2b22dc69bc0bfb44169d3896a0a723e.png" src="../../_images/870f066c79bb5b4874a9d9c55fa9b19ff2b22dc69bc0bfb44169d3896a0a723e.png" />
+<img alt="../../_images/98feae5ef19d22c2b55d98bdbe9c1bf47b97828a22bebb882f5f074b92b76696.png" src="../../_images/98feae5ef19d22c2b55d98bdbe9c1bf47b97828a22bebb882f5f074b92b76696.png" />
 </div>
 </div>
 </section>
@@ -1407,8 +1484,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 <section id="equation-of-motion">
 <h2>Equation of Motion<a class="headerlink" href="#equation-of-motion" title="Permalink to this heading">#</a></h2>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{aligned}
+\[\begin{split}\begin{aligned}
 \partial_t q &amp;= - \det\boldsymbol{J}(\psi,q) - \beta\partial_x\psi \\
 \psi &amp;= \frac{g}{f_0}\eta
 \end{aligned}
@@ -1534,7 +1610,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/bb8138e72cb2d83c5ab5e1ab5edc48ef9086e3fa6705220c5525dc57fa711246.png" src="../../_images/bb8138e72cb2d83c5ab5e1ab5edc48ef9086e3fa6705220c5525dc57fa711246.png" />
+<img alt="../../_images/b2fb8d559a265c90a3f8cfb385f1c3bb88e741d7f4ec61b5d60b951c793c4c2a.png" src="../../_images/b2fb8d559a265c90a3f8cfb385f1c3bb88e741d7f4ec61b5d60b951c793c4c2a.png" />
 </div>
 </div>
 </section>
@@ -1562,7 +1638,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 <span class="n">num_minutes</span> <span class="o">=</span> <span class="mi">30</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">num_minutes</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;minutes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">num_days</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">num_days</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">tmin</span> <span class="o">=</span> <span class="mf">0.0</span>
 <span class="n">tmax</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">num_days</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;days&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
@@ -1577,8 +1653,8 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Step Size (dt): 30 minutes
-Tmax: 5 days
-Tmax: 432,000.0 seconds | 5 day(s)
+Tmax: 2 days
+Tmax: 172,800.0 seconds | 2 day(s)
 </pre></div>
 </div>
 </div>
@@ -1594,7 +1670,7 @@ Tmax: 432,000.0 seconds | 5 day(s)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TimeDomain(tmin=0.0, tmax=432000.0, dt=1800.0)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TimeDomain(tmin=0.0, tmax=172800.0, dt=1800.0)
 </pre></div>
 </div>
 </div>
@@ -1633,8 +1709,8 @@ Tmax: 432,000.0 seconds | 5 day(s)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 5.36 s, sys: 152 ms, total: 5.51 s
-Wall time: 5.55 s
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 4.52 s, sys: 140 ms, total: 4.66 s
+Wall time: 4.61 s
 </pre></div>
 </div>
 </div>
@@ -1646,7 +1722,7 @@ Wall time: 5.55 s
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(20, 201, 201)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(8, 201, 201)
 </pre></div>
 </div>
 </div>
@@ -1660,7 +1736,7 @@ Wall time: 5.55 s
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(-0.34342336, dtype=float64), Array(1.16310116, dtype=float64))
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(-0.3581583, dtype=float64), Array(1.16310116, dtype=float64))
 </pre></div>
 </div>
 </div>
@@ -1705,7 +1781,7 @@ Wall time: 5.55 s
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/a400e8aa3dd749fe35dc16fc2c6c3960d4607416cd5a3013c84457758a87a835.png" src="../../_images/a400e8aa3dd749fe35dc16fc2c6c3960d4607416cd5a3013c84457758a87a835.png" />
+<img alt="../../_images/f9a2ebd117f9d68cbf9c61f2ca4d0c850203320250d51bd9ff27a97f3b9a07c0.png" src="../../_images/f9a2ebd117f9d68cbf9c61f2ca4d0c850203320250d51bd9ff27a97f3b9a07c0.png" />
 </div>
 </div>
 </section>

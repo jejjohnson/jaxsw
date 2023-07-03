@@ -448,6 +448,12 @@ document.write(`
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload
+</pre></div>
+</div>
+</div>
 </div>
 <section id="lorenz-96">
 <h2>Lorenz 96<a class="headerlink" href="#lorenz-96" title="Permalink to this heading">#</a></h2>
@@ -569,6 +575,38 @@ document.write(`
     <span class="n">args</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
     <span class="n">stepsize_controller</span><span class="o">=</span><span class="n">stepsize_controller</span><span class="p">,</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sol</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Solution(
+  t0=f32[],
+  t1=f32[],
+  ts=f32[3001],
+  ys=L96State(x=f32[3001,50]),
+  interpolation=None,
+  stats={
+    &#39;max_steps&#39;:
+    i32[],
+    &#39;num_accepted_steps&#39;:
+    i32[],
+    &#39;num_rejected_steps&#39;:
+    i32[],
+    &#39;num_steps&#39;:
+    i32[]
+  },
+  result=i32[],
+  solver_state=None,
+  controller_state=None,
+  made_jump=None
+)
 </pre></div>
 </div>
 </div>
