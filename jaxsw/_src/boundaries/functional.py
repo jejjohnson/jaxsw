@@ -181,13 +181,13 @@ def apply_dirichlet_corners_edges(u):
     return u
 
 
-def apply_dirichlet_corners_faces(x: Array) -> Array:
+def apply_dirichlet_corners_faces(u: Array) -> Array:
     # corners
-    x = x.at[0, 0].set(0.0)
-    x = x.at[-1, 0].set(0.0)
-    x = x.at[0, -1].set(0.0)
-    x = x.at[-1, -1].set(0.0)
-    return x
+    u = u.at[0, 0].set(jnp.asarray(0.0, dtype=u.dtype))
+    u = u.at[-1, 0].set(jnp.asarray(0.0, dtype=u.dtype))
+    u = u.at[0, -1].set(jnp.asarray(0.0, dtype=u.dtype))
+    u = u.at[-1, -1].set(jnp.asarray(0.0, dtype=u.dtype))
+    return u
 
 
 def apply_dirichlet_y_edge(u):

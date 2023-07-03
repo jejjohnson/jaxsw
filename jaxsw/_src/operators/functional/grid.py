@@ -27,8 +27,7 @@ def x_average_1D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     return kernel_fn(u)
 
 
-@kex.kmap(kernel_size=(2, 2))
-def center_average_2D(u: Array) -> Array:
+def center_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the four-point average at the centres between grid points.
 
     Grid:
@@ -45,7 +44,12 @@ def center_average_2D(u: Array) -> Array:
         ubar (Array): the field averaged [Nx-1, Ny-1]
 
     """
-    return jnp.mean(u)
+
+    @kex.kmap(kernel_size=(2, 2), padding=padding)
+    def kernel_fn(u):
+        return jnp.mean(u)
+
+    return kernel_fn(u)
 
 
 def x_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
@@ -73,8 +77,7 @@ def x_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     return kernel_fn(u)
 
 
-@kex.kmap(kernel_size=(1, 2), padding=((), ()))
-def y_average_2D(u: Array) -> Array:
+def y_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the two-point average at the centres between grid points.
 
     Grid:
@@ -91,7 +94,12 @@ def y_average_2D(u: Array) -> Array:
         ubar (Array): the field averaged [Nx, Ny-1]
 
     """
-    return jnp.mean(u)
+
+    @kex.kmap(kernel_size=(1, 2), padding=padding)
+    def kernel_fn(u):
+        return jnp.mean(u)
+
+    return kernel_fn(u)
 
 
 def u_at_v(u: Array) -> Array:

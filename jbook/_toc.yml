@@ -4,6 +4,9 @@
 format: jb-book
 root: content/overview.md
 parts:
+  - caption: Geometry
+    chapters:
+      - file: content/geometry/staggering
   - caption: Lorenz ODEs
     chapters:
       - file: content/lorenz/overview.md

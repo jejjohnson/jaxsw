@@ -6,15 +6,16 @@ import equinox as eqx
 import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Array, Float
+from finitediffx._src.utils import _check_and_return
 
 
-def _fix_iterable_input(x) -> tp.Iterable:
+def _fix_iterable_input(x, num_iters) -> tp.Iterable:
     if isinstance(x, tp.Iterable):
         pass
     elif isinstance(x, int | float):
-        x = (float(x),)
+        x = (float(x),) * num_iters
     elif isinstance(x, jnp.ndarray | np.ndarray):
-        x = (float(x),)
+        x = (float(x),) * num_iters
     else:
         raise ValueError(f"Improper input...{type(x)}")
 
@@ -46,9 +47,11 @@ class Domain(eqx.Module):
             xmax (Iterable[float]): the max bounds for the input domain
             dx (Iterable[float]): the step size for the input domain
         """
-        self.xmin = _fix_iterable_input(xmin)
-        self.xmax = _fix_iterable_input(xmax)
-        self.dx = _fix_iterable_input(dx)
+        assert len(xmin) == len(xmax)
+        dx = _check_and_return(dx, ndim=len(xmin), name="dx")
+        self.xmin = xmin
+        self.xmax = xmax
+        self.dx = dx
 
     @classmethod
     def from_numpoints(
