@@ -158,15 +158,21 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Geometry</span></p>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Core Components</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../components/boundaries.html">Boundary Conditions</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Geometry</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../geometry/latlon_deltas.html">Lat-Lon Domains</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../geometry/staggering.html">Staggered Grids</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Lorenz ODEs</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../lorenz/overview.html">Summary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz63.html">Lorenz 63 - ODE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz96.html">Lorenz 96 - ODE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz63.html">Lorenz 63</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz96.html">Lorenz 96</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz96t.html">Lorenz 96 - 2 Level</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">12 Steps To Navier-Stokes</span></p>
 <ul class="current nav bd-sidenav">
@@ -477,7 +483,7 @@ document.write(`
 </div>
 <p>Let’s start with a simple 2D Diffusion scheme. This PDE is defined as:</p>
 <div class="math notranslate nohighlight" id="equation-eq-2d-diffusion">
-<span class="eqno">(31)<a class="headerlink" href="#equation-eq-2d-diffusion" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(32)<a class="headerlink" href="#equation-eq-2d-diffusion" title="Permalink to this equation">#</a></span>\[
 \begin{aligned}
 \frac{\partial u}{\partial t} &amp;= \nu\frac{\partial^2 u}{\partial x^2} + \nu\frac{\partial^2 u}{\partial y^2}
 \end{aligned}
@@ -637,7 +643,7 @@ Cell Volume: 0.0004
 <h3>Equation of Motion<a class="headerlink" href="#equation-of-motion" title="Permalink to this heading">#</a></h3>
 <p>Because we are doing advection, we will use backwards difference for each of the terms.</p>
 <div class="math notranslate nohighlight" id="equation-eq-2dnadvection">
-<span class="eqno">(32)<a class="headerlink" href="#equation-eq-2dnadvection" title="Permalink to this equation">#</a></span>\[\begin{split}
+<span class="eqno">(33)<a class="headerlink" href="#equation-eq-2dnadvection" title="Permalink to this equation">#</a></span>\[\begin{split}
 \begin{aligned}
 D^-{2}_x[u] &amp;:= \frac{\partial^2 u}{\partial x^2} \\
 D^-{2}_y[u] &amp;:= \frac{\partial^2 u}{\partial y^2} 

@@ -158,15 +158,21 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Geometry</span></p>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Core Components</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../components/boundaries.html">Boundary Conditions</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Geometry</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../geometry/latlon_deltas.html">Lat-Lon Domains</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../geometry/staggering.html">Staggered Grids</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Lorenz ODEs</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../lorenz/overview.html">Summary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz63.html">Lorenz 63 - ODE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz96.html">Lorenz 96 - ODE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz63.html">Lorenz 63</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz96.html">Lorenz 96</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lorenz/demo_lorenz96t.html">Lorenz 96 - 2 Level</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">12 Steps To Navier-Stokes</span></p>
 <ul class="current nav bd-sidenav">
@@ -483,15 +489,15 @@ keywords: PDE, ODE, TimeStepper, Diffrax
 <h2>Recall: PDE - 1D Linear Convection<a class="headerlink" href="#recall-pde-1d-linear-convection" title="Permalink to this heading">#</a></h2>
 <p>Let’s continue from the previous tutorial. Recall, we are working with a 1D Linear Convection scheme:</p>
 <div class="math notranslate nohighlight" id="equation-pde">
-<span class="eqno">(13)<a class="headerlink" href="#equation-pde" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(14)<a class="headerlink" href="#equation-pde" title="Permalink to this equation">#</a></span>\[
 \frac{\partial u}{\partial t} + c \frac{\partial u}{\partial x} = 0
 \]</div>
-<p>For the PDE <a class="reference internal" href="#equation-pde">(13)</a>, we are going to do a backwards difference discretization in space and a forwards in time.</p>
+<p>For the PDE <a class="reference internal" href="#equation-pde">(14)</a>, we are going to do a backwards difference discretization in space and a forwards in time.</p>
 <section id="spatial-domain">
 <h3>Spatial Domain<a class="headerlink" href="#spatial-domain" title="Permalink to this heading">#</a></h3>
 <p>We define our spatial discretization as:</p>
 <div class="math notranslate nohighlight" id="equation-spatial-d">
-<span class="eqno">(14)<a class="headerlink" href="#equation-spatial-d" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(15)<a class="headerlink" href="#equation-spatial-d" title="Permalink to this equation">#</a></span>\[
 x \in \Omega \sub \mathbb{R}^{D}
 \]</div>
 <p>Where:</p>
@@ -543,7 +549,7 @@ dx: (0.04,)
 <h3>Initial Condition<a class="headerlink" href="#initial-condition" title="Permalink to this heading">#</a></h3>
 <p>We said that the initial condition is actually a function which operates on a discretized domain <span class="math notranslate nohighlight">\(\Omega\)</span>.</p>
 <div class="math notranslate nohighlight" id="equation-ic">
-<span class="eqno">(15)<a class="headerlink" href="#equation-ic" title="Permalink to this equation">#</a></span>\[\begin{split}
+<span class="eqno">(16)<a class="headerlink" href="#equation-ic" title="Permalink to this equation">#</a></span>\[\begin{split}
 \mathcal{IC}[u](x,0) = 
 \begin{cases}
 2 &amp; \text{where } 0.5 \leq x \leq 1,\\
@@ -552,7 +558,7 @@ dx: (0.04,)
 \end{split}\]</div>
 <p>In practical terms, we need to initialize our state, <span class="math notranslate nohighlight">\(u\)</span>, based on the domain and discretization, <span class="math notranslate nohighlight">\(\Omega\)</span>.</p>
 <div class="math notranslate nohighlight" id="equation-ic-practical">
-<span class="eqno">(16)<a class="headerlink" href="#equation-ic-practical" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(17)<a class="headerlink" href="#equation-ic-practical" title="Permalink to this equation">#</a></span>\[
 \mathcal{IC}[u](x,0):= \boldsymbol{IC}(\Omega, x)
 \]</div>
 <div class="cell docutils container">
@@ -587,7 +593,7 @@ dx: (0.04,)
 <h3>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this heading">#</a></h3>
 <p>For the boundary conditions, this is another function that is dependent upon the domain and discretization. It can be defined as:</p>
 <div class="math notranslate nohighlight" id="equation-bc">
-<span class="eqno">(17)<a class="headerlink" href="#equation-bc" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(18)<a class="headerlink" href="#equation-bc" title="Permalink to this equation">#</a></span>\[
 \mathcal{BC}[u](x, t) = 1.0, \hspace{10mm} x\in\partial\Omega \hspace{3mm} t\in\mathcal{T}
 \]</div>
 <p>In practical terms, we want to apply some function, <span class="math notranslate nohighlight">\(\boldsymbol{b}\)</span>, which modifies our state, <span class="math notranslate nohighlight">\(u\)</span>, at the coordinates along the boundaries of the domain, i.e. <span class="math notranslate nohighlight">\(x \in \partial\Omega\)</span>. In our case it is constant. But we can easily think of strategies where it is an actual function.</p>
@@ -616,7 +622,7 @@ dx: (0.04,)
 <p>We identified the differential operators, <span class="math notranslate nohighlight">\(\mathcal{N}[\cdot;\boldsymbol{\theta}]\)</span> on the RHS of the equation. In this case, we used the backwards time finite difference method because this is a convection scheme. There are (hyper)-parameters, <span class="math notranslate nohighlight">\(\boldsymbol{\theta}\)</span>, in every differential operator because there are possibly (ad-hoc) decisions that one must make for all discretizations, e.g. finite difference schem (backwards, forwards, central) and stencil order.</p>
 <p>The 1st order backwards difference is defined as:</p>
 <div class="math notranslate nohighlight" id="equation-bd">
-<span class="eqno">(18)<a class="headerlink" href="#equation-bd" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(19)<a class="headerlink" href="#equation-bd" title="Permalink to this equation">#</a></span>\[
 \mathcal{N}[u](x) := D^-(x)=\frac{1}{\Delta x}\left( u_{i}-u_{i-1}^n \right)
 \]</div>
 <p>We showcased how we can use the stencil operator as a way to handle finite differences instead of the messy slicing operations. (Tutorial on this soon!)</p>
@@ -650,7 +656,7 @@ dx: (0.04,)
 <h3>Right Hand Side<a class="headerlink" href="#right-hand-side" title="Permalink to this heading">#</a></h3>
 <p>Now, this is the ultimate part that glues the differential operators and the boundary conditions together.</p>
 <div class="math notranslate nohighlight" id="equation-rhs-complete">
-<span class="eqno">(19)<a class="headerlink" href="#equation-rhs-complete" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(20)<a class="headerlink" href="#equation-rhs-complete" title="Permalink to this equation">#</a></span>\[
 \begin{aligned}
 \mathcal{F}[u] &amp;= - c \cdot \mathcal{N}_\text{BackDiff}[u;\boldsymbol{\theta}](x) \hspace{10mm} x\in\Omega
 \end{aligned}
@@ -722,22 +728,22 @@ dx: (0.04,)
 <li><p>The RHS which includes the spatial derivatives.</p></li>
 <li><p>The time stepping scheme</p></li>
 </ol>
-<p>We have already taken care of the spatial derivatives in the previous step. So looking again at equations <a class="reference internal" href="#equation-pde">(13)</a> and <code class="xref eq docutils literal notranslate"><span class="pre">discretization_full</span></code>, we write the half step in between them.</p>
+<p>We have already taken care of the spatial derivatives in the previous step. So looking again at equations <a class="reference internal" href="#equation-pde">(14)</a> and <code class="xref eq docutils literal notranslate"><span class="pre">discretization_full</span></code>, we write the half step in between them.</p>
 <div class="math notranslate nohighlight" id="equation-pde-spatial-discretization">
-<span class="eqno">(20)<a class="headerlink" href="#equation-pde-spatial-discretization" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(21)<a class="headerlink" href="#equation-pde-spatial-discretization" title="Permalink to this equation">#</a></span>\[
 \partial_t u = - c \frac{1}{\Delta x}\left( u_{i}-u_{i-1}^n \right)
 \]</div>
-<p>where we have the RHS as defined in equation <a class="reference internal" href="#equation-rhs-complete">(19)</a> but we <em>did not</em> write the time stepping scheme for Euler. Instead, we’re going to offset this to another library called <code class="docutils literal notranslate"><span class="pre">diffrax</span></code>.</p>
+<p>where we have the RHS as defined in equation <a class="reference internal" href="#equation-rhs-complete">(20)</a> but we <em>did not</em> write the time stepping scheme for Euler. Instead, we’re going to offset this to another library called <code class="docutils literal notranslate"><span class="pre">diffrax</span></code>.</p>
 <section id="temporal-domain">
 <h3>Temporal Domain<a class="headerlink" href="#temporal-domain" title="Permalink to this heading">#</a></h3>
 <p>We define our temporal discretization as:</p>
 <div class="math notranslate nohighlight" id="equation-time-d">
-<span class="eqno">(21)<a class="headerlink" href="#equation-time-d" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(22)<a class="headerlink" href="#equation-time-d" title="Permalink to this equation">#</a></span>\[
 t \in \mathcal{T} \sub \mathbb{R}^+
 \]</div>
 <p>where the space time coordinates are bounded by <span class="math notranslate nohighlight">\(\mathcal{T}=[0,T]\)</span>. For our problem, it is bounded between <span class="math notranslate nohighlight">\([0.0, 0.5]\)</span>. Recall, the time step was calculated from the CFL condition given by</p>
 <div class="math notranslate nohighlight" id="equation-cfl-advection-dt">
-<span class="eqno">(22)<a class="headerlink" href="#equation-cfl-advection-dt" title="Permalink to this equation">#</a></span>\[
+<span class="eqno">(23)<a class="headerlink" href="#equation-cfl-advection-dt" title="Permalink to this equation">#</a></span>\[
 \Delta t = \frac{\sigma\Delta x}{c} \leq 1
 \]</div>
 <div class="cell docutils container">
