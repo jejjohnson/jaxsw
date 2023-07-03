@@ -166,8 +166,8 @@ def apply_dirichlet_x_edge(u):
 
 
 def apply_dirichlet_x_face(u):
-    u = u.at[0].set(0.0)
-    u = u.at[-1].set(0.0)
+    u = u.at[0].set(jnp.asarray(0.0, dtype=u.dtype))
+    u = u.at[-1].set(jnp.asarray(0.0, dtype=u.dtype))
     return u
 
 

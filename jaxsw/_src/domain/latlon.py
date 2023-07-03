@@ -9,7 +9,7 @@ from jaxsw._src.utils.constants import R_EARTH
 from jaxsw._src.utils.coriolis import beta_plane, coriolis_param
 
 
-class LatLonMeanDomain(Domain):
+class LatLonDomain(Domain):
     f0: float = eqx.static_field()
     beta: float = eqx.static_field()
 
@@ -20,10 +20,8 @@ class LatLonMeanDomain(Domain):
         # get mean lat (for parameters)
         lat0 = jnp.mean(lat)
 
-        dx, dy = jnp.mean(dx), jnp.mean(dy)
-
-        xmin, ymin = 0.0, 0.0
-        xmax, ymax = dx * lat.size, dy * lon.size
+        xmin, ymin = lon.min(), lat.min()
+        xmax, ymax = lon.max(), lat.max()
 
         self.xmin = (xmin, ymin)
         self.xmax = (xmax, ymax)
@@ -41,6 +39,26 @@ class LatLonMeanDomain(Domain):
     @property
     def dx_mean(self):
         return jnp.mean(jnp.asarray(self.dx))
+
+
+class LatLonMeanDomain(LatLonDomain):
+    def __init__(self, lat: Array, lon: Array):
+        # get latlon delts
+        dx, dy = lat_lon_deltas(lon=lon, lat=lat)
+
+        # get mean lat (for parameters)
+        lat0 = jnp.mean(lat)
+
+        dx, dy = jnp.mean(dx), jnp.mean(dy)
+
+        xmin, ymin = 0.0, 0.0
+        xmax, ymax = dx * lon.size, dy * lat.size
+
+        self.xmin = (xmin, ymin)
+        self.xmax = (xmax, ymax)
+        self.f0 = coriolis_param(lat0)
+        self.beta = beta_plane(lat0)
+        self.dx = (dx, dy)
 
 
 def lat_lon_deltas(

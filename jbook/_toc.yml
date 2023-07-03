@@ -4,14 +4,19 @@
 format: jb-book
 root: content/overview.md
 parts:
+  - caption: Core Components
+    chapters:
+      - file: content/components/boundaries
   - caption: Geometry
     chapters:
+      - file: content/geometry/latlon_deltas
       - file: content/geometry/staggering
   - caption: Lorenz ODEs
     chapters:
       - file: content/lorenz/overview.md
       - file: content/lorenz/demo_lorenz63
       - file: content/lorenz/demo_lorenz96
+      - file: content/lorenz/demo_lorenz96t
   - caption: 12 Steps To Navier-Stokes
     chapters:
       - file: content/12_steps/overview.md
