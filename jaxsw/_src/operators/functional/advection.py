@@ -219,3 +219,80 @@ def advection_upwind_2D(
     )
 
     return a_du_dx + b_du_dy
+
+
+def advection_upwind_3D(
+    u: Array,
+    a: Array,
+    b: Array,
+    c: Array,
+    step_size: Array,
+    way: int = 1,
+    accuracy: int = 1,
+    fn: tp.Optional[tp.Callable] = None,
+) -> Array:
+    """Calculates an advection term using and upwind scheme.
+    1. We use a cell-centered average for the factor, a
+    2. We clamp the negative values and positive values for the
+        factor, a
+    3. We do the backward and foward difference for the field, u
+
+    Eqn:
+        Advection := a ∂u/∂x + b ∂u/∂y
+        a ∂u/∂x := a̅⁺ D₋[∂u/∂x] + a̅⁻ D₊[∂u/∂x]
+        b ∂u/∂y := b⁺ D₋[∂u/∂y] + b⁻ D₊[∂u/∂y]
+        c ∂u/∂y := c⁺ D₋[∂u/∂z] + c⁻ D₊[∂u/∂z]
+
+    where:
+        * a̅ : cell-centered average term
+        * a⁺, a⁻: clamped values that are < 0.0 and > 0.0 respectively
+        * D₋, D₊: backwards and forwards finite difference schemes
+
+    Args:
+        u (Array): the field
+        a (Array): the multiplicative factor on the field
+        b (Array): the multiplicative factor on the field
+        c (Array): the multiplicative factor on the field
+        step_size (Array): the step size for the field
+        way (int): the direction
+        axis (int): the axis for the 1D, default=0
+        accuracy (int): the accuracy of the method
+        fn (Callable): optional method for the way method, default=None
+
+    Returns:
+        u (Array): the field
+    """
+
+    step_size = _check_and_return(value=step_size, ndim=3, name="accuracy")
+
+    a_du_dx = advection_upwind_1D(
+        u=u,
+        a=a,
+        axis=0,
+        way=way,
+        step_size=step_size[0],
+        accuracy=accuracy,
+        fn=fn,
+    )
+
+    b_du_dy = advection_upwind_1D(
+        u=u,
+        a=b,
+        axis=1,
+        way=way,
+        step_size=step_size[1],
+        accuracy=accuracy,
+        fn=fn,
+    )
+
+    c_du_dz = advection_upwind_1D(
+        u=u,
+        a=c,
+        axis=2,
+        way=way,
+        step_size=step_size[2],
+        accuracy=accuracy,
+        fn=fn,
+    )
+
+    return a_du_dx + b_du_dy + c_du_dz
