@@ -468,6 +468,9 @@ document.write(`
 <span class="kn">from</span> <span class="nn">tqdm.notebook</span> <span class="kn">import</span> <span class="n">tqdm</span><span class="p">,</span> <span class="n">trange</span>
 <span class="kn">from</span> <span class="nn">jaxtyping</span> <span class="kn">import</span> <span class="n">Array</span><span class="p">,</span> <span class="n">Float</span>
 
+<span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional</span> <span class="kn">import</span> <span class="n">advection</span> <span class="k">as</span> <span class="n">F_adv</span>
+<span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional</span> <span class="kn">import</span> <span class="n">geostrophic</span> <span class="k">as</span> <span class="n">F_geos</span>
+
 <span class="n">sns</span><span class="o">.</span><span class="n">reset_defaults</span><span class="p">()</span>
 <span class="n">sns</span><span class="o">.</span><span class="n">set_context</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="s2">&quot;talk&quot;</span><span class="p">,</span> <span class="n">font_scale</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -904,10 +907,10 @@ Coordinates:
   * lat      (lat) float64 33.0 33.05 33.1 33.15 33.2 ... 42.85 42.9 42.95 43.0
   * time     (time) datetime64[ns] 2012-10-01 2012-10-02 ... 2013-09-30
 Data variables:
-    ssh      (time, lat, lon) float64 ...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-e6bb3b0e-e701-4738-b53f-6a1c8ce3e88c' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-e6bb3b0e-e701-4738-b53f-6a1c8ce3e88c' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 365</li><li><span class='xr-has-index'>lat</span>: 201</li><li><span class='xr-has-index'>lon</span>: 201</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-848ec191-d194-4896-a80c-252760d5bf75' class='xr-section-summary-in' type='checkbox'  checked><label for='section-848ec191-d194-4896-a80c-252760d5bf75' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lon</span></div><div class='xr-var-dims'>(lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-65.0 -64.95 -64.9 ... -55.05 -55.0</div><input id='attrs-72694a3e-cfcd-4e76-b03d-eed90246fed9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-72694a3e-cfcd-4e76-b03d-eed90246fed9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-80c9643e-d099-4664-a343-a813cc9829e3' class='xr-var-data-in' type='checkbox'><label for='data-80c9643e-d099-4664-a343-a813cc9829e3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([-65.  , -64.95, -64.9 , ..., -55.1 , -55.05, -55.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lat</span></div><div class='xr-var-dims'>(lat)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>33.0 33.05 33.1 ... 42.9 42.95 43.0</div><input id='attrs-281152f3-66ea-48a9-bb71-e9b942c3e76f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-281152f3-66ea-48a9-bb71-e9b942c3e76f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-965e031c-0347-4a94-9b2f-6730b198b49f' class='xr-var-data-in' type='checkbox'><label for='data-965e031c-0347-4a94-9b2f-6730b198b49f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([33.  , 33.05, 33.1 , ..., 42.9 , 42.95, 43.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2012-10-01 ... 2013-09-30</div><input id='attrs-24dcbde9-bcfe-4864-b618-7df05355d8a0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-24dcbde9-bcfe-4864-b618-7df05355d8a0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-94bb9f37-2eec-440f-abe1-1535c91407cb' class='xr-var-data-in' type='checkbox'><label for='data-94bb9f37-2eec-440f-abe1-1535c91407cb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2012-10-01T00:00:00.000000000&#x27;, &#x27;2012-10-02T00:00:00.000000000&#x27;,
+    ssh      (time, lat, lon) float64 ...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-0e0db9c1-7c47-44e1-bccf-f3fd8b6b2643' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-0e0db9c1-7c47-44e1-bccf-f3fd8b6b2643' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 365</li><li><span class='xr-has-index'>lat</span>: 201</li><li><span class='xr-has-index'>lon</span>: 201</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-c227f518-6d6e-4249-a1a4-c36dcab5490a' class='xr-section-summary-in' type='checkbox'  checked><label for='section-c227f518-6d6e-4249-a1a4-c36dcab5490a' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lon</span></div><div class='xr-var-dims'>(lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-65.0 -64.95 -64.9 ... -55.05 -55.0</div><input id='attrs-95433ea7-1735-4086-b3d6-493792793982' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-95433ea7-1735-4086-b3d6-493792793982' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-270d9014-dfbc-499a-a671-9273778839a7' class='xr-var-data-in' type='checkbox'><label for='data-270d9014-dfbc-499a-a671-9273778839a7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([-65.  , -64.95, -64.9 , ..., -55.1 , -55.05, -55.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lat</span></div><div class='xr-var-dims'>(lat)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>33.0 33.05 33.1 ... 42.9 42.95 43.0</div><input id='attrs-9344e426-c157-4b40-b1b0-fe5bc5681b4b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9344e426-c157-4b40-b1b0-fe5bc5681b4b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9be569ba-a345-433b-ab00-6a13442ff50d' class='xr-var-data-in' type='checkbox'><label for='data-9be569ba-a345-433b-ab00-6a13442ff50d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([33.  , 33.05, 33.1 , ..., 42.9 , 42.95, 43.  ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2012-10-01 ... 2013-09-30</div><input id='attrs-9d82f149-17d6-4d74-94a0-eb174d1ef05e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9d82f149-17d6-4d74-94a0-eb174d1ef05e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5c102a7c-522e-406a-8dfc-dce178fa3262' class='xr-var-data-in' type='checkbox'><label for='data-5c102a7c-522e-406a-8dfc-dce178fa3262' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2012-10-01T00:00:00.000000000&#x27;, &#x27;2012-10-02T00:00:00.000000000&#x27;,
        &#x27;2012-10-03T00:00:00.000000000&#x27;, ..., &#x27;2013-09-28T00:00:00.000000000&#x27;,
        &#x27;2013-09-29T00:00:00.000000000&#x27;, &#x27;2013-09-30T00:00:00.000000000&#x27;],
-      dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-1de35672-2c43-41f9-b0c6-654bc55a7d86' class='xr-section-summary-in' type='checkbox'  checked><label for='section-1de35672-2c43-41f9-b0c6-654bc55a7d86' class='xr-section-summary' >Data variables: <span>(1)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>ssh</span></div><div class='xr-var-dims'>(time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-9dc50b02-78eb-4430-a9f0-c71ec7a6ad21' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9dc50b02-78eb-4430-a9f0-c71ec7a6ad21' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b34ead1c-e447-4619-bf60-374757369c10' class='xr-var-data-in' type='checkbox'><label for='data-b34ead1c-e447-4619-bf60-374757369c10' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[14746365 values with dtype=float64]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-8336d2be-664e-4bab-8afe-02d9e4102ece' class='xr-section-summary-in' type='checkbox'  ><label for='section-8336d2be-664e-4bab-8afe-02d9e4102ece' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>lon</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-596b6d0a-3c8c-4617-a87f-a330aa1bb97b' class='xr-index-data-in' type='checkbox'/><label for='index-596b6d0a-3c8c-4617-a87f-a330aa1bb97b' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([              -65.0,              -64.95,               -64.9,
+      dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-f33c1295-b059-4c56-b5c6-d2efa6f367d9' class='xr-section-summary-in' type='checkbox'  checked><label for='section-f33c1295-b059-4c56-b5c6-d2efa6f367d9' class='xr-section-summary' >Data variables: <span>(1)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>ssh</span></div><div class='xr-var-dims'>(time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-25e635cc-056f-4e05-96db-ba8dc9ad7ac8' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-25e635cc-056f-4e05-96db-ba8dc9ad7ac8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-787672a4-9f84-4313-839b-60d021c91813' class='xr-var-data-in' type='checkbox'><label for='data-787672a4-9f84-4313-839b-60d021c91813' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[14746365 values with dtype=float64]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-294ae4e5-2de6-4d70-9645-e78b9dc8ec02' class='xr-section-summary-in' type='checkbox'  ><label for='section-294ae4e5-2de6-4d70-9645-e78b9dc8ec02' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>lon</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-2958a545-60ea-47fe-9df0-b5a2d91ec33f' class='xr-index-data-in' type='checkbox'/><label for='index-2958a545-60ea-47fe-9df0-b5a2d91ec33f' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([              -65.0,              -64.95,               -64.9,
         -64.85000000000001,  -64.80000000000001,  -64.75000000000001,
         -64.70000000000002,  -64.65000000000002,  -64.60000000000002,
         -64.55000000000003,
@@ -916,7 +919,7 @@ Data variables:
         -55.30000000000055, -55.250000000000554,  -55.20000000000056,
         -55.15000000000056,  -55.10000000000056, -55.050000000000566,
         -55.00000000000057],
-      dtype=&#x27;float64&#x27;, name=&#x27;lon&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>lat</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-a571d7c0-35f8-4376-a1fd-a3678b018dd4' class='xr-index-data-in' type='checkbox'/><label for='index-a571d7c0-35f8-4376-a1fd-a3678b018dd4' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([              33.0,              33.05, 33.099999999999994,
+      dtype=&#x27;float64&#x27;, name=&#x27;lon&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>lat</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-efa0d748-92bb-40c3-82ec-8f0a4c721d45' class='xr-index-data-in' type='checkbox'/><label for='index-efa0d748-92bb-40c3-82ec-8f0a4c721d45' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([              33.0,              33.05, 33.099999999999994,
         33.14999999999999,  33.19999999999999, 33.249999999999986,
         33.29999999999998,  33.34999999999998,  33.39999999999998,
        33.449999999999974,
@@ -925,14 +928,14 @@ Data variables:
         42.69999999999945, 42.749999999999446,  42.79999999999944,
         42.84999999999944,  42.89999999999944, 42.949999999999434,
         42.99999999999943],
-      dtype=&#x27;float64&#x27;, name=&#x27;lat&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-3199feb8-19fa-42b8-a945-1b7076f9ec98' class='xr-index-data-in' type='checkbox'/><label for='index-3199feb8-19fa-42b8-a945-1b7076f9ec98' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(DatetimeIndex([&#x27;2012-10-01&#x27;, &#x27;2012-10-02&#x27;, &#x27;2012-10-03&#x27;, &#x27;2012-10-04&#x27;,
+      dtype=&#x27;float64&#x27;, name=&#x27;lat&#x27;, length=201))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-8eae1f19-6c14-44e8-a617-f743aa3285a7' class='xr-index-data-in' type='checkbox'/><label for='index-8eae1f19-6c14-44e8-a617-f743aa3285a7' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(DatetimeIndex([&#x27;2012-10-01&#x27;, &#x27;2012-10-02&#x27;, &#x27;2012-10-03&#x27;, &#x27;2012-10-04&#x27;,
                &#x27;2012-10-05&#x27;, &#x27;2012-10-06&#x27;, &#x27;2012-10-07&#x27;, &#x27;2012-10-08&#x27;,
                &#x27;2012-10-09&#x27;, &#x27;2012-10-10&#x27;,
                ...
                &#x27;2013-09-21&#x27;, &#x27;2013-09-22&#x27;, &#x27;2013-09-23&#x27;, &#x27;2013-09-24&#x27;,
                &#x27;2013-09-25&#x27;, &#x27;2013-09-26&#x27;, &#x27;2013-09-27&#x27;, &#x27;2013-09-28&#x27;,
                &#x27;2013-09-29&#x27;, &#x27;2013-09-30&#x27;],
-              dtype=&#x27;datetime64[ns]&#x27;, name=&#x27;time&#x27;, length=365, freq=None))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-4714b7bf-c123-41c2-aad7-2936f18e299c' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-4714b7bf-c123-41c2-aad7-2936f18e299c' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div></div>
+              dtype=&#x27;datetime64[ns]&#x27;, name=&#x27;time&#x27;, length=365, freq=None))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-a313c1e1-44bc-4431-8add-d24bd03002b7' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-a313c1e1-44bc-4431-8add-d24bd03002b7' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -941,7 +944,7 @@ Data variables:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.collections.QuadMesh at 0x16c4fded0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.collections.QuadMesh at 0x14e518710&gt;
 </pre></div>
 </div>
 <img alt="../../_images/9308251ec2bd4d6be0e3c655d53de7b173eb66b7cd7f12e1d840a46bfbb40997.png" src="../../_images/9308251ec2bd4d6be0e3c655d53de7b173eb66b7cd7f12e1d840a46bfbb40997.png" />
@@ -965,7 +968,7 @@ Data variables:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x16cea3590&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x14e644290&gt;
 </pre></div>
 </div>
 <img alt="../../_images/0d59755526dd24f154ca1d5fbc40d1d87a932e32af56175e95b015689b1297bd.png" src="../../_images/0d59755526dd24f154ca1d5fbc40d1d87a932e32af56175e95b015689b1297bd.png" />
@@ -999,12 +1002,12 @@ I have a specialized tutorial about how we do this in practice which can be foun
 
 <span class="k">assert</span> <span class="n">domain</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="p">(</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-<span class="n">domain</span><span class="o">.</span><span class="n">dx</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">ssh</span><span class="o">.</span><span class="n">shape</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(4381.27743094, dtype=float64), Array(5559.92086515, dtype=float64))
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>((201, 201), (201, 201))
 </pre></div>
 </div>
 </div>
@@ -1048,24 +1051,14 @@ So, let’s come back to this until after we define all of the functions necessa
 \]</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional.geostrophic</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ssh_to_streamfn</span><span class="p">,</span>
-    <span class="n">streamfn_to_ssh</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># F_geos.ssh_to_streamfn??</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ssh_to_streamfn??</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># streamfn_to_ssh??</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># F_geos.streamfn_to_ssh??</span>
 </pre></div>
 </div>
 </div>
@@ -1073,10 +1066,10 @@ So, let’s come back to this until after we define all of the functions necessa
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># forward transformation</span>
-<span class="n">psi</span> <span class="o">=</span> <span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ssh</span><span class="p">),</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
+<span class="n">psi</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ssh</span><span class="p">),</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
 
 <span class="c1"># inverse transform</span>
-<span class="n">ssh_</span> <span class="o">=</span> <span class="n">streamfn_to_ssh</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
+<span class="n">ssh_</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">streamfn_to_ssh</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
 
 <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_almost_equal</span><span class="p">(</span><span class="n">ssh</span><span class="p">,</span> <span class="n">ssh_</span><span class="p">)</span>
 </pre></div>
@@ -1092,8 +1085,7 @@ q = \nabla^2\psi - \frac{f_0^2}{c_1^2}\psi
 \]</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional.geostrophic</span> <span class="kn">import</span> <span class="n">streamfn_to_pvort</span>
-<span class="kn">from</span> <span class="nn">jaxsw._src.boundaries.helmholtz</span> <span class="kn">import</span> <span class="n">enforce_boundaries_helmholtz</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.boundaries.helmholtz</span> <span class="kn">import</span> <span class="n">enforce_boundaries_helmholtz</span>
 </pre></div>
 </div>
 </div>
@@ -1108,7 +1100,7 @@ q = \nabla^2\psi - \frac{f_0^2}{c_1^2}\psi
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c1</span> <span class="o">=</span> <span class="mf">1.5</span>
-<span class="n">q</span> <span class="o">=</span> <span class="n">streamfn_to_pvort</span><span class="p">(</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">streamfn_to_pvort</span><span class="p">(</span>
     <span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span>
 <span class="p">)</span>
 <span class="c1"># q = enforce_boundaries_helmholtz(q, psi, beta=(f0/c1)**2)</span>
@@ -1121,14 +1113,7 @@ q = \nabla^2\psi - \frac{f_0^2}{c_1^2}\psi
 <h3>Stream Function from Potential Vorticity<a class="headerlink" href="#stream-function-from-potential-vorticity" title="Permalink to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional.geostrophic</span> <span class="kn">import</span> <span class="n">pvort_to_streamfn</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psi_rec</span> <span class="o">=</span> <span class="n">pvort_to_streamfn</span><span class="p">(</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psi_rec</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">pvort_to_streamfn</span><span class="p">(</span>
     <span class="n">q</span><span class="p">,</span>
     <span class="n">psi</span><span class="p">,</span>
     <span class="n">dx</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span>
@@ -1140,7 +1125,7 @@ q = \nabla^2\psi - \frac{f_0^2}{c_1^2}\psi
 
 <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">psi_rec</span> <span class="o">-</span> <span class="n">psi</span><span class="p">)))</span>
 
-<span class="n">ssh_rec</span> <span class="o">=</span> <span class="n">streamfn_to_ssh</span><span class="p">(</span><span class="n">psi_rec</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
+<span class="n">ssh_rec</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">streamfn_to_ssh</span><span class="p">(</span><span class="n">psi_rec</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
 <span class="c1"># np.testing.assert_array_almost_equal(psi, psi_rec)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ssh_rec</span> <span class="o">-</span> <span class="n">ssh</span><span class="p">)))</span>
@@ -1232,19 +1217,6 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 \end{split}\]</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional.advection</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">advection_upwind_2D</span><span class="p">,</span>
-    <span class="n">plusminus</span><span class="p">,</span>
-    <span class="n">center_average_2D</span><span class="p">,</span>
-    <span class="n">upwind_2D</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional.geostrophic</span> <span class="kn">import</span> <span class="n">uv_velocity</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># upwind_2D??</span>
 </pre></div>
 </div>
@@ -1252,121 +1224,40 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># def advection_term_upwind(q, psi, dx, dy, **kwargs) -&gt; Array:</span>
-<span class="c1">#     # u,v schemes</span>
-<span class="c1">#     u, v = uv_velocity(psi, dx=dx, dy=dy, accuracy=kwargs.get(&quot;accuracy&quot;, 1))</span>
-
-<span class="c1">#     u_avg = jnp.pad(u, pad_width=((1, 0), (1, 0)), mode=&quot;constant&quot;)</span>
-<span class="c1">#     v_avg = jnp.pad(v, pad_width=((1, 0), (1, 0)), mode=&quot;constant&quot;)</span>
-
-<span class="c1">#     u_avg = center_average_2D(u_avg)</span>
-<span class="c1">#     v_avg = center_average_2D(v_avg)</span>
-
-<span class="c1">#     udq_dx = advection_upwind_2D(q, a=u_avg, b=u_avg, step_size=dx)</span>
-
-<span class="c1">#     vdq_dy = advection_upwind_2D(q, a=v_avg, b=v_avg, step_size=dx)</span>
-
-<span class="c1">#     rhs = jnp.zeros_like(q)</span>
-
-<span class="c1">#     rhs = rhs.at[1:-1, 1:-1].set(udq_dx[1:-1, 1:-1] + vdq_dy[1:-1, 1:-1])</span>
-
-<span class="c1">#     return rhs</span>
-
-
-<span class="k">def</span> <span class="nf">advection_term_upwind</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">advection_term_upwind</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
     <span class="c1"># u,v schemes</span>
-    <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">uv_velocity</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">uv_velocity</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
-    <span class="n">udq_dx</span> <span class="o">=</span> <span class="n">upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># # Average Center Pixel</span>
+    <span class="c1"># u = F_grid.center_average_2D(u, padding=&quot;same&quot;)</span>
+    <span class="c1"># v = F_grid.center_average_2D(v, padding=&quot;same&quot;)</span>
 
-    <span class="n">vdq_dy</span> <span class="o">=</span> <span class="n">upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># # Average East-West &amp; North-South</span>
+    <span class="c1"># u = F_grid.x_average_2D(u, padding=&quot;same&quot;)</span>
+    <span class="c1"># v = F_grid.y_average_2D(v, padding=&quot;same&quot;)</span>
+
+    <span class="c1"># print(u_avg.shape, v_avg.shape, q.shape)</span>
+
+    <span class="n">adv_term</span> <span class="o">=</span> <span class="n">F_adv</span><span class="o">.</span><span class="n">advection_upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">v</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">))</span>
 
     <span class="n">rhs</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
 
-    <span class="n">rhs</span> <span class="o">=</span> <span class="n">rhs</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">udq_dx</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">vdq_dy</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># rhs = rhs.at[1:-1, 1:-1].set(udq_dx[1:-1, 1:-1] + vdq_dy[1:-1, 1:-1])</span>
+    <span class="n">rhs</span> <span class="o">=</span> <span class="n">rhs</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">adv_term</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">rhs</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dx</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span>
-<span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">uv_velocity</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;central&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;U-Velocity&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;V-Velocity&quot;</span><span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../../_images/c022dbf27dce4ce5a149df402196543b8205fbb30e2afaa6cb9cbf86a54b48dc.png" src="../../_images/c022dbf27dce4ce5a149df402196543b8205fbb30e2afaa6cb9cbf86a54b48dc.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># method I</span>
-<span class="n">udq_dx</span> <span class="o">=</span> <span class="n">upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">vdq_dy</span> <span class="o">=</span> <span class="n">upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="c1"># method 2</span>
-<span class="n">u_avg</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">pad_width</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">)</span>
-<span class="n">v_avg</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">pad_width</span><span class="o">=</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">)</span>
-<span class="n">u_avg</span> <span class="o">=</span> <span class="n">center_average_2D</span><span class="p">(</span><span class="n">u_avg</span><span class="p">)</span>
-<span class="n">v_avg</span> <span class="o">=</span> <span class="n">center_average_2D</span><span class="p">(</span><span class="n">v_avg</span><span class="p">)</span>
-<span class="n">udq_dx_</span> <span class="o">=</span> <span class="n">advection_upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">u_avg</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">u_avg</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">dx</span><span class="p">)</span>
-<span class="n">vdq_dy_</span> <span class="o">=</span> <span class="n">advection_upwind_2D</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">v_avg</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">v_avg</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">dx</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
-
-<span class="c1"># Method I</span>
-<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">udq_dx</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$u\partial_x q$&quot;</span><span class="p">)</span>
-<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">vdq_dy</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$v\partial_y q$&quot;</span><span class="p">)</span>
-
-<span class="c1"># METHOD II</span>
-<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">udq_dx_</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$u\partial_x q$&quot;</span><span class="p">)</span>
-<span class="n">pts</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">vdq_dy_</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;$v\partial_y q$&quot;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../../_images/8d797174f604d7ae6b76bf5692ce542eb891ee81030ecf7a273c7c3e2b48329d.png" src="../../_images/8d797174f604d7ae6b76bf5692ce542eb891ee81030ecf7a273c7c3e2b48329d.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rhs</span> <span class="o">=</span> <span class="n">advection_term_upwind</span><span class="p">(</span>
+<span class="n">rhs</span> <span class="o">=</span> <span class="n">advection_term_upwind</span><span class="p">(</span>
     <span class="n">q</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;central&quot;</span><span class="p">,</span> <span class="n">way</span><span class="o">=-</span><span class="mi">1</span>
 <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">rhs</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">rhs</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>-1.3750228959774459e-07 1.3953795940515203e-07
 </pre></div>
 </div>
 </div>
@@ -1383,7 +1274,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/98feae5ef19d22c2b55d98bdbe9c1bf47b97828a22bebb882f5f074b92b76696.png" src="../../_images/98feae5ef19d22c2b55d98bdbe9c1bf47b97828a22bebb882f5f074b92b76696.png" />
+<img alt="../../_images/a8f42fe54ea34895796797b8edfb4294a04204c39a82c11b9646f2e23dd34362.png" src="../../_images/a8f42fe54ea34895796797b8edfb4294a04204c39a82c11b9646f2e23dd34362.png" />
 </div>
 </div>
 </section>
@@ -1452,10 +1343,10 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
         <span class="n">beta</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">beta</span>
 
         <span class="c1"># ssh --&gt; stream function</span>
-        <span class="n">psi</span> <span class="o">=</span> <span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">)</span>
+        <span class="n">psi</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">)</span>
 
         <span class="c1"># stream function --&gt; potential vorticity</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="n">streamfn_to_pvort</span><span class="p">(</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">streamfn_to_pvort</span><span class="p">(</span>
             <span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx_mean</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">enforce_boundaries_helmholtz</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="p">(</span><span class="n">f0</span> <span class="o">/</span> <span class="n">c1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
@@ -1511,7 +1402,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 \end{split}\]</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional.fd</span> <span class="kn">import</span> <span class="n">jacobian</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># from jaxsw._src.operators.functional.fd import jacobian</span>
 </pre></div>
 </div>
 </div>
@@ -1544,10 +1435,12 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
         <span class="n">q</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">q</span>
 
         <span class="c1"># ssh -&gt; stream function</span>
-        <span class="n">psi_bv</span> <span class="o">=</span> <span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">ssh</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">)</span>
+        <span class="n">psi_bv</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">ssh</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">)</span>
 
         <span class="c1"># potential vorticity -&gt; stream function</span>
-        <span class="n">psi</span> <span class="o">=</span> <span class="n">pvort_to_streamfn</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">psi_bv</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">psi</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">pvort_to_streamfn</span><span class="p">(</span>
+            <span class="n">q</span><span class="p">,</span> <span class="n">psi_bv</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
 
         <span class="c1"># upwind scheme for advection</span>
         <span class="n">q_rhs</span> <span class="o">=</span> <span class="o">-</span><span class="n">advection_term_upwind</span><span class="p">(</span>
@@ -1558,7 +1451,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
         <span class="c1">#         q_rhs += 10 * fdx.laplacian(q, step_size=(dx,dy))</span>
 
         <span class="c1"># beta term</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">uv_velocity</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">uv_velocity</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">)</span>
 
         <span class="n">q_rhs</span> <span class="o">+=</span> <span class="o">-</span><span class="n">beta</span> <span class="o">*</span> <span class="n">v</span>
 
@@ -1578,11 +1471,13 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
         <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
 
-        <span class="n">psi_bv</span> <span class="o">=</span> <span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">ssh</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">)</span>
+        <span class="n">psi_bv</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">ssh_to_streamfn</span><span class="p">(</span><span class="n">ssh</span><span class="o">=</span><span class="n">eta</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">)</span>
 
-        <span class="n">psi</span> <span class="o">=</span> <span class="n">pvort_to_streamfn</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">psi_bv</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">psi</span> <span class="o">=</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">pvort_to_streamfn</span><span class="p">(</span>
+            <span class="n">q</span><span class="p">,</span> <span class="n">psi_bv</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">dy</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">f0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">streamfn_to_ssh</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F_geos</span><span class="o">.</span><span class="n">streamfn_to_ssh</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">f0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1620,7 +1515,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/b2fb8d559a265c90a3f8cfb385f1c3bb88e741d7f4ec61b5d60b951c793c4c2a.png" src="../../_images/b2fb8d559a265c90a3f8cfb385f1c3bb88e741d7f4ec61b5d60b951c793c4c2a.png" />
+<img alt="../../_images/95c94be41cb215588ad7a4ac22d43d1a209685b85c7a95593fec2b440014641d.png" src="../../_images/95c94be41cb215588ad7a4ac22d43d1a209685b85c7a95593fec2b440014641d.png" />
 </div>
 </div>
 </section>
@@ -1648,7 +1543,7 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 <span class="n">num_minutes</span> <span class="o">=</span> <span class="mi">30</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">num_minutes</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;minutes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">num_days</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">num_days</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">tmin</span> <span class="o">=</span> <span class="mf">0.0</span>
 <span class="n">tmax</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">num_days</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;days&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
@@ -1663,8 +1558,8 @@ v\partial_y q := v^+ D_y^- q + v^- D_y^+ q \\
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Step Size (dt): 30 minutes
-Tmax: 2 days
-Tmax: 172,800.0 seconds | 2 day(s)
+Tmax: 5 days
+Tmax: 432,000.0 seconds | 5 day(s)
 </pre></div>
 </div>
 </div>
@@ -1680,7 +1575,7 @@ Tmax: 172,800.0 seconds | 2 day(s)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TimeDomain(tmin=0.0, tmax=172800.0, dt=1800.0)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TimeDomain(tmin=0.0, tmax=432000.0, dt=1800.0)
 </pre></div>
 </div>
 </div>
@@ -1700,7 +1595,7 @@ Tmax: 172,800.0 seconds | 2 day(s)
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># SPATIAL DISCRETIZATION</span>
 <span class="c1"># initialize state</span>
-<span class="n">solver</span> <span class="o">=</span> <span class="n">dfx</span><span class="o">.</span><span class="n">Euler</span><span class="p">()</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">dfx</span><span class="o">.</span><span class="n">Euler</span><span class="p">()</span>  <span class="c1">#</span>
 <span class="c1"># max_steps = 10</span>
 <span class="c1"># DYNAMICAL SYSTEM</span>
 <span class="n">dyn_model</span> <span class="o">=</span> <span class="n">QG</span><span class="p">(</span><span class="n">t_domain</span><span class="o">=</span><span class="n">t_domain</span><span class="p">,</span> <span class="n">saveat</span><span class="o">=</span><span class="n">saveat</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">)</span>
@@ -1719,8 +1614,8 @@ Tmax: 172,800.0 seconds | 2 day(s)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 4.52 s, sys: 140 ms, total: 4.66 s
-Wall time: 4.61 s
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 4.69 s, sys: 153 ms, total: 4.84 s
+Wall time: 4.78 s
 </pre></div>
 </div>
 </div>
@@ -1732,7 +1627,7 @@ Wall time: 4.61 s
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(8, 201, 201)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(20, 201, 201)
 </pre></div>
 </div>
 </div>
@@ -1746,7 +1641,7 @@ Wall time: 4.61 s
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(-0.3581583, dtype=float64), Array(1.16310116, dtype=float64))
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array(-0.33095231, dtype=float64), Array(1.16310116, dtype=float64))
 </pre></div>
 </div>
 </div>
@@ -1791,7 +1686,7 @@ Wall time: 4.61 s
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/f9a2ebd117f9d68cbf9c61f2ca4d0c850203320250d51bd9ff27a97f3b9a07c0.png" src="../../_images/f9a2ebd117f9d68cbf9c61f2ca4d0c850203320250d51bd9ff27a97f3b9a07c0.png" />
+<img alt="../../_images/7059d24070b69c475a08c306e0c5f9b063041806cb7b02c8363855740a3fdf3e.png" src="../../_images/7059d24070b69c475a08c306e0c5f9b063041806cb7b02c8363855740a3fdf3e.png" />
 </div>
 </div>
 </section>
