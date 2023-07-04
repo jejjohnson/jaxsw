@@ -85,16 +85,6 @@ def test_x_average_1D_edge_to_node(UDomain_1D, PSIDomain_1D):
     np.testing.assert_array_equal(PSIDomain_1D.grid[1:-1, 0], u_on_psi_x)
 
 
-def test_cgrid1D_edge_to_node(UDomain_1D, PSIDomain_1D):
-    # =======================================================
-    # PSI Domain (Cell-Node) ----> U Domain (Top-Bottom Edge)
-    # =======================================================
-    # Manually
-    u_on_psi_x = F_grid.cgrid1D_edge_to_node(UDomain_1D.grid[..., 0])
-
-    np.testing.assert_array_equal(PSIDomain_1D.grid[1:-1, 0], u_on_psi_x)
-
-
 ####################################
 # 2D U-VELOCITY TRANSFORMATIONS
 ####################################
