@@ -8,15 +8,23 @@ Testing the full Arakawa-C grid.
 
 """
 import pytest
-import jax.numpy as jnp
 import numpy as np
 from jaxsw._src.operators.functional import grid as F_grid
 from jaxsw._src.domain.base import Domain
 
 
-Q_1D_EDGE = jnp.arange(1, 11)
-U_1D_FACE_EXTERIOR = jnp.arange(0.5, 11.5)
-U_1D_FACE_INTERIOR = jnp.arange(1.5, 10.5)
+@pytest.fixture
+def PSIDomain_1D():
+    # STREAM FUNCTION - CELL CORNER
+    nrows = 5
+    return Domain(xmin=(0,), xmax=(nrows + 1,), dx=(1,))
+
+
+@pytest.fixture
+def UDomain_1D():
+    # ZONAL VELOCITY - EAST-WEST EDGE
+    nrows = 5
+    return Domain(xmin=(0.5,), xmax=(nrows + 0.5,), dx=(1,))
 
 
 @pytest.fixture
@@ -47,24 +55,38 @@ def VDomain_2D():
     return Domain(xmin=(0, 0.5), xmax=(nrows + 1, ncols + 0.5), dx=1)
 
 
-def test_x_average_1D_no_padding():
-    assert len(Q_1D_EDGE) == len(U_1D_FACE_EXTERIOR) - 1
-
-    u_on_q = F_grid.x_average_1D(U_1D_FACE_EXTERIOR, padding="valid")
-
-    np.testing.assert_array_equal(u_on_q, Q_1D_EDGE)
+####################################
+# 1D PSI TRANSFORMATIONS
+####################################
 
 
-def test_x_average_1D_padding():
-    assert len(Q_1D_EDGE) == len(U_1D_FACE_INTERIOR) + 1
+def test_x_average_1D_node_to_edge(PSIDomain_1D, UDomain_1D):
+    # =======================================================
+    # PSI Domain (Cell-Node) ----> U Domain (Top-Bottom Edge)
+    # =======================================================
+    # X-Direction
+    psi_on_u_x = F_grid.x_average_1D(PSIDomain_1D.grid[..., 0], padding="valid")
 
-    u_on_q = F_grid.x_average_1D(U_1D_FACE_INTERIOR, padding="valid")
-
-    np.testing.assert_array_equal(u_on_q, Q_1D_EDGE[1:-1])
+    np.testing.assert_array_equal(UDomain_1D.grid[..., 0], psi_on_u_x)
 
 
 ####################################
-# U-VELOCITY TRANSFORMATIONS
+# 1D U-VELOCITY TRANSFORMATIONS
+####################################
+
+
+def test_x_average_1D_edge_to_node(UDomain_1D, PSIDomain_1D):
+    # =======================================================
+    # PSI Domain (Cell-Node) ----> U Domain (Top-Bottom Edge)
+    # =======================================================
+    # X-Direction
+    u_on_psi_x = F_grid.x_average_1D(UDomain_1D.grid[..., 0], padding="valid")
+
+    np.testing.assert_array_equal(PSIDomain_1D.grid[1:-1, 0], u_on_psi_x)
+
+
+####################################
+# 2D U-VELOCITY TRANSFORMATIONS
 ####################################
 
 
@@ -114,7 +136,7 @@ def test_center_average_2D_tb_edge_to_lr_edge(UDomain_2D, VDomain_2D):
 
 
 ####################################
-# V-VELOCITY TRANSFORMATIONS
+# 2D V-VELOCITY TRANSFORMATIONS
 ####################################
 
 
@@ -164,7 +186,7 @@ def test_center_average_2D_lr_edge_to_ew_edge(VDomain_2D, UDomain_2D):
 
 
 ####################################
-# Q TRANSFORMATIONS
+# 2D Q TRANSFORMATIONS
 ####################################
 
 
@@ -214,7 +236,7 @@ def test_center_average_2D_face_to_node(QDomain_2D, PSIDomain_2D):
 
 
 ####################################
-# PSI TRANSFORMATIONS
+# 2D PSI TRANSFORMATIONS
 ####################################
 
 
