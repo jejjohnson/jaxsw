@@ -9,7 +9,7 @@ Testing the full Arakawa-C grid.
 """
 import pytest
 import numpy as np
-from jaxsw._src.operators.functional import grid as F_grid
+from jaxsw._src.operators.functional import cgrid as C_grid
 from jaxsw._src.domain.base import Domain
 
 
@@ -65,7 +65,7 @@ def test_x_average_1D_node_to_edge(PSIDomain_1D, UDomain_1D):
     # PSI Domain (Cell-Node) ----> U Domain (Top-Bottom Edge)
     # =======================================================
     # X-Direction
-    psi_on_u_x = F_grid.x_average_1D(PSIDomain_1D.grid[..., 0], padding="valid")
+    psi_on_u_x = C_grid.node_to_edge_1D(PSIDomain_1D.grid[..., 0])
 
     np.testing.assert_array_equal(UDomain_1D.grid[..., 0], psi_on_u_x)
 
@@ -75,22 +75,12 @@ def test_x_average_1D_node_to_edge(PSIDomain_1D, UDomain_1D):
 ####################################
 
 
-def test_x_average_1D_edge_to_node(UDomain_1D, PSIDomain_1D):
-    # =======================================================
-    # PSI Domain (Cell-Node) ----> U Domain (Top-Bottom Edge)
-    # =======================================================
-    # X-Direction
-    u_on_psi_x = F_grid.x_average_1D(UDomain_1D.grid[..., 0], padding="valid")
-
-    np.testing.assert_array_equal(PSIDomain_1D.grid[1:-1, 0], u_on_psi_x)
-
-
 def test_cgrid1D_edge_to_node(UDomain_1D, PSIDomain_1D):
     # =======================================================
     # PSI Domain (Cell-Node) ----> U Domain (Top-Bottom Edge)
     # =======================================================
     # Manually
-    u_on_psi_x = F_grid.cgrid1D_edge_to_node(UDomain_1D.grid[..., 0])
+    u_on_psi_x = C_grid.edge_to_node_1D(UDomain_1D.grid[..., 0])
 
     np.testing.assert_array_equal(PSIDomain_1D.grid[1:-1, 0], u_on_psi_x)
 
@@ -100,47 +90,47 @@ def test_cgrid1D_edge_to_node(UDomain_1D, PSIDomain_1D):
 ####################################
 
 
-def test_y_average_2D_tb_edge_to_face(UDomain_2D, QDomain_2D):
+def test_edge_tb_to_face_2D(UDomain_2D, QDomain_2D):
     # =======================================================
     # U Domain (Top-Down Edges) ----> Q Domain (Cell-Face)
     # =======================================================
     # X-Direction
-    u_on_q_x = F_grid.y_average_2D(UDomain_2D.grid[..., 0], padding="valid")
+    u_on_q_x = C_grid.edge_tb_to_face_2D(UDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(QDomain_2D.grid[..., 0], u_on_q_x)
 
     # Y-Direction
-    u_on_q_y = F_grid.y_average_2D(UDomain_2D.grid[..., 1], padding="valid")
+    u_on_q_y = C_grid.edge_tb_to_face_2D(UDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(QDomain_2D.grid[..., 1], u_on_q_y)
 
 
-def test_x_average_2D_yb_edge_to_node(UDomain_2D, PSIDomain_2D):
+def test_edge_tb_to_node(UDomain_2D, PSIDomain_2D):
     # =======================================================
     # U Domain (Top-Down Edges) ----> PSI Domain (Cell-Node)
     # =======================================================
     # X-Direction
-    u_on_psi_x = F_grid.x_average_2D(UDomain_2D.grid[..., 0], padding="valid")
+    u_on_psi_x = C_grid.edge_tb_to_node_2D(UDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(PSIDomain_2D.grid[1:-1, :, 0], u_on_psi_x)
 
     # Y-Direction
-    u_on_psi_y = F_grid.x_average_2D(UDomain_2D.grid[..., 1], padding="valid")
+    u_on_psi_y = C_grid.edge_tb_to_node_2D(UDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(PSIDomain_2D.grid[1:-1, :, 1], u_on_psi_y)
 
 
-def test_center_average_2D_tb_edge_to_lr_edge(UDomain_2D, VDomain_2D):
+def test_edge_tb_to_edge_lre(UDomain_2D, VDomain_2D):
     # =======================================================
     # U Domain (Top-Down Edges) ----> V Domain (Left-Right Edges)
     # =======================================================
     # X-Direction
-    u_on_v_x = F_grid.center_average_2D(UDomain_2D.grid[..., 0], padding="valid")
+    u_on_v_x = C_grid.edge_tb_to_edge_lr(UDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(VDomain_2D.grid[1:-1, :, 0], u_on_v_x)
 
     # Y-Direction
-    u_on_v_y = F_grid.center_average_2D(UDomain_2D.grid[..., 1], padding="valid")
+    u_on_v_y = C_grid.edge_tb_to_edge_lr(UDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(VDomain_2D.grid[1:-1, :, 1], u_on_v_y)
 
@@ -150,47 +140,51 @@ def test_center_average_2D_tb_edge_to_lr_edge(UDomain_2D, VDomain_2D):
 ####################################
 
 
-def test_x_average_2D_lr_edge_to_face(VDomain_2D, QDomain_2D):
+def test_edge_lr_to_face_2D(VDomain_2D, QDomain_2D):
     # =======================================================
-    # U Domain (Face) ----> V Domain (Top-Down Edge)
+    # V Domain (Left-Right Edge) ----> Q Domain (Cell Face)
     # =======================================================
     # X-Direction
-    v_on_q_x = F_grid.x_average_2D(VDomain_2D.grid[..., 0], padding="valid")
+    v_on_q_x = C_grid.edge_lr_to_face_2D(VDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(QDomain_2D.grid[..., 0], v_on_q_x)
 
     # Y-Direction
-    v_on_q_y = F_grid.x_average_2D(VDomain_2D.grid[..., 1], padding="valid")
+    v_on_q_y = C_grid.edge_lr_to_face_2D(VDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(QDomain_2D.grid[..., 1], v_on_q_y)
 
 
-def test_y_average_2D_lr_edge_to_node(VDomain_2D, PSIDomain_2D):
+def test_edge_lr_to_node_2D(VDomain_2D, PSIDomain_2D):
     # =======================================================
     # U Domain (Face) ----> PSI Domain (Cell-Node)
     # =======================================================
     # X-Direction
-    v_on_psi_x = F_grid.y_average_2D(VDomain_2D.grid[..., 0], padding="valid")
+    v_on_psi_x = C_grid.edge_lr_to_node_2D(VDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(PSIDomain_2D.grid[:, 1:-1, 0], v_on_psi_x)
 
     # Y-Direction
-    v_on_psi_y = F_grid.y_average_2D(VDomain_2D.grid[..., 1], padding="valid")
+    v_on_psi_y = C_grid.edge_lr_to_node_2D(VDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(PSIDomain_2D.grid[:, 1:-1, 1], v_on_psi_y)
 
 
-def test_center_average_2D_lr_edge_to_ew_edge(VDomain_2D, UDomain_2D):
+def test_edge_lr_to_edge_tb_2D(VDomain_2D, UDomain_2D):
     # =======================================================
     # V Domain (Top-Down Edge) ----> U Domain (Left-Right Edge)
     # =======================================================
     # X-Direction
-    v_on_u_x = F_grid.center_average_2D(VDomain_2D.grid[..., 0], padding="valid")
+    v_on_u_x = C_grid.edge_lr_to_edge_tb_2D(
+        VDomain_2D.grid[..., 0],
+    )
 
     np.testing.assert_array_equal(UDomain_2D.grid[:, 1:-1, 0], v_on_u_x)
 
     # Y-Direction
-    v_on_u_y = F_grid.center_average_2D(VDomain_2D.grid[..., 1], padding="valid")
+    v_on_u_y = C_grid.edge_lr_to_edge_tb_2D(
+        VDomain_2D.grid[..., 1],
+    )
 
     np.testing.assert_array_equal(UDomain_2D.grid[:, 1:-1, 1], v_on_u_y)
 
@@ -200,47 +194,47 @@ def test_center_average_2D_lr_edge_to_ew_edge(VDomain_2D, UDomain_2D):
 ####################################
 
 
-def test_y_average_2D_face_to_tb_edge(QDomain_2D, UDomain_2D):
+def test_face_to_edge_tb_2D(QDomain_2D, UDomain_2D):
     # =======================================================
     # Q Domain (Face) ----> U Domain (Top-Bottom Edge)
     # =======================================================
     # X-Direction
-    q_on_u_x = F_grid.y_average_2D(QDomain_2D.grid[..., 0], padding="valid")
+    q_on_u_x = C_grid.face_to_edge_tb_2D(QDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(UDomain_2D.grid[:, 1:-1, 0], q_on_u_x)
 
     # Y-Direction
-    q_on_u_y = F_grid.y_average_2D(QDomain_2D.grid[..., 1], padding="valid")
+    q_on_u_y = C_grid.face_to_edge_tb_2D(QDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(UDomain_2D.grid[:, 1:-1, 1], q_on_u_y)
 
 
-def test_x_average_2D_face_to_lr_edge(QDomain_2D, VDomain_2D):
+def test_face_to_edge_lr_2D(QDomain_2D, VDomain_2D):
     # =======================================================
     # Q Domain (Face) ----> V Domain (Left-Right Edge)
     # =======================================================
     # X-Direction
-    q_on_v_x = F_grid.x_average_2D(QDomain_2D.grid[..., 0], padding="valid")
+    q_on_v_x = C_grid.face_to_edge_lr_2D(QDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(VDomain_2D.grid[1:-1, :, 0], q_on_v_x)
 
     # Y-Direction
-    q_on_v_y = F_grid.x_average_2D(QDomain_2D.grid[..., 1], padding="valid")
+    q_on_v_y = C_grid.face_to_edge_lr_2D(QDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(VDomain_2D.grid[1:-1, :, 1], q_on_v_y)
 
 
-def test_center_average_2D_face_to_node(QDomain_2D, PSIDomain_2D):
+def test_face_to_node_2D(QDomain_2D, PSIDomain_2D):
     # =======================================================
     # Q Domain (Face) ----> PSI Domain (Cell-Node)
     # =======================================================
     # X-Direction
-    q_on_psi_x = F_grid.center_average_2D(QDomain_2D.grid[..., 0], padding="valid")
+    q_on_psi_x = C_grid.face_to_node_2D(QDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(PSIDomain_2D.grid[1:-1, 1:-1, 0], q_on_psi_x)
 
     # Y-Direction
-    q_on_psi_y = F_grid.center_average_2D(QDomain_2D.grid[..., 1], padding="valid")
+    q_on_psi_y = C_grid.face_to_node_2D(QDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(PSIDomain_2D.grid[1:-1, 1:-1, 1], q_on_psi_y)
 
@@ -250,46 +244,46 @@ def test_center_average_2D_face_to_node(QDomain_2D, PSIDomain_2D):
 ####################################
 
 
-def test_x_average_2D_node_to_tb_edge(PSIDomain_2D, UDomain_2D):
+def test_node_to_edge_tb_2D(PSIDomain_2D, UDomain_2D):
     # =======================================================
     # PSI Domain (Cell-Node) ----> U Domain (Top-Bottom Edge)
     # =======================================================
     # X-Direction
-    psi_on_u_x = F_grid.x_average_2D(PSIDomain_2D.grid[..., 0], padding="valid")
+    psi_on_u_x = C_grid.node_to_edge_tb_2D(PSIDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(UDomain_2D.grid[..., 0], psi_on_u_x)
 
     # Y-Direction
-    psi_on_u_y = F_grid.x_average_2D(PSIDomain_2D.grid[..., 1], padding="valid")
+    psi_on_u_y = C_grid.node_to_edge_tb_2D(PSIDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(UDomain_2D.grid[..., 1], psi_on_u_y)
 
 
-def test_y_average_2D_node_to_lr_edge(PSIDomain_2D, VDomain_2D):
+def test_node_to_edge_lr_2D(PSIDomain_2D, VDomain_2D):
     # =======================================================
     # Q Domain (Face) ----> V Domain (Left-Right Edge)
     # =======================================================
     # X-Direction
-    psi_on_v_x = F_grid.y_average_2D(PSIDomain_2D.grid[..., 0], padding="valid")
+    psi_on_v_x = C_grid.node_to_edge_lr_2D(PSIDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(VDomain_2D.grid[..., 0], psi_on_v_x)
 
     # Y-Direction
-    psi_on_v_y = F_grid.y_average_2D(PSIDomain_2D.grid[..., 1], padding="valid")
+    psi_on_v_y = C_grid.node_to_edge_lr_2D(PSIDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(VDomain_2D.grid[..., 1], psi_on_v_y)
 
 
-def test_center_average_2D_node_to_face(PSIDomain_2D, QDomain_2D):
+def test_node_to_face_2D(PSIDomain_2D, QDomain_2D):
     # =======================================================
     # Q Domain (Face) ----> PSI Domain (Cell-Node)
     # =======================================================
     # X-Direction
-    psi_on_q_x = F_grid.center_average_2D(PSIDomain_2D.grid[..., 0], padding="valid")
+    psi_on_q_x = C_grid.node_to_face_2D(PSIDomain_2D.grid[..., 0])
 
     np.testing.assert_array_equal(QDomain_2D.grid[..., 0], psi_on_q_x)
 
     # Y-Direction
-    psi_on_q_y = F_grid.center_average_2D(PSIDomain_2D.grid[..., 1], padding="valid")
+    psi_on_q_y = C_grid.node_to_face_2D(PSIDomain_2D.grid[..., 1])
 
     np.testing.assert_array_equal(QDomain_2D.grid[..., 1], psi_on_q_y)
