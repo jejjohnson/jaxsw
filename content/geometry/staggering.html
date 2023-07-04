@@ -417,19 +417,15 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensional">1-Dimensional</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exterior-points">Exterior Points</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interior-points">Interior Points</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edges-to-nodes">Edges to Nodes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nodes-to-edges">Nodes to Edges</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensional-field">2-Dimensional Field</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#velocities-on-variable">Velocities on Variable</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-u-velocities">On U-Velocities</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-v-velocities">On V-Velocities</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-2-dimensional-example">Advanced 2-Dimensional Example</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stream-function-to-velocities">Stream Function to Velocities</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-to-vorticity">Variables to Vorticity</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arakawa-c-grid">Arakawa C-Grid</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transformations-to-variable">Transformations to Variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transforms-to-psi-variable">Transforms to PSI Variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transforms-to-u-velocity">Transforms to U-Velocity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transforms-to-v-velocity">Transforms to V-Velocity</a></li>
 </ul>
 </li>
 </ul>
@@ -459,7 +455,9 @@ document.write(`
 <span class="kn">import</span> <span class="nn">einops</span>
 <span class="kn">import</span> <span class="nn">finitediffx</span> <span class="k">as</span> <span class="nn">fdx</span>
 <span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional</span> <span class="kn">import</span> <span class="n">grid</span> <span class="k">as</span> <span class="n">F_grid</span>
+<span class="kn">from</span> <span class="nn">jaxsw._src.operators.functional</span> <span class="kn">import</span> <span class="n">cgrid</span> <span class="k">as</span> <span class="n">C_grid</span>
 <span class="kn">from</span> <span class="nn">jaxsw._src.boundaries</span> <span class="kn">import</span> <span class="n">functional</span> <span class="k">as</span> <span class="n">F_bc</span>
+<span class="kn">from</span> <span class="nn">jaxsw._src.domain.base</span> <span class="kn">import</span> <span class="n">Domain</span>
 
 
 <span class="n">sns</span><span class="o">.</span><span class="n">reset_defaults</span><span class="p">()</span>
@@ -486,16 +484,20 @@ u -- u̅ -- u
 <span class="n">u</span><span class="p">:</span> <span class="n">Array</span><span class="p">[</span><span class="s2">&quot;Nx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
 </pre></div>
 </div>
-<section id="exterior-points">
-<h3>Exterior Points<a class="headerlink" href="#exterior-points" title="Permalink to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="c1"># initialize the Q domain</span>
+<span class="n">q_domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,),</span> <span class="n">xmax</span><span class="o">=</span><span class="p">(</span><span class="n">ncols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,),</span> <span class="n">dx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+
+<span class="c1"># initialize the u-velocity domain</span>
+<span class="n">u_domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,),</span> <span class="n">xmax</span><span class="o">=</span><span class="p">(</span><span class="n">ncols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,),</span> <span class="n">dx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
 
 
-<span class="c1"># check size of new array</span>
-<span class="n">u</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="c1"># extract grid values</span>
+<span class="n">q_field</span> <span class="o">=</span> <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">u_field</span> <span class="o">=</span> <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -504,13 +506,14 @@ u -- u̅ -- u
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MultipleLocator</span><span class="p">,</span> <span class="n">AutoMinorLocator</span>
 
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">q_field</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q_field</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">u_field</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u_field</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -521,24 +524,20 @@ u -- u̅ -- u
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
 </pre></div>
 </div>
-<img alt="../../_images/7b884867aa80776bf6c5237510d58c4c12108ab8c4fd3dbe6ee4aefc99e2e78f.png" src="../../_images/7b884867aa80776bf6c5237510d58c4c12108ab8c4fd3dbe6ee4aefc99e2e78f.png" />
+<img alt="../../_images/001f198fe1d3da136b82fda15aed83ab277d6f9daa01d9ffdfbebb083463bead.png" src="../../_images/001f198fe1d3da136b82fda15aed83ab277d6f9daa01d9ffdfbebb083463bead.png" />
 </div>
 </div>
+<section id="edges-to-nodes">
+<h3>Edges to Nodes<a class="headerlink" href="#edges-to-nodes" title="Permalink to this heading">#</a></h3>
+<p>This happens when we want to move the field on the top-down edges to the nodes.
+For example, we may want to use the velocities to for some quantity defined at the nodes.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># check array is equal</span>
-<span class="n">u_on_q</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_1D</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Edge --&gt; Node</span>
+<span class="n">u_on_q</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_to_node_1D</span><span class="p">(</span><span class="n">u_field</span><span class="p">)</span>
 
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">u_on_q</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
-
-<span class="n">u</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">u_on_q</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array([0.5, 1.5, 2.5, 3.5, 4.5, 5.5], dtype=float64),
- Array([1, 2, 3, 4, 5], dtype=int64),
- Array([1., 2., 3., 4., 5.], dtype=float64))
+<span class="c1"># check array is equal</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">u_on_q</span><span class="p">,</span> <span class="n">q_field</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -547,13 +546,14 @@ u -- u̅ -- u
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MultipleLocator</span><span class="p">,</span> <span class="n">AutoMinorLocator</span>
 
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">q_field</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q_field</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">u_on_q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u_on_q</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -564,12 +564,14 @@ u -- u̅ -- u
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
 </pre></div>
 </div>
-<img alt="../../_images/da0c9b1d1f2ef71e1c1203b8560f5ce3d29555a35238684c2ff58eda1035abcd.png" src="../../_images/da0c9b1d1f2ef71e1c1203b8560f5ce3d29555a35238684c2ff58eda1035abcd.png" />
+<img alt="../../_images/e81a541702afba56ee875bb47c9e2fda7ab3d5e4990dce6fc676a360c7e7caa7.png" src="../../_images/e81a541702afba56ee875bb47c9e2fda7ab3d5e4990dce6fc676a360c7e7caa7.png" />
 </div>
 </div>
 </section>
-<section id="interior-points">
-<h3>Interior Points<a class="headerlink" href="#interior-points" title="Permalink to this heading">#</a></h3>
+<section id="nodes-to-edges">
+<h3>Nodes to Edges<a class="headerlink" href="#nodes-to-edges" title="Permalink to this heading">#</a></h3>
+<p>This happens when we want to move the field defined on the field to the top-down edges.
+For example, we may want to use the quantity of interest defined on the nodes to estimate the velocities defined on the top-down edges.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># QOI</span>
 <span class="n">q</span><span class="p">:</span> <span class="n">Array</span><span class="p">[</span><span class="s2">&quot;Nx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
 <span class="c1"># U-Velocity</span>
@@ -578,12 +580,11 @@ u -- u̅ -- u
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Edge --&gt; Node</span>
+<span class="n">q_on_u</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">node_to_edge_1D</span><span class="p">(</span><span class="n">q_field</span><span class="p">)</span>
 
-
-<span class="c1"># check size of new array</span>
-<span class="n">u</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="c1"># check array is equal</span>
+<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">q_on_u</span><span class="p">,</span> <span class="n">u_field</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -592,13 +593,14 @@ u -- u̅ -- u
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MultipleLocator</span><span class="p">,</span> <span class="n">AutoMinorLocator</span>
 
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">q_on_u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q_on_u</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">u_field</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u_field</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -609,362 +611,16 @@ u -- u̅ -- u
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
 </pre></div>
 </div>
-<img alt="../../_images/0342efc987a81cf4c19be7f49e104b41624f4f872563bb5835df8fd8e382bee6.png" src="../../_images/0342efc987a81cf4c19be7f49e104b41624f4f872563bb5835df8fd8e382bee6.png" />
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># check array is equal</span>
-<span class="n">u_on_q</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_1D</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">u_on_q</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-
-<span class="n">u</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">u_on_q</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(Array([1.5, 2.5, 3.5, 4.5], dtype=float64),
- Array([1, 2, 3, 4, 5], dtype=int64),
- Array([2., 3., 4.], dtype=float64))
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MultipleLocator</span><span class="p">,</span> <span class="n">AutoMinorLocator</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">u_on_q</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">u_on_q</span><span class="p">),</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
-</pre></div>
-</div>
-<img alt="../../_images/6667868e9fda927dc44c66a361b4de91d72a38579897b95c0b697e778b720d06.png" src="../../_images/6667868e9fda927dc44c66a361b4de91d72a38579897b95c0b697e778b720d06.png" />
+<img alt="../../_images/f76f3a2f1999e5af51293e277f5273117a23d7705c67185813c5a205d5402a74.png" src="../../_images/f76f3a2f1999e5af51293e277f5273117a23d7705c67185813c5a205d5402a74.png" />
 </div>
 </div>
 </section>
 </section>
-<section id="dimensional-field">
-<h2>2-Dimensional Field<a class="headerlink" href="#dimensional-field" title="Permalink to this heading">#</a></h2>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jaxsw._src.domain.base</span> <span class="kn">import</span> <span class="n">Domain</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_rows</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">n_cols</span> <span class="o">=</span> <span class="mi">5</span>
-
-<span class="c1"># cell faces</span>
-<span class="n">q_domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">xmax</span><span class="o">=</span><span class="p">(</span><span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-<span class="c1"># U Velocity</span>
-<span class="n">u_domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">xmax</span><span class="o">=</span><span class="p">(</span><span class="n">n_rows</span> <span class="o">+</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-<span class="c1"># V Velocity</span>
-<span class="n">v_domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">xmax</span><span class="o">=</span><span class="p">(</span><span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">1.5</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">v_domain</span><span class="o">.</span><span class="n">size</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(3, 6)
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(3, 6, 2)
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
-    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;tab:gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../../_images/5989d9f9cac951e1ad6616b238a62478c0dea9bcfc56e36b60257adae521e104.png" src="../../_images/5989d9f9cac951e1ad6616b238a62478c0dea9bcfc56e36b60257adae521e104.png" />
-</div>
-</div>
-<section id="velocities-on-variable">
-<h3>Velocities on Variable<a class="headerlink" href="#velocities-on-variable" title="Permalink to this heading">#</a></h3>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># U-Velocity</span>
-<span class="n">u_on_q_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">u_on_q_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">u_on_q_x</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">u_on_q_y</span><span class="p">)</span>
-
-<span class="c1"># # v-Velocity</span>
-<span class="n">v_on_q_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">v_on_q_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">v_on_q_x</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">v_on_q_y</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">u_on_q_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">u_on_q_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">v_on_q_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">v_on_q_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
-    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;tab:gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../../_images/064295b71e56a9c930726a7e88db2c922e29fc181a4cbb8bfd9da866fd62736b.png" src="../../_images/064295b71e56a9c930726a7e88db2c922e29fc181a4cbb8bfd9da866fd62736b.png" />
-</div>
-</div>
-</section>
-<section id="on-u-velocities">
-<h3>On U-Velocities<a class="headerlink" href="#on-u-velocities" title="Permalink to this heading">#</a></h3>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Variable to U velocity</span>
-<span class="n">q_on_u_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-<span class="n">q_on_u_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">q_on_u_x</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">q_on_u_y</span><span class="p">)</span>
-
-<span class="c1"># # v-Velocity</span>
-<span class="n">v_on_u_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">center_average_2D</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-<span class="n">v_on_u_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">center_average_2D</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">v_on_u_x</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">v_on_u_y</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">q_on_u_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">q_on_u_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">v_on_u_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">v_on_u_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
-    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;tab:gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../../_images/c38160e35cadae46c85e0b5c61a70a824a08fd594e95f6fcfc482c3af4b397ac.png" src="../../_images/c38160e35cadae46c85e0b5c61a70a824a08fd594e95f6fcfc482c3af4b397ac.png" />
-</div>
-</div>
-</section>
-<section id="on-v-velocities">
-<h3>On V-Velocities<a class="headerlink" href="#on-v-velocities" title="Permalink to this heading">#</a></h3>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Variable to U velocity</span>
-<span class="n">q_on_v_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-<span class="n">q_on_v_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">q_on_v_x</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">q_on_v_y</span><span class="p">)</span>
-
-<span class="c1"># # v-Velocity</span>
-<span class="n">u_on_v_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">center_average_2D</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-<span class="n">u_on_v_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">center_average_2D</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>
-
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">u_on_v_x</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">u_on_v_y</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">q_on_v_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">q_on_v_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">u_on_v_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">u_on_v_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
-    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;tab:gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../../_images/b8f3117de46dafb018bb7888d059990bf8435810370ee549fe42f99b4eb54885.png" src="../../_images/b8f3117de46dafb018bb7888d059990bf8435810370ee549fe42f99b4eb54885.png" />
-</div>
-</div>
-</section>
-</section>
-<section id="advanced-2-dimensional-example">
-<h2>Advanced 2-Dimensional Example<a class="headerlink" href="#advanced-2-dimensional-example" title="Permalink to this heading">#</a></h2>
+<section id="arakawa-c-grid">
+<h2>Arakawa C-Grid<a class="headerlink" href="#arakawa-c-grid" title="Permalink to this heading">#</a></h2>
+<p>In this example, we will look at the classic Arakawa C-Grid.
+This seems to be the standard for using standard finite difference methods on gridded domains.
+All of the variables are on staggered domains which means that we will have to do some small transformations to put each variable on other domains.</p>
 <p>In this example, we’ll look at two variables along with their corresponding velocities.
 The inspiration comes from the QG equation where we have</p>
 <div class="math notranslate nohighlight">
@@ -977,9 +633,9 @@ q = \boldsymbol{\nabla}_H \psi
 <p>where we have four variables we need to handle in total:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(q\)</span> - potential vorticity on the cell faces</p></li>
-<li><p><span class="math notranslate nohighlight">\(u\)</span> - zonal velocity on the East-West cell edges</p></li>
-<li><p><span class="math notranslate nohighlight">\(v\)</span> - meridional velocity on the North-South cell edges</p></li>
-<li><p><span class="math notranslate nohighlight">\(\psi\)</span> - stream function on the cell corners.</p></li>
+<li><p><span class="math notranslate nohighlight">\(u\)</span> - zonal velocity on the Top-Bottom cell edges</p></li>
+<li><p><span class="math notranslate nohighlight">\(v\)</span> - meridional velocity on the East-West cell edges</p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi\)</span> - stream function on the cell nodes.</p></li>
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -998,12 +654,18 @@ q = \boldsymbol{\nabla}_H \psi
 <span class="c1"># V Velocity</span>
 <span class="n">v_domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">xmax</span><span class="o">=</span><span class="p">(</span><span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">dx</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
-<span class="n">psi_domain</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">q_domain</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">u_domain</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">v_domain</span><span class="o">.</span><span class="n">size</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">psi_domain</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">q_domain</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">u_domain</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">v_domain</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+<span class="c1"># extract the field values</span>
+<span class="n">psi_field</span> <span class="o">=</span> <span class="n">psi_domain</span><span class="o">.</span><span class="n">grid</span>
+<span class="n">q_field</span> <span class="o">=</span> <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span>
+<span class="n">u_field</span> <span class="o">=</span> <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span>
+<span class="n">v_field</span> <span class="o">=</span> <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>((4, 6), (3, 5), (3, 6), (4, 5))
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(4, 6) (3, 5) (3, 6) (4, 5)
 </pre></div>
 </div>
 </div>
@@ -1026,7 +688,7 @@ q = \boldsymbol{\nabla}_H \psi
     <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
     <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Vorticity&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
     <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
@@ -1052,81 +714,6 @@ q = \boldsymbol{\nabla}_H \psi
 
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
-    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;tab:gray&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<img alt="../../_images/57147c93d9b9cf01e1de6ed8ac773fb32a83015472ebbb24abe1e53e0b9cb681.png" src="../../_images/57147c93d9b9cf01e1de6ed8ac773fb32a83015472ebbb24abe1e53e0b9cb681.png" />
-</div>
-</div>
-<section id="stream-function-to-velocities">
-<h3>Stream Function to Velocities<a class="headerlink" href="#stream-function-to-velocities" title="Permalink to this heading">#</a></h3>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute stream to u grid (cell corners to cell East-West Edges)</span>
-<span class="n">psi_on_u_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">psi_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">psi_on_u_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">psi_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">psi_on_u_x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">psi_on_u_y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
-
-<span class="c1"># compute stream to v grid (cell corners to cell North-South Edges)</span>
-<span class="n">psi_on_v_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">psi_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">psi_on_v_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">psi_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">psi_on_v_x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">psi_on_v_y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">psi_on_u_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">psi_on_u_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stream Function (U-Grid)&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">psi_on_v_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">psi_on_v_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stream Function (V-Grid)&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
-
-<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
     <span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span>
     <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1137,28 +724,37 @@ q = \boldsymbol{\nabla}_H \psi
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/792c727daa972773e99cdbd80fb2f4fd3768d4e7683171095866994faf8a7e58.png" src="../../_images/792c727daa972773e99cdbd80fb2f4fd3768d4e7683171095866994faf8a7e58.png" />
+<img alt="../../_images/fc30c031c6fdcb3fb1ceffdc838354bfd15684a8308ed4d26a5d745be2e29bdd.png" src="../../_images/fc30c031c6fdcb3fb1ceffdc838354bfd15684a8308ed4d26a5d745be2e29bdd.png" />
 </div>
 </div>
-</section>
-<section id="variables-to-vorticity">
-<h3>Variables to Vorticity<a class="headerlink" href="#variables-to-vorticity" title="Permalink to this heading">#</a></h3>
+<p>This example seems quite complicated and possibly unnecessary because we have two variables and the velocities.
+This can occur in the contrived example but in many cases, we may only have 1 variable and the velocities, e.g. Shallow Water equations.
+In this case, we have some options, we can use the cell faces as the main variable or the cell nodes.
+It’s up to us.</p>
+<section id="transformations-to-variable">
+<h3>Transformations to Variable<a class="headerlink" href="#transformations-to-variable" title="Permalink to this heading">#</a></h3>
+<p>In this first case, we will look at all transformations that can get us to the vorticity from any other variable on this grid.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+\psi &amp;\rightarrow q \\
+u &amp;\rightarrow q \\
+v &amp;\rightarrow q
+\end{aligned}
+\end{split}\]</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute stream to q grid (cell corners to cell faces)</span>
-<span class="n">psi_on_q_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">center_average_2D</span><span class="p">(</span><span class="n">psi_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">psi_on_q_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">center_average_2D</span><span class="p">(</span><span class="n">psi_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">psi_on_q_x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">psi_on_q_y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># u velocities</span>
+<span class="n">u_on_q_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_tb_to_face_2D</span><span class="p">(</span><span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">u_on_q_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_tb_to_face_2D</span><span class="p">(</span><span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
-<span class="c1"># compute stream to u grid (cell East-West EDGES to cell FACE)</span>
-<span class="n">u_on_q_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">u_on_q_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">y_average_2D</span><span class="p">(</span><span class="n">u_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">u_on_q_x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">u_on_q_y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+<span class="c1"># v velocities</span>
+<span class="n">v_on_q_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_lr_to_face_2D</span><span class="p">(</span><span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">v_on_q_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_lr_to_face_2D</span><span class="p">(</span><span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
-<span class="c1"># compute stream to v grid (cell North-South EDGES to cell FACE)</span>
-<span class="n">v_on_q_x</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">v_on_q_y</span> <span class="o">=</span> <span class="n">F_grid</span><span class="o">.</span><span class="n">x_average_2D</span><span class="p">(</span><span class="n">v_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="k">assert</span> <span class="n">v_on_q_x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">v_on_q_y</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+<span class="c1"># psi variable</span>
+<span class="n">psi_on_q_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">node_to_face_2D</span><span class="p">(</span><span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">psi_on_q_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">node_to_face_2D</span><span class="p">(</span><span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1167,14 +763,7 @@ q = \boldsymbol{\nabla}_H \psi
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">q_domain</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Vorticity&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+
 <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
     <span class="n">psi_on_q_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
     <span class="n">psi_on_q_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
@@ -1182,6 +771,15 @@ q = \boldsymbol{\nabla}_H \psi
     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
     <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stream Function&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
     <span class="n">u_on_q_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
@@ -1207,7 +805,7 @@ q = \boldsymbol{\nabla}_H \psi
 
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
-    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span>
+    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
     <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">)</span>
@@ -1217,7 +815,271 @@ q = \boldsymbol{\nabla}_H \psi
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/e457b1af02360926d3dc3de2ec360514f4442043b79d3562236762a67e2e26af.png" src="../../_images/e457b1af02360926d3dc3de2ec360514f4442043b79d3562236762a67e2e26af.png" />
+<img alt="../../_images/d4e266a70903a0efbdd6533380cc2e391d702acc4f77603177ba7e3321ab92f7.png" src="../../_images/d4e266a70903a0efbdd6533380cc2e391d702acc4f77603177ba7e3321ab92f7.png" />
+</div>
+</div>
+</section>
+<section id="transforms-to-psi-variable">
+<h3>Transforms to PSI Variable<a class="headerlink" href="#transforms-to-psi-variable" title="Permalink to this heading">#</a></h3>
+<p>In this first case, we will look at all transformations that can get us to the vorticity from any other variable on this grid.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+q &amp;\rightarrow \psi \\
+u &amp;\rightarrow \psi \\
+v &amp;\rightarrow \psi
+\end{aligned}
+\end{split}\]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># u velocities</span>
+<span class="n">u_on_psi_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_tb_to_node_2D</span><span class="p">(</span><span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">u_on_psi_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_tb_to_node_2D</span><span class="p">(</span><span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># v velocities</span>
+<span class="n">v_on_psi_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_lr_to_node_2D</span><span class="p">(</span><span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">v_on_psi_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_lr_to_node_2D</span><span class="p">(</span><span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># psi variable</span>
+<span class="n">q_on_psi_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">face_to_node_2D</span><span class="p">(</span><span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">q_on_psi_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">face_to_node_2D</span><span class="p">(</span><span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stream Function&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">q_on_psi_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">q_on_psi_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">u_on_psi_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">u_on_psi_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">v_on_psi_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">v_on_psi_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/4fc2569abed8a1a3f701a869c070fc3585883821adfada0195f9e20124d00677.png" src="../../_images/4fc2569abed8a1a3f701a869c070fc3585883821adfada0195f9e20124d00677.png" />
+</div>
+</div>
+</section>
+<section id="transforms-to-u-velocity">
+<h3>Transforms to U-Velocity<a class="headerlink" href="#transforms-to-u-velocity" title="Permalink to this heading">#</a></h3>
+<p>In this first case, we will look at all transformations that can get us to the u-velocity from any other variable on this grid.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+q &amp;\rightarrow u \\
+\psi &amp;\rightarrow u \\
+v &amp;\rightarrow u
+\end{aligned}
+\end{split}\]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># V Velocities</span>
+<span class="n">v_on_u_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_lr_to_edge_tb_2D</span><span class="p">(</span><span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">v_on_u_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_lr_to_edge_tb_2D</span><span class="p">(</span><span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># Q Variable</span>
+<span class="n">psi_on_u_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">node_to_edge_tb_2D</span><span class="p">(</span><span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">psi_on_u_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">node_to_edge_tb_2D</span><span class="p">(</span><span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># psi variable</span>
+<span class="n">q_on_u_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">face_to_edge_tb_2D</span><span class="p">(</span><span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">q_on_u_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">face_to_edge_tb_2D</span><span class="p">(</span><span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">psi_on_u_x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">psi_on_u_y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stream Function&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">q_on_u_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">q_on_u_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">v_on_u_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">v_on_u_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/92a91ae99fced0b1d58feb9b6718c74e1060200d20aa299fd373f37af87dbd31.png" src="../../_images/92a91ae99fced0b1d58feb9b6718c74e1060200d20aa299fd373f37af87dbd31.png" />
+</div>
+</div>
+</section>
+<section id="transforms-to-v-velocity">
+<h3>Transforms to V-Velocity<a class="headerlink" href="#transforms-to-v-velocity" title="Permalink to this heading">#</a></h3>
+<p>In this first case, we will look at all transformations that can get us to the v-velocity from any other variable on this grid.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+q &amp;\rightarrow v \\
+\psi &amp;\rightarrow v \\
+u &amp;\rightarrow v
+\end{aligned}
+\end{split}\]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># U Velocities</span>
+<span class="n">u_on_v_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_tb_to_edge_lr</span><span class="p">(</span><span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">u_on_v_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">edge_tb_to_edge_lr</span><span class="p">(</span><span class="n">u_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># Q Variable</span>
+<span class="n">psi_on_v_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">node_to_edge_lr_2D</span><span class="p">(</span><span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">psi_on_v_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">node_to_edge_lr_2D</span><span class="p">(</span><span class="n">psi_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># psi variable</span>
+<span class="n">q_on_v_x</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">face_to_edge_lr_2D</span><span class="p">(</span><span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">q_on_v_y</span> <span class="o">=</span> <span class="n">C_grid</span><span class="o">.</span><span class="n">face_to_edge_lr_2D</span><span class="p">(</span><span class="n">q_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">psi_on_v_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">psi_on_v_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stream Function&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">q_on_v_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">q_on_v_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:red&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Variable&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">u_on_v_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">u_on_v_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Zonal Velocity&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">v_field</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Meridional Velocity&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span>
+    <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span>
+    <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/6c2e9625a8688f09fef6e1546b554ec4fb477cbb2c7f6e8c1bd1f251e3613853.png" src="../../_images/6c2e9625a8688f09fef6e1546b554ec4fb477cbb2c7f6e8c1bd1f251e3613853.png" />
 </div>
 </div>
 </section>
@@ -1292,19 +1154,15 @@ q = \boldsymbol{\nabla}_H \psi
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensional">1-Dimensional</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exterior-points">Exterior Points</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interior-points">Interior Points</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edges-to-nodes">Edges to Nodes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nodes-to-edges">Nodes to Edges</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensional-field">2-Dimensional Field</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#velocities-on-variable">Velocities on Variable</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-u-velocities">On U-Velocities</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-v-velocities">On V-Velocities</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-2-dimensional-example">Advanced 2-Dimensional Example</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stream-function-to-velocities">Stream Function to Velocities</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-to-vorticity">Variables to Vorticity</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arakawa-c-grid">Arakawa C-Grid</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transformations-to-variable">Transformations to Variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transforms-to-psi-variable">Transforms to PSI Variable</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transforms-to-u-velocity">Transforms to U-Velocity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transforms-to-v-velocity">Transforms to V-Velocity</a></li>
 </ul>
 </li>
 </ul>
