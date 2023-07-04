@@ -20,5 +20,5 @@ def helmholtz_matvec(
     **kwargs,
 ) -> Array:
     u_lap = fdx.laplacian(u, **kwargs)
-    u_helmholtz = alpha * u_lap - beta
+    u_helmholtz = alpha * u_lap - beta * u
     return bc_fn(u_helmholtz)
