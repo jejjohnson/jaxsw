@@ -111,32 +111,6 @@ def advection_3D(
     return a * u_grad[0] + b * u_grad[1] + c * u_grad[2]
 
 
-def plusminus(
-    u: Array, way: int = 1, fn: tp.Optional[tp.Callable] = None
-) -> tp.Tuple[Array, Array]:
-    """Plus Minus Scheme
-    It returns the + and - for the array whereby
-    "plus" has all values less than zero equal to zero
-    and "minus" has all values greater than zero equal to zero.
-    This is useful for advection schemes
-
-    Args:
-        u (Array): the input field
-        way (int): chooses which "way" (default=1)
-
-    Returns:
-        plus (Array): the postive values
-        minus (Array): the negative values
-    """
-    if fn is None:
-        u_plus = jnp.where(way * u < 0.0, 0.0, u)
-        u_minus = jnp.where(way * u > 0.0, 0.0, u)
-    else:
-        u_plus = way * fn(way * u)
-        u_minus = -1.0 * way * fn(-1.0 * way * u)
-    return u_plus, u_minus
-
-
 def advection_upwind_1D(
     u: Array,
     a: Array,
@@ -342,3 +316,29 @@ def advection_upwind_3D(
     )
 
     return a_du_dx + b_du_dy + c_du_dz
+
+
+def plusminus(
+    u: Array, way: int = 1, fn: tp.Optional[tp.Callable] = None
+) -> tp.Tuple[Array, Array]:
+    """Plus Minus Scheme
+    It returns the + and - for the array whereby
+    "plus" has all values less than zero equal to zero
+    and "minus" has all values greater than zero equal to zero.
+    This is useful for advection schemes
+
+    Args:
+        u (Array): the input field
+        way (int): chooses which "way" (default=1)
+
+    Returns:
+        plus (Array): the postive values
+        minus (Array): the negative values
+    """
+    if fn is None:
+        u_plus = jnp.where(way * u < 0.0, 0.0, u)
+        u_minus = jnp.where(way * u > 0.0, 0.0, u)
+    else:
+        u_plus = way * fn(way * u)
+        u_minus = -1.0 * way * fn(-1.0 * way * u)
+    return u_plus, u_minus

@@ -27,26 +27,6 @@ def x_average_1D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     return kernel_fn(u)
 
 
-def cgrid1D_edge_to_node(u: Array) -> Array:
-    """1D Arakawa C-Grid. Moves the array from
-    the top-down edge to a node. Typically used
-    for converting the velocity to the quantity
-    of interest.
-        Input:  u -- + -- u
-        Output: . -- u̅ -- .
-
-    Args:
-        u (Array): Array on a edge
-            Size = [Nx]
-
-    Returns:
-        Array: Array on the node
-            Size = [Nx - 1]
-    """
-    u = x_average_1D(u, padding="valid")
-    return u
-
-
 def x_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the two-point average at the centres between grid points.
 
@@ -120,35 +100,3 @@ def center_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Arr
         return jnp.mean(u)
 
     return kernel_fn(u)
-
-
-def u_at_v(u: Array) -> Array:
-    return center_average_2D(u)[1:-1, :]
-
-
-def v_at_u(v: Array) -> Array:
-    return center_average_2D(v)[:, 1:-1]
-
-
-def node_to_edge(u: Array) -> Array:
-    pass
-
-
-def edge_to_node(u: Array) -> Array:
-    pass
-
-
-def node_to_face(u: Array) -> Array:
-    pass
-
-
-def face_to_node(u: Array) -> Array:
-    pass
-
-
-def edge_to_face(u: Array) -> Array:
-    pass
-
-
-def face_to_edge(u: Array) -> Array:
-    pass
