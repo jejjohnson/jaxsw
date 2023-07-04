@@ -37,8 +37,8 @@ def advection_1D(
         u,
         axis=axis,
         method=method,
-        accuracy=accuracy,
-        step_size=step_size,
+        accuracy=accuracy[0],
+        step_size=step_size[0],
         derivative=1,
     )
 
