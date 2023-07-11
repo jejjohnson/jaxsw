@@ -289,3 +289,107 @@ def det_jacobian(f, g):
             )
         )
     ) / 12.0
+
+
+def advection_term(q, p, params, domain):
+    return (1.0 / (params.f0 * domain.dx * domain.dy)) * det_jacobian(q, p)
+
+
+def diffusion_term(p, params, domain):
+    return params.a_2 / params.f0**2 / domain.dx**4 * laplacian_interior(p)
+
+
+def hyperdiffusion_term(p, params, domain):
+    return (
+        -(params.a_4 / params.f0**2)
+        / domain.dx**6
+        * laplacian_interior(laplacian(p, params.zfbc))
+    )
+
+
+def bottom_friction(p, params, domain, height_params):
+    return (
+        params.delta_ek
+        / (2 * np.abs(params.f0) * domain.dx**2 * (-height_params.heights[-1]))
+        * laplacian_interior(p[..., -1:, :, :])
+    )
+
+
+def rhs_pde(q, p, params, domain, A_mat, wind_forcing):
+
+    # Calculate Determinant Jacobian
+    rhs = advection_term(q, p, params, domain)
+
+    # calculate Laplacian
+    delta2_p = laplacian(p, params.zfbc)
+
+    # Add Diffusion Term
+    if params.a_2 != 0.0:
+        rhs += diffusion_term(delta2_p, params, domain)
+
+    # Add HyperDiffusion
+    if params.a_4 != 0.0:
+        rhs += hyperdiffusion_term(delta2_p, params, domain)
+
+    # Add Wind Forcing
+    rhs = rhs.at[..., 0:1, :, :].set(rhs[..., 0:1, :, :] + wind_forcing)
+
+    # Add Bottom Friction
+    bottom_term = bottom_friction(p, params, domain, A_mat)
+
+    rhs = rhs.at[..., -1:, :, :].set(rhs[..., -1:, :, :] + bottom_term)
+
+    return rhs
+
+
+class QGARGS(eqx.Module):
+    A_mat: MLQGHeightMatrix
+    domain: Domain
+    wind_forcing: Array = eqx.static_field()
+    helmoltz_dst: Array = eqx.static_field()
+    alpha_matrix: Array = eqx.static_field()
+    homogeneous_sol: Array = eqx.static_field()
+
+
+def rhs_time_step(q, p, params, args: QGARGS):
+
+    # calculate advection - interior only
+    dq_f0 = rhs_pde(
+        q,
+        p,
+        params=params,
+        domain=args.domain,
+        A_mat=args.A_mat,
+        wind_forcing=args.wind_forcing,
+    )
+    # pad - original domain
+    dq_f0 = jnp.pad(dq_f0, ((0, 0), (1, 1), (1, 1)))
+
+    # pressure
+    rhs_helmholtz = jnp.einsum("ij,jkl->ikl", args.A_mat.A_layer_2_mode, dq_f0)
+    dp_modes = jax.vmap(F_elliptical.inverse_elliptic_dst, in_axes=(0, 0))(
+        rhs_helmholtz[:, 1:-1, 1:-1], args.helmoltz_dst
+    )
+    # pad - original domain
+    dp_modes = jnp.pad(dp_modes, ((0, 0), (1, 1), (1, 1)))
+
+    # ensure mass conservation
+    dalpha = args.alpha_matrix @ dp_modes[..., :-1, :, :].mean((-2, -1))
+    dalpha = einops.repeat(dalpha, "i -> i 1 1")
+    dp_modes = dp_modes.at[..., :-1, :, :].set(
+        dp_modes[..., :-1, :, :] + dalpha * args.homogeneous_sol
+    )
+    dp = jnp.einsum("ij,jkl->ikl", args.A_mat.A_mode_2_layer, dp_modes)
+
+    # UPDATE VORTICITY @ BOUNDARIES
+    delta_p_boundaries = laplacian_boundaries(
+        dp / (params.f0 * args.domain.dx) ** 2, params.zfbc
+    )
+    dp_boundaries = jnp.concatenate(
+        [dp[..., 0, 1:-1], dp[..., -1, 1:-1], dp[..., :, 0], dp[..., :, -1]], axis=-1
+    )
+    dq_f0_boundaries = delta_p_boundaries - args.A_mat.A @ dp_boundaries
+
+    dq_f0 = _apply_boundaries(dq_f0, dq_f0_boundaries)
+
+    return dq_f0, dp
