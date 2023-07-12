@@ -34,3 +34,4 @@ parts:
       - file: content/qg/overview.md
       - file: content/qg/ssh_free_run
       - file: content/qg/qg_inversion
+      - file: content/qg/multilayer_qg
