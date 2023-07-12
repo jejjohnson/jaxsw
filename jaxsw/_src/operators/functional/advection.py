@@ -342,3 +342,30 @@ def plusminus(
         u_plus = way * fn(way * u)
         u_minus = -1.0 * way * fn(-1.0 * way * u)
     return u_plus, u_minus
+
+
+def det_jacobian(f, g, dx, dy):
+    """Arakawa discretisation of Jacobian J(f,g).
+    Scalar fields f and g must have the same dimension.
+    Grid is regular and dx = dy."""
+    dx_f = f[..., 2:, :] - f[..., :-2, :]
+    dx_g = g[..., 2:, :] - g[..., :-2, :]
+    dy_f = f[..., 2:] - f[..., :-2]
+    dy_g = g[..., 2:] - g[..., :-2]
+    return (
+        (dx_f[..., 1:-1] * dy_g[..., 1:-1, :] - dx_g[..., 1:-1] * dy_f[..., 1:-1, :])
+        + (
+            (
+                f[..., 2:, 1:-1] * dy_g[..., 2:, :]
+                - f[..., :-2, 1:-1] * dy_g[..., :-2, :]
+            )
+            - (f[..., 1:-1, 2:] * dx_g[..., 2:] - f[..., 1:-1, :-2] * dx_g[..., :-2])
+        )
+        + (
+            (g[..., 1:-1, 2:] * dx_f[..., 2:] - g[..., 1:-1, :-2] * dx_f[..., :-2])
+            - (
+                g[..., 2:, 1:-1] * dy_f[..., 2:, :]
+                - g[..., :-2, 1:-1] * dy_f[..., :-2, :]
+            )
+        )
+    ) / (12.0 * dx * dy)

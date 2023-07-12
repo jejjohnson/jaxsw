@@ -93,7 +93,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-testpaths = ["jaxsw"]
+testpaths = ["jaxsw/"]
 
 [tool.nbqa.ignore]
 ruff = ["I001", "F821", "F541"]

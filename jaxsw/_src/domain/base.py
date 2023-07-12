@@ -83,12 +83,21 @@ class Domain(eqx.Module):
         return tuple(map(len, self.coords))
 
     @property
+    def Nx(self) -> tp.Tuple[int]:
+        return self.size
+
+    @property
+    def Lx(self) -> tp.Tuple[int]:
+        f = lambda xmin, xmax: xmax - xmin
+        return tuple(map(f, self.xmin, self.xmax))
+
+    @property
     def cell_volume(self) -> float:
         return reduce(mul, self.dx)
 
 
 def make_coords(xmin, xmax, delta):
-    return jnp.arange(xmin, xmax, delta)
+    return jnp.arange(xmin, xmax + delta, delta)
 
 
 def make_grid_from_coords(coords: tp.Iterable) -> Float[Array, " D"]:

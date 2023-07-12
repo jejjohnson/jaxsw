@@ -24,6 +24,41 @@ class PDEParams(tp.NamedTuple):
         return self.bcco / (1.0 + 0.5 * self.bcco)
 
 
+def create_qgml_helmholtz_matrix(
+    domain, heights, coriolis_param: float = 9.375e-05
+) -> Array:
+    # create coefficients
+    alpha = 1 / coriolis_param**2
+    beta = einops.repeat(heights, "Nz -> Nz 1 1")
+    return F_elliptical.helmholtz_dst(
+        nx=domain.Nx[0],
+        ny=domain.Nx[1],
+        dx=domain.dx[0],
+        dy=domain.dx[1],
+        alpha=alpha,
+        beta=beta,
+    )
+
+
+def homogeneous_sol_layers(helmoltz_dst_mat, domain, A_mat):
+    beta = einops.repeat(A_mat.lambd, "Nz -> Nz 1 1")
+    # constant field
+    num_layers = helmoltz_dst_mat.shape[0]
+    constant_field = jnp.ones((num_layers, domain.nx, domain.ny)) / (
+        domain.nx * domain.ny
+    )
+
+    s_solutions = jnp.zeros_like(constant_field)
+    out = jax.vmap(F_elliptical.inverse_elliptic_dst, in_axes=(0, 0))(
+        constant_field[:, 1:-1, 1:-1], helmoltz_dst_mat
+    )
+    s_solutions = s_solutions.at[:, 1:-1, 1:-1].set(out)
+
+    homogeneous_sol = constant_field + s_solutions * beta
+
+    return homogeneous_sol[:-1]
+
+
 class Domain(eqx.Module):
     nx: int = eqx.static_field()
     ny: int = eqx.static_field()
@@ -191,7 +226,6 @@ def laplacian(u, constant):
     # calculate interior Laplacian
     out = laplacian_interior(u)
     delta_f = delta_f.at[..., 1:-1, 1:-1].set(out)
-
     # calculate Laplacian at the boundaries
     delta_f_bound = laplacian_boundaries(u, constant)
     return _apply_boundaries(delta_f, delta_f_bound)
@@ -227,25 +261,6 @@ def laplacian_boundaries(u, constant=0.0):
             [u[..., 0, 1:-1], u[..., -1, 1:-1], u[..., 0], u[..., -1]], axis=-1
         )
     )
-
-
-def homogeneous_sol_layers(helmoltz_dst_mat, domain, A_mat):
-    beta = einops.repeat(A_mat.lambd, "Nz -> Nz 1 1")
-    # constant field
-    num_layers = helmoltz_dst_mat.shape[0]
-    constant_field = jnp.ones((num_layers, domain.nx, domain.ny)) / (
-        domain.nx * domain.ny
-    )
-
-    s_solutions = jnp.zeros_like(constant_field)
-    out = jax.vmap(F_elliptical.inverse_elliptic_dst, in_axes=(0, 0))(
-        constant_field[:, 1:-1, 1:-1], helmoltz_dst_mat
-    )
-    s_solutions = s_solutions.at[:, 1:-1, 1:-1].set(out)
-
-    homogeneous_sol = constant_field + s_solutions * beta
-
-    return homogeneous_sol[:-1]
 
 
 def pressure_to_vorticity(pressure, A, domain, params):
@@ -316,7 +331,6 @@ def bottom_friction(p, params, domain, height_params):
 
 
 def rhs_pde(q, p, params, domain, A_mat, wind_forcing):
-
     # Calculate Determinant Jacobian
     rhs = advection_term(q, p, params, domain)
 
@@ -352,7 +366,6 @@ class QGARGS(eqx.Module):
 
 
 def rhs_time_step(q, p, params, args: QGARGS):
-
     # calculate advection - interior only
     dq_f0 = rhs_pde(
         q,
