@@ -192,6 +192,7 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ssh_free_run.html">SSH Free Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="qg_inversion.html">QG Inversion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multilayer_qg.html">Multilayer QG</a></li>
 </ul>
 
     </div>
@@ -385,6 +386,12 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#qg-equations">QG Equations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jacobian-form">Jacobian Form</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-forcing-diffusion-terms">Example Forcing + Diffusion Terms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sea-surface-height">Sea Surface Height</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#navier-stokes-relation">Navier-Stokes Relation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sea-surface-height-edition">Sea Surface Height Edition</a></li>
 </ul>
@@ -401,9 +408,108 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="summary">
 <h1>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">#</a></h1>
 <p>In this section, we look at how we can solve the QG equations using elements from this package.</p>
+<section id="qg-equations">
+<h2>QG Equations<a class="headerlink" href="#qg-equations" title="Permalink to this heading">#</a></h2>
+<p>We are going to be using the formulation that is described in the Q-GCM model. The manual can be found <span class="xref myst">here</span>. We write the multi-layer QG equations in terms of the vorticity term, <span class="math notranslate nohighlight">\(q\)</span>, and the stream function term, <span class="math notranslate nohighlight">\(\psi\)</span>. We consider the stream function and the potential vorticity to be <span class="math notranslate nohighlight">\(N_Z\)</span> stacked  isopycnal layers.</p>
+<div class="math notranslate nohighlight" id="equation-eq-qg-form-adv">
+<span class="eqno">(40)<a class="headerlink" href="#equation-eq-qg-form-adv" title="Permalink to this equation">#</a></span>\[
+\partial_t q_k + (u_kq_k)_x + (v_kq_k)_y = F_k + D_k
+\]</div>
+<p>where the <span class="math notranslate nohighlight">\(F_k\)</span> and <span class="math notranslate nohighlight">\(D_k\)</span> are forcing terms for each layer, <span class="math notranslate nohighlight">\(k\)</span>.  The vorticity term is defined as</p>
+<div class="math notranslate nohighlight" id="equation-eq-qg-vorticity">
+<span class="eqno">(41)<a class="headerlink" href="#equation-eq-qg-vorticity" title="Permalink to this equation">#</a></span>\[
+q = 
+\frac{1}{f_0} \boldsymbol{\nabla}_H^2\psi -
+f_0\mathbf{A}\psi + \beta(y-y_0)+ \tilde{\mathbf{D}}
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\tilde{D}\)</span> is the dynamic topography and <span class="math notranslate nohighlight">\(\beta\)</span> is the <span class="math notranslate nohighlight">\(\beta\)</span>-plane approximation. The term that links each of the layers together, <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>, is a tri-diagonal matrix that can be written as</p>
+<div class="math notranslate nohighlight" id="equation-eq-qg-a">
+<span class="eqno">(42)<a class="headerlink" href="#equation-eq-qg-a" title="Permalink to this equation">#</a></span>\[\begin{split}
+\mathbf{A} =
+\begin{bmatrix}
+\frac{1}{H_1 g_1'} &amp; \frac{-1}{H_1 g_2'} &amp; \ldots &amp; \ldots &amp; \ldots  \\
+\frac{-1}{H_2 g_1'} &amp; \frac{1}{H_1}\left(\frac{1}{g_1'} + \frac{1}{g_2'} \right) &amp; \frac{-1}{H_2 g_2'} &amp; \ldots &amp; \ldots  \\
+\ldots &amp; \ldots &amp; \ldots &amp; \ldots &amp; \ldots \\
+\ldots &amp; \ldots &amp; \frac{-1}{H_{n-1} g_{n-2}'} &amp; \frac{1}{H_{n-1}}\left(\frac{1}{g_{n-2}'} + \frac{1}{g_{n-1}'} \right) &amp; \frac{-1}{H_{n-1} g_{n-2}'}  \\
+\ldots &amp; \ldots&amp; \ldots &amp; \frac{-1}{H_n g_{n-1}'} &amp; \frac{1}{H_n g_{n-1}'}   \\
+\end{bmatrix}
+\end{split}\]</div>
+<hr class="docutils" />
+<section id="jacobian-form">
+<h3>Jacobian Form<a class="headerlink" href="#jacobian-form" title="Permalink to this heading">#</a></h3>
+<p>We can also write this using the deterimant Jacobian formulation</p>
+<div class="math notranslate nohighlight" id="equation-eq-qg-form-detjac">
+<span class="eqno">(43)<a class="headerlink" href="#equation-eq-qg-form-detjac" title="Permalink to this equation">#</a></span>\[
+\partial_t q + \det\boldsymbol{J}\left(q, \psi \right) = 
+BE + \frac{A_2}{f_0}\boldsymbol{\nabla}_H^4\psi -
+\frac{A_4}{f_0}\boldsymbol{\nabla}_H^6\psi
+\]</div>
+<p>where the determinant Jacobian is defined as:</p>
+<div class="math notranslate nohighlight" id="equation-eq-qg-detjac">
+<span class="eqno">(44)<a class="headerlink" href="#equation-eq-qg-detjac" title="Permalink to this equation">#</a></span>\[
+\det\boldsymbol{J}\left( q, \psi \right) = 
+\partial_x q \partial_y\psi - 
+\partial_y q \partial_x\psi
+\]</div>
+</section>
+<hr class="docutils" />
+<section id="example-forcing-diffusion-terms">
+<h3>Example Forcing + Diffusion Terms<a class="headerlink" href="#example-forcing-diffusion-terms" title="Permalink to this heading">#</a></h3>
+<p>The formulation used <span class="xref myst">in</span> included the following terms</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+\text{Forcing}: &amp;&amp; 
+\boldsymbol{F} &amp;= 
+BE\\
+\text{Diffusion}: &amp;&amp; 
+\boldsymbol{D} &amp;= 
+\frac{A_2}{f_0}\boldsymbol{\nabla}_H^4\psi -
+\frac{A_4}{f_0}\boldsymbol{\nabla}_H^6\psi
+\end{aligned}
+\end{split}\]</div>
+<p>where B is a matrix containing the coefficients of the forcing terms and <span class="math notranslate nohighlight">\(e\)</span> is the entrainment vector.</p>
+<p>In the paper [<a class="reference external" href="https://doi.org/10.22541/essoar.167397445.54992823/v1">Thiry et al., 2023</a>], they use the following method</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+\text{Hyperviscosity}: &amp;&amp; 
+\boldsymbol{D_1} &amp;= 
+-a_4\boldsymbol{\nabla}_H^6\psi\\
+\text{Wind Forcing}: &amp;&amp; 
+\boldsymbol{F} &amp;= 
+\frac{\tau_0}{\rho_0H_1}\left[\partial_x\tau_y - \partial_y\tau_x, 0\cdots,0\right]\\
+\text{Bottom Drag}: &amp;&amp; 
+\boldsymbol{D_2} &amp;= 
+\frac{\delta_{ek}}{2H_{N_Z}}
+\left[0,\cdots,0,\Delta\psi_N\right]
+\end{aligned}
+\end{split}\]</div>
+</section>
+<hr class="docutils" />
+<section id="sea-surface-height">
+<h3>Sea Surface Height<a class="headerlink" href="#sea-surface-height" title="Permalink to this heading">#</a></h3>
+<p>My of my applications are related to Sea Surface Height (SSH) and the QG model is a decent estimation. For example, the formulation that was used here was taken from the Q-GCM which is a fully-fledged ocean model which works for small-medium scale problems over specific regions.</p>
+<p>SSH is linked to the QG equations via the stream function which we can write this as:</p>
+<div class="math notranslate nohighlight" id="equation-eq-qg-ssh-streamfunction">
+<span class="eqno">(45)<a class="headerlink" href="#equation-eq-qg-ssh-streamfunction" title="Permalink to this equation">#</a></span>\[
+\psi = \frac{g}{f_0}\eta
+\]</div>
+<p>This adds some additional interpretation how the vorticity term can be interpreted when dealing with the SSH over the globe.</p>
+<div class="math notranslate nohighlight" id="equation-eq-qg-ssh-vorticity">
+<span class="eqno">(46)<a class="headerlink" href="#equation-eq-qg-ssh-vorticity" title="Permalink to this equation">#</a></span>\[
+q_l = 
+\underbrace{\boldsymbol{\nabla}_H \psi_l}_{\text{Dynamical}} +
+\underbrace{(\mathbf{A}\psi)_k}_{\text{Thermal}} +
+\underbrace{f_k}_{\text{Planetary}}
+\]</div>
+<p>We also have . See <span id="id1">[<a class="reference internal" href="../../markdown.html#id9" title="S. Amraoui, D. Auroux, J. Blum, and E. Cosme. Back-and-Forth Nudging for the quasi-geostrophic ocean dynamics with altimetry: theoretical convergence study and numerical experiments with the future SWOT observations. Discrete &amp; Continuous Dynamical Systems - S, 2022. http://dx.doi.org/10.3934/dcdss.2022058.">Amraoui <em>et al.</em>, 2022</a>]</span> for more information about this term.</p>
+</section>
+</section>
+<hr class="docutils" />
 <section id="navier-stokes-relation">
 <h2>Navier-Stokes Relation<a class="headerlink" href="#navier-stokes-relation" title="Permalink to this heading">#</a></h2>
-<p>This paragraph was largely borrowed from the following paper <span id="id1">[<a class="reference internal" href="../../markdown.html#id8" title="Jayesh K. Gupta and Johannes Brandstetter. Towards multi-spatiotemporal-scale generalized pde modeling. ArXiv, 2022.">Gupta and Brandstetter, 2022</a>]</span></p>
+<p>This paragraph was largely borrowed from the following paper <span id="id2">[<a class="reference internal" href="../../markdown.html#id8" title="Jayesh K. Gupta and Johannes Brandstetter. Towards multi-spatiotemporal-scale generalized pde modeling. ArXiv, 2022.">Gupta and Brandstetter, 2022</a>]</span></p>
 <p>We introduce vorticity, <span class="math notranslate nohighlight">\(\omega\)</span>, as the curl of the flow vorticity, i.e. <span class="math notranslate nohighlight">\(\omega = \nabla \times \boldsymbol{v}\)</span>.
 This results in the incompressible 2D Navier-Stokes equations in the <strong>scalar vorticity stream function form</strong>.</p>
 <div class="math notranslate nohighlight">
@@ -424,8 +530,8 @@ This results in the incompressible 2D Navier-Stokes equations in the <strong>sca
 </section>
 <section id="sea-surface-height-edition">
 <h2>Sea Surface Height Edition<a class="headerlink" href="#sea-surface-height-edition" title="Permalink to this heading">#</a></h2>
-<div class="math notranslate nohighlight" id="equation-eq-qg-full">
-<span class="eqno">(40)<a class="headerlink" href="#equation-eq-qg-full" title="Permalink to this equation">#</a></span>\[\begin{split}
+<div class="math notranslate nohighlight" id="equation-eq-qg-parts">
+<span class="eqno">(47)<a class="headerlink" href="#equation-eq-qg-parts" title="Permalink to this equation">#</a></span>\[\begin{split}
 \begin{aligned}
 \partial_t q &amp;= - \det\boldsymbol{J}(\psi,q) - \beta\partial_x\psi \\
 \psi &amp;= \frac{g}{f_0}\eta \\
@@ -508,6 +614,12 @@ L_R &amp;= \frac{c_1}{f_0}
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#qg-equations">QG Equations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jacobian-form">Jacobian Form</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-forcing-diffusion-terms">Example Forcing + Diffusion Terms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sea-surface-height">Sea Surface Height</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#navier-stokes-relation">Navier-Stokes Relation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sea-surface-height-edition">Sea Surface Height Edition</a></li>
 </ul>
