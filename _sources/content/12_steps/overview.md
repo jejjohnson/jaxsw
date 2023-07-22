@@ -23,7 +23,7 @@ $$
 $$  (eq:diffusion_1d)
 
 
-[**Diffusion**](1.3_burgers_1d.ipynb)
+[**Advection Diffusion**](1.3_burgers_1d.ipynb)
 
 $$
 \begin{aligned}

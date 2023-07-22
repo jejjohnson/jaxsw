@@ -194,6 +194,11 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1"><a class="reference internal" href="../qg/qg_inversion.html">QG Inversion</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../qg/multilayer_qg.html">Multilayer QG</a></li>
 </ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Shallow Water Equations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../sw/sw.html">Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sw/sw_linear.html">Linear Shallow Water Equations</a></li>
+</ul>
 
     </div>
 </nav></div>
@@ -497,9 +502,99 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>Domain<span class="o">??</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Red">Init signature:</span> Domain<span class=" -Color -Color-Blue">(*</span>args<span class=" -Color -Color-Blue">,</span> <span class=" -Color -Color-Blue">**</span>kwargs<span class=" -Color -Color-Blue">)</span>
+<span class=" -Color -Color-Red">Source:</span>        
+<span class=" -Color -Color-Green">class</span> Domain<span class=" -Color -Color-Blue">(</span>eqx<span class=" -Color -Color-Blue">.</span>Module<span class=" -Color -Color-Blue">):</span>
+    <span class=" -Color -Color-Blue">&quot;&quot;&quot;Domain class for a rectangular domain</span>
+
+<span class=" -Color -Color-Blue">    Attributes:</span>
+<span class=" -Color -Color-Blue">        size (Tuple[int]): The size of the domain</span>
+<span class=" -Color -Color-Blue">        xmin: (Iterable[float]): The min bounds for the input domain</span>
+<span class=" -Color -Color-Blue">        xmax: (Iterable[float]): The max bounds for the input domain</span>
+<span class=" -Color -Color-Blue">        coord (List[Array]): The coordinates of the domain</span>
+<span class=" -Color -Color-Blue">        grid (Array): A grid of the domain</span>
+<span class=" -Color -Color-Blue">        ndim (int): The number of dimenions of the domain</span>
+<span class=" -Color -Color-Blue">        size (Tuple[int]): The size of each dimenions of the domain</span>
+<span class=" -Color -Color-Blue">        cell_volume (float): The total volume of a grid cell</span>
+<span class=" -Color -Color-Blue">    &quot;&quot;&quot;</span>
+
+    xmin<span class=" -Color -Color-Blue">:</span> tp<span class=" -Color -Color-Blue">.</span>Iterable<span class=" -Color -Color-Blue">[</span>float<span class=" -Color -Color-Blue">]</span> <span class=" -Color -Color-Blue">=</span> eqx<span class=" -Color -Color-Blue">.</span>static_field<span class=" -Color -Color-Blue">()</span>
+    xmax<span class=" -Color -Color-Blue">:</span> tp<span class=" -Color -Color-Blue">.</span>Iterable<span class=" -Color -Color-Blue">[</span>float<span class=" -Color -Color-Blue">]</span> <span class=" -Color -Color-Blue">=</span> eqx<span class=" -Color -Color-Blue">.</span>static_field<span class=" -Color -Color-Blue">()</span>
+    dx<span class=" -Color -Color-Blue">:</span> tp<span class=" -Color -Color-Blue">.</span>Iterable<span class=" -Color -Color-Blue">[</span>float<span class=" -Color -Color-Blue">]</span> <span class=" -Color -Color-Blue">=</span> eqx<span class=" -Color -Color-Blue">.</span>static_field<span class=" -Color -Color-Blue">()</span>
+
+    <span class=" -Color -Color-Green">def</span> __init__<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">,</span> xmin<span class=" -Color -Color-Blue">,</span> xmax<span class=" -Color -Color-Blue">,</span> dx<span class=" -Color -Color-Blue">):</span>
+        <span class=" -Color -Color-Blue">&quot;&quot;&quot;Initializes domain</span>
+<span class=" -Color -Color-Blue">        Args:</span>
+<span class=" -Color -Color-Blue">            xmin (Iterable[float]): the min bounds for the input domain</span>
+<span class=" -Color -Color-Blue">            xmax (Iterable[float]): the max bounds for the input domain</span>
+<span class=" -Color -Color-Blue">            dx (Iterable[float]): the step size for the input domain</span>
+<span class=" -Color -Color-Blue">        &quot;&quot;&quot;</span>
+        <span class=" -Color -Color-Green">assert</span> len<span class=" -Color -Color-Blue">(</span>xmin<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">==</span> len<span class=" -Color -Color-Blue">(</span>xmax<span class=" -Color -Color-Blue">)</span>
+        dx <span class=" -Color -Color-Blue">=</span> _check_and_return<span class=" -Color -Color-Blue">(</span>dx<span class=" -Color -Color-Blue">,</span> ndim<span class=" -Color -Color-Blue">=</span>len<span class=" -Color -Color-Blue">(</span>xmin<span class=" -Color -Color-Blue">),</span> name<span class=" -Color -Color-Blue">=&quot;dx&quot;)</span>
+        self<span class=" -Color -Color-Blue">.</span>xmin <span class=" -Color -Color-Blue">=</span> xmin
+        self<span class=" -Color -Color-Blue">.</span>xmax <span class=" -Color -Color-Blue">=</span> xmax
+        self<span class=" -Color -Color-Blue">.</span>dx <span class=" -Color -Color-Blue">=</span> dx
+
+    <span class=" -Color -Color-Blue">@</span>classmethod
+    <span class=" -Color -Color-Green">def</span> from_numpoints<span class=" -Color -Color-Blue">(</span>
+        cls<span class=" -Color -Color-Blue">,</span>
+        xmin<span class=" -Color -Color-Blue">:</span> tp<span class=" -Color -Color-Blue">.</span>Iterable<span class=" -Color -Color-Blue">[</span>float<span class=" -Color -Color-Blue">],</span>
+        xmax<span class=" -Color -Color-Blue">:</span> tp<span class=" -Color -Color-Blue">.</span>Iterable<span class=" -Color -Color-Blue">[</span>float<span class=" -Color -Color-Blue">],</span>
+        N<span class=" -Color -Color-Blue">:</span> tp<span class=" -Color -Color-Blue">.</span>Iterable<span class=" -Color -Color-Blue">[</span>int<span class=" -Color -Color-Blue">],</span>
+    <span class=" -Color -Color-Blue">):</span>
+        f <span class=" -Color -Color-Blue">=</span> <span class=" -Color -Color-Green">lambda</span> xmin<span class=" -Color -Color-Blue">,</span> xmax<span class=" -Color -Color-Blue">,</span> N<span class=" -Color -Color-Blue">:</span> <span class=" -Color -Color-Blue">(</span>xmax <span class=" -Color -Color-Blue">-</span> xmin<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">/</span> <span class=" -Color -Color-Blue">(</span>float<span class=" -Color -Color-Blue">(</span>N<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-</span> <span class=" -Color -Color-Cyan">1</span><span class=" -Color -Color-Blue">)</span>
+
+        dx <span class=" -Color -Color-Blue">=</span> tuple<span class=" -Color -Color-Blue">(</span>map<span class=" -Color -Color-Blue">(</span>f<span class=" -Color -Color-Blue">,</span> xmin<span class=" -Color -Color-Blue">,</span> xmax<span class=" -Color -Color-Blue">,</span> N<span class=" -Color -Color-Blue">))</span>
+
+        <span class=" -Color -Color-Green">return</span> cls<span class=" -Color -Color-Blue">(</span>xmin<span class=" -Color -Color-Blue">=</span>xmin<span class=" -Color -Color-Blue">,</span> xmax<span class=" -Color -Color-Blue">=</span>xmax<span class=" -Color -Color-Blue">,</span> dx<span class=" -Color -Color-Blue">=</span>dx<span class=" -Color -Color-Blue">)</span>
+
+    <span class=" -Color -Color-Blue">@</span>property
+    <span class=" -Color -Color-Green">def</span> coords<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-&gt;</span> tp<span class=" -Color -Color-Blue">.</span>List<span class=" -Color -Color-Blue">:</span>
+        <span class=" -Color -Color-Green">return</span> list<span class=" -Color -Color-Blue">(</span>map<span class=" -Color -Color-Blue">(</span>make_coords<span class=" -Color -Color-Blue">,</span> self<span class=" -Color -Color-Blue">.</span>xmin<span class=" -Color -Color-Blue">,</span> self<span class=" -Color -Color-Blue">.</span>xmax<span class=" -Color -Color-Blue">,</span> self<span class=" -Color -Color-Blue">.</span>dx<span class=" -Color -Color-Blue">))</span>
+
+    <span class=" -Color -Color-Blue">@</span>property
+    <span class=" -Color -Color-Green">def</span> grid<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-&gt;</span> jnp<span class=" -Color -Color-Blue">.</span>ndarray<span class=" -Color -Color-Blue">:</span>
+        <span class=" -Color -Color-Green">return</span> make_grid_from_coords<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">.</span>coords<span class=" -Color -Color-Blue">)</span>
+
+    <span class=" -Color -Color-Blue">@</span>property
+    <span class=" -Color -Color-Green">def</span> ndim<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-&gt;</span> int<span class=" -Color -Color-Blue">:</span>
+        <span class=" -Color -Color-Green">return</span> len<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">.</span>xmin<span class=" -Color -Color-Blue">)</span>
+
+    <span class=" -Color -Color-Blue">@</span>property
+    <span class=" -Color -Color-Green">def</span> size<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-&gt;</span> tp<span class=" -Color -Color-Blue">.</span>Tuple<span class=" -Color -Color-Blue">[</span>int<span class=" -Color -Color-Blue">]:</span>
+        <span class=" -Color -Color-Green">return</span> tuple<span class=" -Color -Color-Blue">(</span>map<span class=" -Color -Color-Blue">(</span>len<span class=" -Color -Color-Blue">,</span> self<span class=" -Color -Color-Blue">.</span>coords<span class=" -Color -Color-Blue">))</span>
+
+    <span class=" -Color -Color-Blue">@</span>property
+    <span class=" -Color -Color-Green">def</span> Nx<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-&gt;</span> tp<span class=" -Color -Color-Blue">.</span>Tuple<span class=" -Color -Color-Blue">[</span>int<span class=" -Color -Color-Blue">]:</span>
+        <span class=" -Color -Color-Green">return</span> self<span class=" -Color -Color-Blue">.</span>size
+
+    <span class=" -Color -Color-Blue">@</span>property
+    <span class=" -Color -Color-Green">def</span> Lx<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-&gt;</span> tp<span class=" -Color -Color-Blue">.</span>Tuple<span class=" -Color -Color-Blue">[</span>int<span class=" -Color -Color-Blue">]:</span>
+        f <span class=" -Color -Color-Blue">=</span> <span class=" -Color -Color-Green">lambda</span> xmin<span class=" -Color -Color-Blue">,</span> xmax<span class=" -Color -Color-Blue">:</span> xmax <span class=" -Color -Color-Blue">-</span> xmin
+        <span class=" -Color -Color-Green">return</span> tuple<span class=" -Color -Color-Blue">(</span>map<span class=" -Color -Color-Blue">(</span>f<span class=" -Color -Color-Blue">,</span> self<span class=" -Color -Color-Blue">.</span>xmin<span class=" -Color -Color-Blue">,</span> self<span class=" -Color -Color-Blue">.</span>xmax<span class=" -Color -Color-Blue">))</span>
+
+    <span class=" -Color -Color-Blue">@</span>property
+    <span class=" -Color -Color-Green">def</span> cell_volume<span class=" -Color -Color-Blue">(</span>self<span class=" -Color -Color-Blue">)</span> <span class=" -Color -Color-Blue">-&gt;</span> float<span class=" -Color -Color-Blue">:</span>
+        <span class=" -Color -Color-Green">return</span> reduce<span class=" -Color -Color-Blue">(</span>mul<span class=" -Color -Color-Blue">,</span> self<span class=" -Color -Color-Blue">.</span>dx<span class=" -Color -Color-Blue">)</span>
+<span class=" -Color -Color-Red">File:</span>           ~/code_projects/jaxsw/jaxsw/_src/domain/base.py
+<span class=" -Color -Color-Red">Type:</span>           _ModuleMeta
+<span class=" -Color -Color-Red">Subclasses:</span>     
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="o">.</span><span class="n">from_numpoints</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">(</span><span class="n">xmin</span><span class="p">,),</span> <span class="n">xmax</span><span class="o">=</span><span class="p">(</span><span class="n">xmax</span><span class="p">,),</span> <span class="n">N</span><span class="o">=</span><span class="p">(</span><span class="n">nx</span><span class="p">,))</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Size: </span><span class="si">{</span><span class="n">domain</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nx: </span><span class="si">{</span><span class="n">domain</span><span class="o">.</span><span class="n">Nx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lx: </span><span class="si">{</span><span class="n">domain</span><span class="o">.</span><span class="n">Lx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dx: </span><span class="si">{</span><span class="n">domain</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nDims: </span><span class="si">{</span><span class="n">domain</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grid Size: </span><span class="si">{</span><span class="n">domain</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cell Volume: </span><span class="si">{</span><span class="n">domain</span><span class="o">.</span><span class="n">cell_volume</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -507,9 +602,11 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Size: (100,)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Nx: (101,)
+Lx: (6.283185307179586,)
+dx: (0.06283185307179587,)
 nDims: 1
-Grid Size: (100, 1)
+Grid Size: (101, 1)
 Cell Volume: 0.06283185307179587
 </pre></div>
 </div>
@@ -586,7 +683,7 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/f17981f4b7ad2c903ba70e7b04dece5e1cc1e4cbe02b46fcfd90df3a36fb1ee3.png" src="../../_images/f17981f4b7ad2c903ba70e7b04dece5e1cc1e4cbe02b46fcfd90df3a36fb1ee3.png" />
+<img alt="../../_images/d167b440c7a96e83e24fd604629a631aa6537b20d2a1424a996b887fb5711254.png" src="../../_images/d167b440c7a96e83e24fd604629a631aa6537b20d2a1424a996b887fb5711254.png" />
 </div>
 </div>
 </section>
@@ -617,7 +714,8 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
 </section>
 <section id="equation-of-motion">
 <h3>Equation of Motion<a class="headerlink" href="#equation-of-motion" title="Permalink to this heading">#</a></h3>
-<p>Because we are doing advection, we will use backwards difference for each of the terms.</p>
+<p>Looking at the previous equation <span class="xref myst"></span> for Burgers 1D:
+Because we are doing advection, we will use backwards difference for each of the terms.</p>
 <div class="math notranslate nohighlight" id="equation-eq-1dburgers">
 <span class="eqno">(28)<a class="headerlink" href="#equation-eq-1dburgers" title="Permalink to this equation">#</a></span>\[
 \begin{aligned}
@@ -638,11 +736,11 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
 
         <span class="n">nu</span><span class="p">,</span> <span class="n">domain</span> <span class="o">=</span> <span class="n">args</span>
 
-        <span class="n">rhs_adv</span> <span class="o">=</span> <span class="n">advection</span><span class="o">.</span><span class="n">advection_1D</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">rhs_adv</span> <span class="o">=</span> <span class="n">advection</span><span class="o">.</span><span class="n">advection_1D</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
 
         <span class="c1"># rhs_adv = advection.advection_upwind_1D(u=u, a=u, step_size=domain.dx[0], accuracy=3)</span>
 
-        <span class="n">rhs_diff</span> <span class="o">=</span> <span class="n">diffusion</span><span class="o">.</span><span class="n">diffusion_1D</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">diffusivity</span><span class="o">=</span><span class="n">nu</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">rhs_diff</span> <span class="o">=</span> <span class="n">diffusion</span><span class="o">.</span><span class="n">diffusion_1D</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">diffusivity</span><span class="o">=</span><span class="n">nu</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">rhs_diff</span> <span class="o">-</span> <span class="n">rhs_adv</span>
 </pre></div>
@@ -680,7 +778,7 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/8dab6ff23d6cd14f685463d09eceeeb3520c93b618fbcf44e4c04fdb75364a38.png" src="../../_images/8dab6ff23d6cd14f685463d09eceeeb3520c93b618fbcf44e4c04fdb75364a38.png" />
+<img alt="../../_images/c02dd567f58ccd759d80211e395cdd8efc04a514b0ac672b3d584b2d40e23197.png" src="../../_images/c02dd567f58ccd759d80211e395cdd8efc04a514b0ac672b3d584b2d40e23197.png" />
 </div>
 </div>
 </section>
@@ -754,6 +852,12 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">u_analytical</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">init_u</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))(</span><span class="n">domain</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ts</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
+<span class="n">u_analytical</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(50, 101)
 </pre></div>
 </div>
 </div>
@@ -800,7 +904,7 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/3747d7685a351f3b14abaabfd651d11deb63f66c485520a66bb618b9db0538cd.png" src="../../_images/3747d7685a351f3b14abaabfd651d11deb63f66c485520a66bb618b9db0538cd.png" />
+<img alt="../../_images/c345a6df7bd0f6417df9b8765cbf4082a013c83b7ea901bf36de0dc3e5dfc5eb.png" src="../../_images/c345a6df7bd0f6417df9b8765cbf4082a013c83b7ea901bf36de0dc3e5dfc5eb.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -817,7 +921,7 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/0befa3b67934495e8823ef3a6598693649b681272cdce7495dd1dc9ad60b8304.png" src="../../_images/0befa3b67934495e8823ef3a6598693649b681272cdce7495dd1dc9ad60b8304.png" />
+<img alt="../../_images/f81ed3b3316cbd507d6995b6fa78ec3db836910805aafa257175e4fe13f81495.png" src="../../_images/f81ed3b3316cbd507d6995b6fa78ec3db836910805aafa257175e4fe13f81495.png" />
 </div>
 </div>
 </section>
@@ -832,16 +936,16 @@ u(x,t,\nu) &amp;= - \frac{2\nu}{\phi}\frac{\partial \phi}{\partial x} + 4 \\
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "python"
+            mode: "conda-env-jax_eo_py310-py"
         },
         kernelOptions: {
-            name: "python3",
+            name: "conda-env-jax_eo_py310-py",
             path: "./content/12_steps"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'python3'</script>
+    <script>kernelName = 'conda-env-jax_eo_py310-py'</script>
 
                 </article>
               
