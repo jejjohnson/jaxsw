@@ -3,7 +3,9 @@
 In this section, we look at how we can solve the Shallow water equations using elements from this package.
 
 
-## Linear Shallow Water Equations
+---
+
+## Linear Shallow Water Equations - [Example](./sw_linear)
 
 $$
 \begin{aligned}
@@ -19,7 +21,9 @@ $$
 $$ (eq:sw_linear)
 
 
-## Non-Linear Shallow Water Equations
+---
+
+## Non-Linear Shallow Water Equations - [Example](./sw_nonlinear)
 
 
 

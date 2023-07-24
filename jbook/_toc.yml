@@ -39,3 +39,4 @@ parts:
     chapters:
       - file: content/sw/sw.md
       - file: content/sw/sw_linear
+      - file: content/sw/sw_nonlinear
