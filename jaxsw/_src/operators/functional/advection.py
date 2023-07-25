@@ -1,8 +1,10 @@
 import typing as tp
 
+import jax
 import finitediffx as fdx
 import jax.numpy as jnp
-from finitediffx._src.utils import _check_and_return
+
+# from finitediffx._src.utils import _check_and_return
 from jaxtyping import Array
 
 
@@ -31,14 +33,15 @@ def advection_1D(
         Array: the RHS for the advection term
     """
     accuracy = _check_and_return(value=accuracy, ndim=1, name="accuracy")
+    # print(step_size, type(step_size))
     step_size = _check_and_return(value=step_size, ndim=1, name="step_size")
 
     du_dx = fdx.difference(
         u,
         axis=axis,
         method=method,
-        accuracy=accuracy,
-        step_size=step_size,
+        accuracy=accuracy[0],
+        step_size=step_size[0],
         derivative=1,
     )
 
@@ -157,7 +160,7 @@ def advection_upwind_1D(
         u=u,
         a=a_minus,
         axis=axis,
-        step_size=step_size[0],
+        step_size=step_size,
         method="forward",
         accuracy=accuracy[0],
     )
@@ -166,7 +169,7 @@ def advection_upwind_1D(
         u=u,
         a=a_plus,
         axis=axis,
-        step_size=step_size[0],
+        step_size=step_size,
         method="backward",
         accuracy=accuracy[0],
     )
@@ -369,3 +372,19 @@ def det_jacobian(f, g, dx, dy):
             )
         )
     ) / (12.0 * dx * dy)
+
+
+from typing import Any
+
+
+def _check_and_return(value: Any, ndim: int, name: str):
+    if isinstance(value, int):
+        return (value,) * ndim
+    elif isinstance(value, float):
+        return (value,) * ndim
+    elif isinstance(value, jax.Array):
+        return jnp.repeat(value, ndim)
+    elif isinstance(value, tuple):
+        assert len(value) == ndim, f"{name} must be a tuple of length {ndim}"
+        return tuple(value)
+    raise ValueError(f"Expected int or tuple for {name}, got {value}.")

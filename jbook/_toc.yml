@@ -35,3 +35,8 @@ parts:
       - file: content/qg/ssh_free_run
       - file: content/qg/qg_inversion
       - file: content/qg/multilayer_qg
+  - caption: Shallow Water Equations
+    chapters:
+      - file: content/sw/sw.md
+      - file: content/sw/sw_linear
+      - file: content/sw/sw_nonlinear

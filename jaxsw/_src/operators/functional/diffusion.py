@@ -31,7 +31,7 @@ def diffusion_1D(
         axis=axis,
         method=method,
         accuracy=accuracy,
-        step_size=step_size,
+        step_size=step_size[0],
         derivative=2,
     )
 
