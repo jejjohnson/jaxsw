@@ -1,3 +1,7 @@
+def identity(u):
+    return u
+
+
 # import jax.numpy as jnp
 
 # def check_dims(value, ndim, name: str):
