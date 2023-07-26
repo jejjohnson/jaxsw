@@ -1,10 +1,11 @@
 import typing as tp
+
 import jax.numpy as jnp
 import kernex as kex
 from jaxtyping import Array
-from jaxsw._src.fields.base import Field
-from jaxsw._src.domain.base import Domain
 
+from jaxsw._src.domain.base import Domain
+from jaxsw._src.fields.base import Field
 
 DEFAULT_PADDING = dict(right=(0, 1), left=(1, 0), inner=(0, 0), outer=(1, 1))
 OPERATION_MAP = dict(right=0, left=1, inner=2, outer=3)
@@ -175,7 +176,6 @@ def get_kernel_size(operations):
 
 
 def _field_operation_1D(u, operations, padding):
-
     kernel_size = get_kernel_size(operations)
     # print(kernel_size)
     # print(operations, padding, kernel_size)
@@ -192,7 +192,6 @@ def _field_operation_1D(u, operations, padding):
 
 
 def _domain_operation_1D(xmin, xmax, dx, operation):
-
     if operation is None:
         pass
     elif operation == "right":

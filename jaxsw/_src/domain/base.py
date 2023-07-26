@@ -5,8 +5,8 @@ from operator import mul
 import equinox as eqx
 import jax.numpy as jnp
 import numpy as np
-from jaxtyping import Array, Float
 from finitediffx._src.utils import _check_and_return
+from jaxtyping import Array, Float
 
 
 def _fix_iterable_input(x, num_iters) -> tp.Iterable:

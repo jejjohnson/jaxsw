@@ -1,15 +1,17 @@
 import typing as tp
-import jax
+
 import einops
-import jax.numpy as jnp
-import numpy as np
-from jaxsw._src.operators.functional import elliptical as F_elliptical
-from jaxsw._src.operators.functional.advection import det_jacobian
-from jaxsw._src.domain.base import Domain
-from jaxsw._src.domain.qg import LayerDomain
 import equinox as eqx
 import finitediffx as fdx
+import jax
+import jax.numpy as jnp
+import numpy as np
 from jaxtyping import Array
+
+from jaxsw._src.domain.base import Domain
+from jaxsw._src.domain.qg import LayerDomain
+from jaxsw._src.operators.functional import elliptical as F_elliptical
+from jaxsw._src.operators.functional.advection import det_jacobian
 
 
 class PDEParams(eqx.Module):

@@ -1,12 +1,14 @@
 import typing as tp
-import jax
+
 import einops
+import equinox as eqx
+import jax
 import jax.numpy as jnp
 import numpy as np
-from jaxsw._src.operators.functional import grid as F_grid
-from jaxsw._src.operators.functional import elliptical as F_elliptical
-import equinox as eqx
 from jaxtyping import Array
+
+from jaxsw._src.operators.functional import elliptical as F_elliptical
+from jaxsw._src.operators.functional import grid as F_grid
 
 
 class PDEParams(tp.NamedTuple):
