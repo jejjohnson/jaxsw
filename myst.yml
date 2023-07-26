@@ -13,8 +13,8 @@ site:
   # logo:
   nav: []
   actions:
-    - title: Modern 4DVar
-      url: https://github.com/jejjohnson/mfourdvar
+    - title: jaxsw
+      url: https://github.com/jejjohnson/jaxsw
   domains: []
 exports:
   - format: html
