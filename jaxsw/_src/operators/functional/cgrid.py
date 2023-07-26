@@ -1,4 +1,5 @@
 from jaxtyping import Array
+
 from jaxsw._src.operators.functional import grid as F_grid
 
 

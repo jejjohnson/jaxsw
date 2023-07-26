@@ -1,6 +1,7 @@
-import numpy as np
-from jaxsw._src.operators.functional import grid as F_grid
 import finitediffx as fdx
+import numpy as np
+
+from jaxsw._src.operators.functional import grid as F_grid
 
 
 def init_tau(domain, tau0: float = 2.0e-5):

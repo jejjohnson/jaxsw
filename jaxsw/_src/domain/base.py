@@ -5,8 +5,8 @@ from operator import mul
 import equinox as eqx
 import jax.numpy as jnp
 import numpy as np
-from jaxtyping import Array, Float
 from finitediffx._src.utils import _check_and_return
+from jaxtyping import Array, Float
 
 
 def _fix_iterable_input(x, num_iters) -> tp.Iterable:
@@ -40,7 +40,7 @@ class Domain(eqx.Module):
     xmax: tp.Iterable[float] = eqx.static_field()
     dx: tp.Iterable[float] = eqx.static_field()
 
-    def __init__(self, xmin, xmax, dx):
+    def __init__(self, xmin, xmax, dx, stagger=None):
         """Initializes domain
         Args:
             xmin (Iterable[float]): the min bounds for the input domain
@@ -49,6 +49,12 @@ class Domain(eqx.Module):
         """
         assert len(xmin) == len(xmax)
         dx = _check_and_return(dx, ndim=len(xmin), name="dx")
+
+        stagger = check_stagger(dx, stagger)
+        fn = lambda x, dx, stagger: x + dx * stagger
+        xmin = tuple(map(fn, xmin, dx, stagger))
+        xmax = tuple(map(fn, xmax, dx, stagger))
+
         self.xmin = xmin
         self.xmax = xmax
         self.dx = dx
@@ -109,3 +115,39 @@ def make_grid_from_coords(coords: tp.Iterable) -> Float[Array, " D"]:
         raise ValueError("Unrecognized dtype for inputs")
 
     return jnp.stack(coords, axis=-1)
+
+
+def check_stagger(dx: tp.Tuple, stagger: tp.Tuple[str] = None):
+    """Creates stagger values based on semantic names.
+    Useful for C-Grid operations
+
+    Args:
+    -----
+        dx (Iterable): the step sizes
+        stagger (Iterable): the stagger direction
+
+    Returns:
+    --------
+        stagger (Iterable): the stagger values (as a fraction
+            of dx).
+    """
+    if stagger is None:
+        stagger = (None,) * len(dx)
+
+    msg = "Length of stagger and dx is off"
+    msg += f"\ndx: {len(dx)}"
+    msg += f"\nstagger: {len(stagger)}"
+    assert len(dx) == len(stagger), msg
+
+    stagger_values = list()
+    for istagger in stagger:
+        if istagger is None:
+            stagger_values.append(0.0)
+        elif istagger == "right":
+            stagger_values.append(0.5)
+        elif istagger == "left":
+            stagger_values.append(-0.5)
+        else:
+            raise ValueError("Unrecognized command")
+
+    return stagger_values

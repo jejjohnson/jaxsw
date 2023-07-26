@@ -1,8 +1,9 @@
 import typing as tp
 
 import finitediffx as fdx
-from jaxtyping import Array
 import jax.numpy as jnp
+from jaxtyping import Array
+
 from jaxsw._src.operators.functional.utils import identity
 
 

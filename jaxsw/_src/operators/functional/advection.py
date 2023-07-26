@@ -1,7 +1,7 @@
 import typing as tp
 
-import jax
 import finitediffx as fdx
+import jax
 import jax.numpy as jnp
 
 # from finitediffx._src.utils import _check_and_return

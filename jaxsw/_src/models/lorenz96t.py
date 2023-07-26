@@ -1,5 +1,6 @@
-from typing import NamedTuple, Tuple, Any, Union
+from typing import Any, NamedTuple, Tuple, Union
 
+import einops
 import equinox as eqx
 import jax
 import jax.numpy as jnp
@@ -7,7 +8,6 @@ import jax.random as jrandom
 from equinox import static_field
 from jax.random import PRNGKeyArray
 from jaxtyping import Array, PyTree
-import einops
 
 from .base import DynamicalSystem
 

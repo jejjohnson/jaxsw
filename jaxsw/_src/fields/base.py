@@ -27,7 +27,7 @@ class Field(eqx.Module):
             values (Array): An arbitrary sized array
             domain (Domain): the domain for the array
         """
-        assert values.shape == domain.grid.shape
+        assert values.shape == domain.grid[..., 0].shape
         self.values = values
         self.domain = domain
 
