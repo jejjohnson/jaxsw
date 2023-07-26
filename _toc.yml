@@ -20,6 +20,8 @@ root: content/overview
 chapters:
   - title: Package Components
     sections:
+      - file: content/components/anatomy_pde
+      - file: content/components/design
       - file: content/components/boundaries
   - title: Geometry
     sections:

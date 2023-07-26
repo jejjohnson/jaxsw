@@ -17,7 +17,7 @@ In this 3 part tutorial, we describe three hierarchies for describing PDEs:
 * **High-Level**: Fully implicit where we hide many of the mechanics underneath syntactic sugar.
 
 
-### **PDE Elements (TODO)**
+### [**Anatomy of a PDE**](./components/anatomy_pde)
 
 This goes through a full example looking at the components of the `jaxsw` framework.
 We explicitly describe the components of the PDE which will be important for this package.
