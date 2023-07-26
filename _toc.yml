@@ -51,7 +51,7 @@ chapters:
       - file: content/qg/qg_inversion
   - title: Shallow Water
     sections:
-      - file: content/sw/sq
+      - file: content/sw/sw
       - file: content/sw/sw_linear_api1
       - file: content/sw/sw_linear_api2
-      - file: content/sq/sw_nonlinear
+      - file: content/sw/sw_nonlinear

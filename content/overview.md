@@ -71,7 +71,7 @@ In this tutorial, we look at the quasi-geostrophic (QG) equations and demonstrat
 
 ---
 
-#### [**Shallow Water Equations**](./sw/sw)
+#### [**Shallow Water Equations**](sw/sw)
 
 In this tutorial, we look at the shallow water (SW) equations and demonstrate how we can use elements of this package.
 

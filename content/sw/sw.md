@@ -1,11 +1,26 @@
-# Summary
+---
+title: Shallow Water Equations
+subject: Jax Approximate Ocean Models
+# subtitle: How can I estimate the state AND the parameters?
+short_title: Overview
+authors:
+  - name: J. Emmanuel Johnson
+    affiliations:
+      - CNRS
+      - MEOM
+    orcid: 0000-0002-6739-0053
+    email: jemanjohnson34@gmail.com
+license: CC-BY-4.0
+keywords: data-assimilation, open-science
+abbreviations:
+    GP: Gaussian Process
+---
 
 In this section, we look at how we can solve the Shallow water equations using elements from this package.
 
 
----
 
-## Linear Shallow Water Equations - [Example](./sw_linear)
+## Linear Shallow Water Equations - [Example](./sw_linear_api1.ipynb)
 
 $$
 \begin{aligned}
@@ -23,7 +38,7 @@ $$ (eq:sw_linear)
 
 ---
 
-## Non-Linear Shallow Water Equations - [Example](./sw_nonlinear)
+## Non-Linear Shallow Water Equations - [Example](./sw_nonlinear.ipynb)
 
 
 
@@ -68,4 +83,4 @@ H(x,y) &= D + b(x,y)
 \end{aligned}
 $$
 
-**Constants** ($f,k,\nu$). $g$ is the acceleration due to gravity, $k$ is the viscous drag coefficient, and $\nu$ is the kinematic viscosity.
+**Constants** ($f,k,\nu$). $g$ is the acceleration due to gravity, $k$ is the viscous drag coefficient, and $\nu$ is the kinematic viscosity. 
