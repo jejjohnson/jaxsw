@@ -38,5 +38,6 @@ parts:
   - caption: Shallow Water Equations
     chapters:
       - file: content/sw/sw.md
-      - file: content/sw/sw_linear
+      - file: content/sw/sw_linear_api1
+      - file: content/sw/sw_linear_api2
       - file: content/sw/sw_nonlinear
