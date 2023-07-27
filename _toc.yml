@@ -18,15 +18,15 @@
 format: jb-book
 root: content/overview
 chapters:
-  - title: Package Components
+  - title: Tutorials
     sections:
       - file: content/components/anatomy_pde
       - file: content/components/design
+      - file: content/components/grid_operations
       - file: content/components/boundaries
-  - title: Geometry
+  - title: Special Cases
     sections:
       - file: content/geometry/latlon_deltas
-      - file: content/geometry/staggering
   - title: Lorenz
     sections:
       - file: content/lorenz/lorenz
@@ -45,13 +45,13 @@ chapters:
       - file: content/12_steps/2.4_burgers_2d
       - file: content/12_steps/3.1_laplace
       - file: content/12_steps/3.2_poisson
-  - title: Quasi-Geostrophic
+  - title: Quasi-Geostrophic Model
     sections:
       - file: content/qg/qg
       - file: content/qg/ssh_free_run
       - file: content/qg/multilayer_qg
       - file: content/qg/qg_inversion
-  - title: Shallow Water
+  - title: Shallow Water Model
     sections:
       - file: content/sw/sw
       - file: content/sw/sw_linear_api1
