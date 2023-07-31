@@ -34,6 +34,31 @@ def x_average_1D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     return kernel_fn(u)
 
 
+def x_difference_1D(
+    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
+) -> Array:
+    """Returns the two-point average at the centres between grid points.
+
+    Grid:
+        + -- ⋅ -- +
+        u -- u̅ -- u
+        + -- ⋅ -- +
+
+    Args:
+        u (Array): the field [Nx,]
+
+    Returns:
+        ubar (Array): the field averaged [Nx-1,]
+
+    """
+
+    @kex.kmap(kernel_size=(2,), padding=padding)
+    def kernel_fn(u):
+        return u[0] - u[-1]
+
+    return kernel_fn(u) / step_size
+
+
 def x_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the two-point average at the centres between grid points.
 
@@ -57,6 +82,75 @@ def x_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
         return jnp.mean(u)
 
     return kernel_fn(u)
+
+
+def x_interp_linear_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
+    """Returns the two-point average at the centres between grid points.
+
+    Grid:
+        u -- u̅ -- u
+        |         |
+        ⋅         ⋅
+        |         |
+        u -- u̅ -- u
+
+    Args:
+        u (Array): the field [Nx,Ny]
+
+    Returns:
+        ubar (Array): the field averaged [Nx-1, Ny]
+
+    """
+    return 0.5 * (u[:-1] + u[1:])
+
+
+def x_difference_2D(
+    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
+) -> Array:
+    """Returns the two-point average at the centres between grid points.
+
+    Grid:
+        u -- u̅ -- u
+        |         |
+        ⋅         ⋅
+        |         |
+        u -- u̅ -- u
+
+    Args:
+        u (Array): the field [Nx,Ny]
+
+    Returns:
+        ubar (Array): the field averaged [Nx-1, Ny]
+
+    """
+
+    @kex.kmap(kernel_size=(2, 1), padding=padding)
+    def kernel_fn(u):
+        return u[1, 0] - u[0, 0]
+
+    return kernel_fn(u) / step_size
+
+
+def x_difference_2D_(
+    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
+) -> Array:
+    """Returns the two-point average at the centres between grid points.
+
+    Grid:
+        u -- u̅ -- u
+        |         |
+        ⋅         ⋅
+        |         |
+        u -- u̅ -- u
+
+    Args:
+        u (Array): the field [Nx,Ny]
+
+    Returns:
+        ubar (Array): the field averaged [Nx-1, Ny]
+
+    """
+    return (u[1:] - u[:-1]) / step_size
 
 
 def y_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
@@ -84,6 +178,75 @@ def y_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     return kernel_fn(u)
 
 
+def y_interp_linear_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
+    """Returns the two-point average at the centres between grid points.
+
+    Grid:
+        u -- ⋅ -- u
+        |         |
+        u̅         u̅
+        |         |
+        u -- ⋅ -- u
+
+    Args:
+        u (Array): the field [Nx,Ny]
+
+    Returns:
+        ubar (Array): the field averaged [Nx, Ny-1]
+
+    """
+    return 0.5 * (u[:, :-1] + u[:, 1:])
+
+
+def y_difference_2D(
+    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
+) -> Array:
+    """Returns the two-point average at the centres between grid points.
+
+    Grid:
+        u -- ⋅ -- u
+        |         |
+        u̅         u̅
+        |         |
+        u -- ⋅ -- u
+
+    Args:
+        u (Array): the field [Nx,Ny]
+
+    Returns:
+        ubar (Array): the field averaged [Nx, Ny-1]
+
+    """
+
+    @kex.kmap(kernel_size=(1, 2), padding=padding)
+    def kernel_fn(u):
+        return u[0, 1] - u[0, 0]
+
+    return kernel_fn(u) / step_size
+
+
+def y_difference_2D_(
+    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
+) -> Array:
+    """Returns the two-point average at the centres between grid points.
+
+    Grid:
+        u -- ⋅ -- u
+        |         |
+        u̅         u̅
+        |         |
+        u -- ⋅ -- u
+
+    Args:
+        u (Array): the field [Nx,Ny]
+
+    Returns:
+        ubar (Array): the field averaged [Nx, Ny-1]
+
+    """
+    return (u[:, 1:] - u[:, :-1]) / step_size
+
+
 def center_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the four-point average at the centres between grid points.
 
@@ -107,6 +270,27 @@ def center_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Arr
         return jnp.mean(u)
 
     return kernel_fn(u)
+
+
+def center_average_2D_(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
+    """Returns the four-point average at the centres between grid points.
+
+    Grid:
+        u -- ⋅ -- u
+        |         |
+        ⋅    u̅    ⋅
+        |         |
+        u -- ⋅ -- u
+
+    Args:
+        u (Array): the field [Nx,Ny]
+
+    Returns:
+        ubar (Array): the field averaged [Nx-1, Ny-1]
+
+    """
+
+    return 0.25 * (u[:-1, :-1] + u[1:, :-1] + u[:-1, 1:] + u[1:, 1:])
 
 
 def kernel_average(
