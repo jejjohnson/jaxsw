@@ -8,21 +8,26 @@ import finitediffx as fdx
 
 from jaxsw._src.domain.base import Domain
 from jaxsw._src.fields.base import Field
+from jaxsw._src.operators.functional.advection import plusminus
 
 DEFAULT_PADDING = dict(right=(0, 1), left=(1, 0), inner=(0, 0), outer=(1, 1))
 OPERATION_MAP = dict(right=0, left=1, inner=2, outer=3)
 
 
-def interp(u: Array, axis: int = 0, method: str = "linear") -> Array:
+def interp(u: Array, axis: int = 0, method: str = "linear", **kwargs) -> Array:
 
     if method == "linear":
         return interp_linear_constant(u=u, axis=axis)
     elif method == "upwind":
-        raise NotImplementedError()
+        return interp_upwind_constant(u=u, axis=axis, **kwargs)
     elif method == "geometric":
         raise NotImplementedError()
     elif method == "harmonic":
         raise NotImplementedError()
+    else:
+        msg = f"Unrecognized method: {method}"
+        msg += "\nMust be: 'linear'"
+        raise ValueError(msg)
 
 
 def interp_center(u: Array, method: str = "linear") -> Array:
@@ -38,29 +43,44 @@ def interp_center(u: Array, method: str = "linear") -> Array:
 
 
 def interp_linear_constant(u: Array, axis: int = 0) -> Array:
-    if axis == 0:
-        return 0.5 * (u[1:] + u[:-1])
-    elif axis == 1:
-        return 0.5 * (u[:, 1:] + u[:, :-1])
-    elif axis == 1:
-        return 0.5 * (u[..., 1:] + u[..., :-1])
-    else:
+
+    if axis not in [0, 1, 2]:
         msg = f"Unrecongized axis: {axis}"
         msg += "\nAxis must be 0,1, or 2"
         raise ValueError(msg)
+
+    u1 = jax.lax.slice_in_dim(u, None, -1, axis=axis)
+    u2 = jax.lax.slice_in_dim(u, 1, None, axis=axis)
+    return 0.5 * (u1 + u2)
+
+
+def interp_upwind_constant(u: Array, axis: int = 0, way: int = 1) -> Array:
+
+    u_plus, u_minus = plusminus(u)
+    u_zero = jnp.where(u == 0.0, u, 0.0)
+
+    out = (
+        interp_linear_constant(u_plus, axis=axis)
+        + interp_linear_constant(u_minus, axis=axis)
+        + interp_linear_constant(u_zero, axis=axis)
+    )
+
+    return out
 
 
 def interp_linear_irregular(u: Array, dx: Array, axis: int = 0) -> Array:
-    if axis == 0:
-        return (dx[:-1] * u[1:] + dx[1:] * u[:-1]) / (dx[1:] + dx[:-1])
-    elif axis == 1:
-        return (dx[:-1] * u[:, 1:] + dx[1:] * u[:, :-1]) / (dx[1:] + dx[:-1])
-    elif axis == 1:
-        return (dx[:-1] * u[..., 1:] + dx[1:] * u[..., :-1]) / (dx[1:] + dx[:-1])
-    else:
+
+    if axis not in [0, 1, 2]:
         msg = f"Unrecongized axis: {axis}"
         msg += "\nAxis must be 0,1, or 2"
         raise ValueError(msg)
+
+    dx1 = jax.lax.slice_in_dim(dx, None, -1, axis=axis)
+    u1 = jax.lax.slice_in_dim(u, None, -1, axis=axis)
+    dx2 = jax.lax.slice_in_dim(dx, 1, None, axis=axis)
+    u2 = jax.lax.slice_in_dim(u, 1, None, axis=axis)
+
+    return (dx2 * u1 + dx1 * u2) / (dx1 + dx2)
 
 
 def difference(
@@ -69,6 +89,8 @@ def difference(
     axis: int = 0,
     method: str = "right",
     accuracy: int = 1,
+    a: Array = None,
+    **kwargs,
 ) -> Array:
 
     if method == "right":
@@ -89,6 +111,20 @@ def difference(
         )
         u = jax.lax.slice_in_dim(u, 1, -1, axis=axis)
         return u
+    elif method == "upwind":
+
+        # get plus-minus
+        u_plus, u_minus = plusminus(a if a is not None else u)
+
+        du_b = difference(u, step_size=step_size, axis=axis, method="left")
+        du_f = difference(u, step_size=step_size, axis=axis, method="right")
+
+        u_minus = jax.lax.slice_in_dim(u_minus, None, -1, axis=axis)
+        u_plus = jax.lax.slice_in_dim(u_plus, 1, None, axis=axis)
+        # u_minus = jax.lax.slice_in_dim(u_minus, -1, None, axis=axis)
+        # u_plus = jax.lax.slice_in_dim(u_plus, None, -1, axis=axis)
+
+        return du_f * u_minus + du_b * u_plus
     else:
         msg = f"Unrecognized method: {method}"
         msg += "\nNeeds to be: 'forward', 'backward', 'central'."
