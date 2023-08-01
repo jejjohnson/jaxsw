@@ -1,14 +1,98 @@
 import typing as tp
 
+import jax
 import jax.numpy as jnp
 import kernex as kex
 from jaxtyping import Array
+import finitediffx as fdx
 
 from jaxsw._src.domain.base import Domain
 from jaxsw._src.fields.base import Field
 
 DEFAULT_PADDING = dict(right=(0, 1), left=(1, 0), inner=(0, 0), outer=(1, 1))
 OPERATION_MAP = dict(right=0, left=1, inner=2, outer=3)
+
+
+def interp(u: Array, axis: int = 0, method: str = "linear") -> Array:
+
+    if method == "linear":
+        return interp_linear_constant(u=u, axis=axis)
+    elif method == "upwind":
+        raise NotImplementedError()
+    elif method == "geometric":
+        raise NotImplementedError()
+    elif method == "harmonic":
+        raise NotImplementedError()
+
+
+def interp_center(u: Array, method: str = "linear") -> Array:
+
+    if method == "linear":
+        return 0.25 * (u[:-1, :-1] + u[1:, :-1] + u[:-1, 1:] + u[1:, 1:])
+    elif method == "upwind":
+        raise NotImplementedError()
+    elif method == "geometric":
+        raise NotImplementedError()
+    elif method == "harmonic":
+        raise NotImplementedError()
+
+
+def interp_linear_constant(u: Array, axis: int = 0) -> Array:
+    if axis == 0:
+        return 0.5 * (u[1:] + u[:-1])
+    elif axis == 1:
+        return 0.5 * (u[:, 1:] + u[:, :-1])
+    elif axis == 1:
+        return 0.5 * (u[..., 1:] + u[..., :-1])
+    else:
+        msg = f"Unrecongized axis: {axis}"
+        msg += "\nAxis must be 0,1, or 2"
+        raise ValueError(msg)
+
+
+def interp_linear_irregular(u: Array, dx: Array, axis: int = 0) -> Array:
+    if axis == 0:
+        return (dx[:-1] * u[1:] + dx[1:] * u[:-1]) / (dx[1:] + dx[:-1])
+    elif axis == 1:
+        return (dx[:-1] * u[:, 1:] + dx[1:] * u[:, :-1]) / (dx[1:] + dx[:-1])
+    elif axis == 1:
+        return (dx[:-1] * u[..., 1:] + dx[1:] * u[..., :-1]) / (dx[1:] + dx[:-1])
+    else:
+        msg = f"Unrecongized axis: {axis}"
+        msg += "\nAxis must be 0,1, or 2"
+        raise ValueError(msg)
+
+
+def difference(
+    u: Array,
+    step_size: Array = 1,
+    axis: int = 0,
+    method: str = "right",
+    accuracy: int = 1,
+) -> Array:
+
+    if method == "right":
+        u = fdx.difference(
+            u, step_size=step_size, axis=axis, method="backward", accuracy=accuracy
+        )
+        u = jax.lax.slice_in_dim(u, 1, None, axis=axis)
+        return u
+    elif method == "left":
+        u = fdx.difference(
+            u, step_size=step_size, axis=axis, method="forward", accuracy=accuracy
+        )
+        u = jax.lax.slice_in_dim(u, None, -1, axis=axis)
+        return u
+    elif method == "inner":
+        u = fdx.difference(
+            u, step_size=step_size, axis=axis, method="central", accuracy=accuracy
+        )
+        u = jax.lax.slice_in_dim(u, 1, -1, axis=axis)
+        return u
+    else:
+        msg = f"Unrecognized method: {method}"
+        msg += "\nNeeds to be: 'forward', 'backward', 'central'."
+        raise ValueError(msg)
 
 
 def x_average_1D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
