@@ -98,7 +98,6 @@ class ShallowWater2D(DynamicalSystem):
 
 
 def equation_of_motion(state: State, params: Params):
-
     interp_method = "upwind"
     h, u, v = state.h, state.u, state.v
 
@@ -277,7 +276,6 @@ def equation_of_motion(state: State, params: Params):
 
 
 def equation_of_motion_advection(state: State, params: Params):
-
     interp_method = "linear"
     adv_method = "linear"
 

@@ -15,7 +15,6 @@ OPERATION_MAP = dict(right=0, left=1, inner=2, outer=3)
 
 
 def interp(u: Array, axis: int = 0, method: str = "linear", **kwargs) -> Array:
-
     if method == "linear":
         return interp_linear_constant(u=u, axis=axis)
     elif method == "upwind":
@@ -31,7 +30,6 @@ def interp(u: Array, axis: int = 0, method: str = "linear", **kwargs) -> Array:
 
 
 def interp_center(u: Array, method: str = "linear") -> Array:
-
     if method == "linear":
         return 0.25 * (u[:-1, :-1] + u[1:, :-1] + u[:-1, 1:] + u[1:, 1:])
     elif method == "upwind":
@@ -43,7 +41,6 @@ def interp_center(u: Array, method: str = "linear") -> Array:
 
 
 def interp_linear_constant(u: Array, axis: int = 0) -> Array:
-
     if axis not in [0, 1, 2]:
         msg = f"Unrecongized axis: {axis}"
         msg += "\nAxis must be 0,1, or 2"
@@ -55,7 +52,6 @@ def interp_linear_constant(u: Array, axis: int = 0) -> Array:
 
 
 def interp_upwind_constant(u: Array, axis: int = 0, way: int = 1) -> Array:
-
     u_plus, u_minus = plusminus(u)
     u_zero = jnp.where(u == 0.0, u, 0.0)
 
@@ -69,7 +65,6 @@ def interp_upwind_constant(u: Array, axis: int = 0, way: int = 1) -> Array:
 
 
 def interp_linear_irregular(u: Array, dx: Array, axis: int = 0) -> Array:
-
     if axis not in [0, 1, 2]:
         msg = f"Unrecongized axis: {axis}"
         msg += "\nAxis must be 0,1, or 2"
@@ -92,7 +87,6 @@ def difference(
     a: Array = None,
     **kwargs,
 ) -> Array:
-
     if method == "right":
         u = fdx.difference(
             u, step_size=step_size, axis=axis, method="backward", accuracy=accuracy
@@ -112,7 +106,6 @@ def difference(
         u = jax.lax.slice_in_dim(u, 1, -1, axis=axis)
         return u
     elif method == "upwind":
-
         # get plus-minus
         u_plus, u_minus = plusminus(a if a is not None else u)
 
