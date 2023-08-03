@@ -48,12 +48,14 @@ chapters:
   - title: Quasi-Geostrophic Model
     sections:
       - file: content/qg/qg
+      - file: content/qg/qg_formulation
       - file: content/qg/ssh_free_run
       - file: content/qg/multilayer_qg
       - file: content/qg/qg_inversion
   - title: Shallow Water Model
     sections:
       - file: content/sw/sw
+      - file: content/sw/sw_formulation
       - file: content/sw/sw_linear_rossby_api1
       - file: content/sw/sw_linear_jet_api1
       - file: content/sw/sw_nonlinear_jet_api1
