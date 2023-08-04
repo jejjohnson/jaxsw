@@ -20,6 +20,7 @@ abbreviations:
     PV: Potential Vorticity
     SF: Stream Function
     N-S: Navier-Stokes
+    Pa: Pascals
 ---
 
 In this section, we look at how we can solve the QG equations using elements from this package.
@@ -569,13 +570,73 @@ It is a helpful parameter that can be used for the QG model of choice.
 For example, in [{cite}`10.1175/jtech-d-20-0104.1`], they used a Rossby radius of $30$km for a $10^\circ\times 10^\circ$ domain.
 
 
-### Example Experimental Setup
+### Case Studies
 
-In the [{cite}`10.3934/dcdss.2022058`] paper, the authors did a free-run of the QG model for an assimilation task of 21 days.
-Their target area was over the North Atlantic (NA) domain of $2,052$km $\times$ $3,099$km with a grid cell size, $dx$, of $\sim18$km.
-This resulted in a domain size of $N_x\times N_y=113\times 170$. They used a leapfrog time integration method with a time step, $\Delta t$, was $600$s.
-They needed to do $\sim$10,000 spinup steps to get a good running simulation.
+The most common case study I have seen for this would be applied to data assimilation.
+In particular, the QG model has been used to assimilate SSH satellite observations [{cite}`10.3934/dcdss.2022058`].
+
+
+
+In [{cite}`10.3934/dcdss.2022058`], the authors did a free-run of the QG model for an assimilation task of 21 days.
+Their target area was over the North Atlantic (NA) domain.
 A slight change to the above formulation is that they used a forcing term as the constant wind forcing term outlined above.
+**Note**: They needed to do $\sim$10,000 spinup steps to get a good running simulation.
+
+Below is an outline of the configuration.
+
+
+:::{tip} Parameter Details
+:class: dropdown
+
+**Note**: They used a LeapFrog scheme for the integrator.
+
+
+
+
+```{list-table} Fixed for their Eddy resolving simulations.
+:header-rows: 1
+:name: tb:qg_idealized
+
+* - Name
+  - Symbol
+  - Units
+  - Value
+* - Domain Size
+  - $L_x\times L_y$ 
+  - km
+  - `2_052 x 3_099`
+* - Resolution
+  - $dx\times dy$ 
+  - km
+  - `18 x 18`
+* - Grid Size
+  - $N_x\times N_y$ 
+  - 
+  - `113 x 170`
+* - Time Step
+  - $\Delta t$ 
+  - s
+  - `600`
+* - Phase Speed
+  - $c$
+  - ms$^{-2}$ 
+  - `[2.5, 1.0, 1.0]`
+* - Assimilation Window
+  - $T$ 
+  - days
+  - `21`
+* - Time Splitter
+  - $\mu$
+  -  
+  - `0.2`
+  
+```
+
+
+:::
+
+
+
 
 
 ---
@@ -694,47 +755,269 @@ $$ (eq:qg_stacked_dissipation)
 
 
 
-### Parameter Configuration
+## Case Studies
 
-In the paper [[Thiry et al., 2023](https://doi.org/10.22541/essoar.167397445.54992823/v1)], they use the following formulation
+### Q-GCM
+
+There is an open-source QG GCM model ([Q-GCM](http://www.q-gcm.org/)) that is available.
+It has a coupled model for the atmosphere and ocean where the atmospheric component is a stacked QG model and the oceanic component is a stacked QG model.
+They describe in detail two configurations for the double-gyre (North Atlantic) and the southern ocean. 
+We outline in detail their
+
+:::{tip} Parameter Details
+:class: dropdown
+
+Below is a table with the parameter configuration for their experiments.
+
+
+```{list-table} Variable parameters for their Northern and Southern Ocean experiments.
+:header-rows: 1
+:name: tb:qg_stacked_gcm
+
+* - Name
+  - Symbol
+  - Units
+  - Double Gyre
+  - Southern Ocean
+* - Domain Size
+  - $L_x \times L_y$
+  - km
+  - `3_840 x 4_800`
+  - `23_040 x 2_880`
+* - Resolution
+  - $dx \times dy$
+  - km
+  - `10 x 10`
+  - `10 x 10`
+* - Grid Size
+  - $N_x \times N_y$
+  - 
+  - `384 x 480`
+  - `2_304 x 288`
+* - Time Step
+  - $\Delta t$
+  - min
+  - `30`
+  - `10`
+* - Mean Layer Thickness
+  - $H_k$ 
+  - m
+  - `[300, 1_100, 2_600]`
+  - `[300, 1_100, 2_600]`
+* - Reduced Gravity
+  - $g_k$ 
+  - ms$^{-2}$
+  - `[0.05, 0.025]`
+  - `[0.05, 0.025]`
+* - Bottom Ekman Layer Thickness
+  - $\delta_{ek}$ 
+  - m
+  - `1`
+  - `2`
+* - Ocean Density
+  - $\rho_0$ 
+  - kgm$^{-3}$
+  - `1_000`
+  - `1_000`
+* - Baroclinic Rossby Radii
+  - $L_d$ 
+  - km
+  - `[51, 32]`
+  - `[42, 26]`
+* - Laplacian Viscosity Coefficient
+  - $a_2$
+  - m$^2$s$^{-1}$
+  - `0`
+  - `0`
+* - BiHarmonic Viscosity Coefficient
+  - $a_4$
+  - m$^4$s
+  - `1e10`
+  - `3e10`
+* - Mean Coriolis Parameter
+  - $f_0$
+  - s$^{-1}$
+  - `1e-4`
+  - `-1.1947e-4`
+* - Coriolis Parameter Gradient
+  - $\beta$
+  - m$^{-1}$s$^{-1}$
+  - `2e-4`
+  - `1.313e-11`
+```
+
+:::
+
+### Dissipation Studies
+
+In the paper [[Thiry et al., 2023](https://doi.org/10.22541/essoar.167397445.54992823/v1)], they were investigating the impact of implicit dissipation via numerical methods or explicit dissipation via a hyper-viscosity parameter.
+For their experiments, they use the stacked QG model that was listed above to do a canonical double gyre experiment.
 
 $$
 \partial_t \vec{\boldsymbol{q}} +
-\vec{\boldsymbol{u}}\cdot\boldsymbol{\nabla}
+\vec{\boldsymbol{u}}\cdot\boldsymbol{\nabla}_H
 \vec{\boldsymbol{q}} = 
--a_2\boldsymbol{\Delta}_H^2\psi 
+a_2\boldsymbol{\Delta}_H^2\psi 
 -a_4\boldsymbol{\Delta}_H^3\psi +
 \frac{\tau_0}{\rho_0H_1}\left[\partial_x\tau_y - \partial_y\tau_x, 0\cdots,0\right] -
 \frac{\delta_{ek}}{2H_{N_Z}}
 \left[0,\cdots,0,\Delta\psi_N\right]
 $$
 
+Using this model, they modified the configuration of the spatial resolution and the hyper-viscosity which coincide with Eddy non-resolving, Eddy permitting, and Eddy resolving cases.
+They showcased how the numerical scheme they used was better than explicitly prescribing the dissipation.
+
+:::{tip} Parameter Details
+:class: dropdown
+
 Below is a table with the parameter configuration for their experiments.
 
 
+```{list-table} Variable parameters for their Eddy resolving simulations.
+:header-rows: 1
+:name: tb:qg_stacked_louis_variable
+
+* - Name
+  - Symbol
+  - Units
+  - Non-Eddy Resolving
+  - 
+  -
+  - Eddy Permitting
+  - 
+  - 
+  - Eddy Resolving
+* - Grid Size
+  - $N_x \times N_y$
+  - 
+  - `129 x 129`
+  - `161 x 161`
+  - `193 x 193`
+  - `257 x 257`
+  - `385 x 385`
+  - `513 x 513`
+  - `1,025 x 1,025`
+* - Resolution 
+  - $dx \times dy$ 
+  - km
+  - `40 x 40`
+  - `32 x 32`
+  - `26 x 26`
+  - `20 x 40`
+  - `13.3 x 13.3`
+  - `10 x 10`
+  - `5 x 5`
+* - Time Step
+  - $\Delta t$ 
+  - s
+  - `8_000`
+  - `6_000`
+  - `5_400`
+  - `4_000`
+  - `2_700`
+  - `2_000`
+  - `1_000`
+* - Munk Scale
+  - $\delta$ 
+  - 
+  - `1`
+  - `1`
+  - `1`
+  - `1`
+  - `1.25`
+  - `1.5`
+  - `2`
+* - Hyperviscosity
+  - $a_4$ 
+  - m$^4$s$^{-1}$
+  - `1.8e12`
+  - `5.9e11`
+  - `2.4e11`
+  - `5.6e10`
+  - `2.6e10`
+  - `1.3e10`
+  - `1.7e9`
+```
+
+Below is a table with the fixed parameters that stayed constant throughout the simulation.
+
+```{list-table} Fixed for their Eddy resolving simulations.
+:header-rows: 1
+:name: tb:qg_stacked_louis_fixed
+
+* - Name
+  - Symbol
+  - Units
+  - Value
+* - Domain Size
+  - $L_x\times L_y$ 
+  - km
+  - `5120 x 5120`
+* - Mean Layer Thickness
+  - $H_k$ 
+  - m
+  - `[400, 1_100, 2_600]`
+* - Reduced Gravity
+  - $g_k$ 
+  - ms$^{-2}$
+  - `[0.025, 0.0125]`
+* - Bottom Ekman Layer Thickness
+  - $\delta_{ek}$ 
+  - m
+  - `1`
+* - Wind Stress Magnitude
+  - $\tau_0$ 
+  - Nm$^{-1}$ | Pa
+  - `0.08`
+* - Ocean Density
+  - $\rho_0$ 
+  - kgm$^{-3}$
+  - `1_000`
+* - Mean Coriolis Parameter
+  - $f_0$ 
+  - s$^{-1}$
+  - `9.375e-5`
+* - Coriolis Parameter Gradient
+  - $\beta$ 
+  - ms${-1}$
+  - `1.754e-11`
+* - Baroclinic Rossby Radii
+  - $L_d$ 
+  - km
+  - `[41, 25]`
+```
+
+
+
 ---
-## Examples
 
-### Idealized QG (**TODO**)
+**Forcing**
 
-We have a jupyter notebook showscasing how we can reconstruct the fields displayed in the above section using the idealized QG equation [](#eq:qg_idealized).
-This is a simple 1 Layer QG model on a periodic domain.
-We will use the experimental configuration found in [](#tb:qg_idealized) which will showcase the different flow regimes depending upon the parameters, i.e. decay flow, forced flow and $\beta$-plane flow.
+They used a stationary symmetric wind stress forcing.
 
-### *Realistic* Idealized QG (**TODO**)
+$$
+\begin{aligned}
+\tau_x = - \frac{\tau_0}{\rho_0}
+\cos
+\left[ \frac{2\pi y}{L_y} \right], && &&
+\tau_y = 0
+\end{aligned}
+$$
 
-We have a jupyter notebook showcasing how we can reconstruct the fields displayed in the above section for the *realistic* idealized QG equation.
-This is another simple 1 Layer QG model but with parameters that mean something in real space.
+---
+
+**Boundaries**
+
+* For the velocity, $\vec{\boldsymbol{u}}$, they use *free-slip* boundaries, i.e., the tangential velocity for the North-South extent is zero.
+* For the relative vorticity, $q$, they use zero boundaries.
+
+---
+
+**Note**: they used a 60 year spin-up period to get started.
 
 
-### Free-Run QG (**TODO**)
+:::
 
-This is a simple 1.5 layer QG and the mapping problem for SSH. 
-This comes from {cite}`10.1175/jtech-d-20-0104.1` paper where they showcase the relationship between SSH and the QG model.
 
-### Stacked QG (**TODO**)
 
-This is an example that implements an example for the stacked QG model.
-The underlying mathematics is based on the [Q-GCM](http://www.q-gcm.org/) numerical model.
-However, the configurations are based upon the papers [{cite}`10.48550/arxiv.2204.13914,10.22541/essoar.167397445.54992823/v1`].
 
