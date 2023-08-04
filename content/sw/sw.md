@@ -16,71 +16,84 @@ abbreviations:
     GP: Gaussian Process
 ---
 
-In this section, we look at how we can solve the Shallow water equations using elements from this package.
 
 
+---
+## Examples
 
-## Linear Shallow Water Equations - [Example](./sw_linear_api1.ipynb)
+We have a few examples of how one can use the Shallow water equations to generate some simulations under different parameter regimes.
+
+
+---
+### Linear Shallow Water Model
+
+[![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](./sw_linear_jet_api1)
+
+In this example, we look at the linearized shallow water model given by:
 
 $$
 \begin{aligned}
-\frac{\partial h}{\partial t} &+ H
-\left(\frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) = 0 \\
-\frac{\partial u}{\partial t} &- fv =
-- g \frac{\partial h}{\partial x}
+\partial_t h &+ H
+\left(\partial_x u + \partial_y v \right) = 0 \\
+\partial_t u &- fv =
+- g \partial_x h
 - \kappa u \\
-\frac{\partial v}{\partial t} &+ fu =
-- g \frac{\partial h}{\partial y}
+\partial_t v &+ fu =
+- g \partial_y h
 - \kappa v
 \end{aligned}
 $$ (eq:sw_linear)
 
+We demonstrate how we can use this for generating a simulation with idealistic Kelvin waves that move around the boundary and an idealistic jet across the East-West extent.
+
 
 ---
+### NonLinear Shallow Water Model
 
-## Non-Linear Shallow Water Equations - [Example](./sw_nonlinear.ipynb)
+[![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](./sw_nonlinear_jet_api1)
 
-
-
-Taking the equation from [wikipedia](https://en.wikipedia.org/wiki/Shallow_water_equations#Non-conservative_form).
-
+In this example, we look at the nonlinear shallow water model given by:
 
 $$
 \begin{aligned}
-\frac{\partial h}{\partial t} &+ 
-\frac{\partial}{\partial x}\left((H+h)u\right) +
-\frac{\partial}{\partial y}\left((H+h)v\right)= 0 \\
-\frac{\partial u}{\partial t} &+ u\frac{\partial u}{\partial x} + v\frac{\partial u}{\partial y} - fv =
--g\frac{\partial h}{\partial x} -ku + \nu \left( \frac{\partial^2 u}{\partial x^2} + 
-\frac{\partial^2 u}{\partial y^2} \right)\\
-\frac{\partial v}{\partial t} &+ u\frac{\partial v}{\partial x} + v\frac{\partial v}{\partial y} + fu =
--g\frac{\partial h}{\partial y} -kv + 
-\nu \left( \frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2} \right)\\
+\text{Height}: && &&
+\partial_t h + 
+\partial_x (hu) + \partial_y (hv) &= 0\\
+\text{Zonal Velocity}: && &&
+\partial_t u + 
+u \partial_x u + v\partial_y u - fv &=
+- g \partial_x (h + \eta_B) + F_x + B_x + M_x + \xi_x \\
+\text{Meridonal Velocity}: && &&
+\partial_t v + 
+u \partial_x v + v\partial_y v + fu &=
+- g \partial_y (h + \eta_B) + F_y + B_y + M_y + \xi_y
 \end{aligned}
-$$ (eq:sw)
+$$  (eq:sw_nonlinear)
 
 
-| Symbol | Variable | Unit | 
-|:---------:|:------|:----:|
-| $u$ | Zonal Velocity |  $m/s^2$ |
-| $v$ | Meridial Velocity |   $m/s^2$ |
-| $H$ |Mean Height |   $m$ |
-| $h$ |Height Deviation |$m$ |
-|$b$ | Topographical height 
+We demonstrate how we can use this for generating a simulation with an idealistic jet across the East-West extent.
 
 
-**Velocities**. The $u,v$ represent the zonal and meridional velocities in the x,y directions respectively.
+---
+#### Vorticity Formulation
 
-**Heights** ($H,h,b$). 
-The $H$ represents the mean hight of the horizontal pressure surface. 
-The $h$ represents the height deviation of the horizontal pressure surface from its mean height.
-$b$ represents the topographical height from a reference $D$.
+[![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](./sw_nonlinear_jet_api1)
+
+We can also write the shallow water equation as
 
 $$
 \begin{aligned}
-\eta(x,y,t) &= H(x,y) + h(x,y,t) \\
-H(x,y) &= D + b(x,y)
+\text{Height}: && &&
+\partial_t h &=  
+-\partial_x (hu) - \partial_y (hv) = 0\\
+\text{Zonal Velocity}: && &&
+\partial_t u &= 
+qhv - \partial_x p + F_x + M_x + B_x + \xi_x \\
+\text{Meridonal Velocity}: && &&
+\partial_t v
+&= - qhu - \partial_y p + F_y + M_y + B_y + \xi_y
 \end{aligned}
-$$
+$$  (eq:sw_nonlinear_vorticity)
 
-**Constants** ($f,k,\nu$). $g$ is the acceleration due to gravity, $k$ is the viscous drag coefficient, and $\nu$ is the kinematic viscosity. 
+which is the *vector invariant formulation* that uses vorticity.
+We also showcase how we can use this formulation for the same parameter regime but with slightly different end results due to numerical computation differences.

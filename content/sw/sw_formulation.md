@@ -446,7 +446,7 @@ A good overview between the relationshop between each of the vorticity equations
 ### Kinetic Energy
 
 $$
-KE = \frac{1}{2}\left( u^2 + v^2\right)
+\mathcal{KE} = \frac{1}{2}\left( u^2 + v^2\right)
 $$ (eq:kinetic_energy)
 
 ### Bernoulli Potential
@@ -454,7 +454,7 @@ $$ (eq:kinetic_energy)
 $$
 \begin{aligned}
 \text{Bernoulli Potential}: && &&
-p &= \frac{1}{2}(u^2 + v^2) + g (h + \eta_B) = KE + g(h + \eta_B)
+p &= \frac{1}{2}(u^2 + v^2) + g (h + \eta_B) = \mathcal{KE} + g(h + \eta_B)
 \end{aligned}
 $$ (eq:bernoulli_potential)
 
