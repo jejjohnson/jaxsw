@@ -91,7 +91,26 @@ Inspired by [{cite}`10.1175/jtech-d-20-0104.1`], we demonstrate a simple free-ru
 
 
 ---
-### Stacked QG (**TODO**)
+### Idealized 2-Layer QG (**TODO**)
+
+This is a simpler realization of the stacked QG model. 
+In [{cite}`10.1002/qj.3891`], they were exploring the effectiveness of a data assimilation method (4DVar) when applied to observation data. 
+They used a simple 2-Layer QG model with the stream function $\psi_k$ and the potential vorticity, $q_k$, as shown in equation [](#eq:qg_stacked). 
+However, they have a slight different linking term with no extra forcing or dissipation terms.
+
+
+$$
+\begin{aligned}
+q_1 &= \nabla^2\psi_1 - F_1(\psi_1 - \psi_2) + \beta y \\
+q_2 &= \nabla^2\psi_2 - F_2(\psi_2 - \psi_1) + \beta y + R_s
+\end{aligned}
+$$
+
+We showcase how we can recreate a free-run simulation from this configuration.
+
+
+---
+### Idealized Stacked QG (**TODO**)
 
 [![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)](./multilayer_qg)
 

@@ -286,11 +286,17 @@ I think it is a mistake and that it should be positive which would match the equ
 
 :::
 
+---
+### Case Studies
 
-### Parameter Configurations
+#### Flow Regimes
 
+In [{cite}`10.48550/arxiv.2204.03911`], they were looking at how the QG model could be help train surrogate models to fill in missing dynamics. They did the whole training regime online.
 
-Below are some experimental parameters found in [{cite}`10.48550/arxiv.2204.03911`] which showcase 3 different flow regimes based on the parameter scheme.
+:::{tip} Parameter Details
+:class: dropdown
+
+Below are some experimental parameters found in  which showcase 3 different flow regimes based on the parameter scheme.
 
 ```{list-table} Table with idealized configuration
 :header-rows: 1
@@ -345,6 +351,14 @@ Below are some experimental parameters found in [{cite}`10.48550/arxiv.2204.0391
   - $22e4$
   - $34e4$
 ```
+
+:::
+
+
+
+
+
+
 
 
 ---
@@ -755,9 +769,9 @@ $$ (eq:qg_stacked_dissipation)
 
 
 
-## Case Studies
+### Case Studies
 
-### Q-GCM
+#### Q-GCM
 
 There is an open-source QG GCM model ([Q-GCM](http://www.q-gcm.org/)) that is available.
 It has a coupled model for the atmosphere and ocean where the atmospheric component is a stacked QG model and the oceanic component is a stacked QG model.
@@ -848,7 +862,9 @@ Below is a table with the parameter configuration for their experiments.
 
 :::
 
-### Dissipation Studies
+
+---
+#### Dissipation Studies
 
 In the paper [[Thiry et al., 2023](https://doi.org/10.22541/essoar.167397445.54992823/v1)], they were investigating the impact of implicit dissipation via numerical methods or explicit dissipation via a hyper-viscosity parameter.
 For their experiments, they use the stacked QG model that was listed above to do a canonical double gyre experiment.
@@ -987,8 +1003,6 @@ Below is a table with the fixed parameters that stayed constant throughout the s
   - `[41, 25]`
 ```
 
-
-
 ---
 
 **Forcing**
@@ -1017,6 +1031,213 @@ $$
 
 
 :::
+
+
+
+---
+#### Data Assimilation Benchmark
+
+In [{cite}`10.1002/qj.3891`], they were exploring the effectiveness of a data assimilation method (4DVar) when applied to observation data.
+
+They used a simple 2-Layer QG model with the stream function $\psi_k$ and the potential vorticity, $q_k$, as shown in equation [](#eq:qg_stacked).
+In the equation, they don't have any explicit forcing but they do mention some optional constant wind forcing.
+
+They have a two layer system so their M-equation will be
+
+$$
+\mathbf{M} =
+\begin{bmatrix}
+\frac{f_0^2}{H_1 g} & \frac{-f_0^2}{H_1 g} \\
+\frac{-f_0^2}{H_n g} & \frac{f_0^2}{H_n g}   \\
+\end{bmatrix}
+$$ 
+
+which is similar to equation [](#eq:qg_stacked_M) except they put the constant Coriolis parmater inside. 
+In addition, they don't have any reduced gravities, just a constant gravity for each term.
+
+This was designed for speed, stability, and convenience instead of accuracy and conservation.
+
+
+
+:::{tip} Parameter Details
+:class: dropdown
+
+The authors have written the formulation completely out as.
+
+$$
+\begin{aligned}
+q_1 &= \nabla^2\psi_1 - F_1(\psi_1 - \psi_2) + \beta y \\
+q_2 &= \nabla^2\psi_2 - F_2(\psi_2 - \psi_1) + \beta y + R_s
+\end{aligned}
+$$
+
+where $\beta$ is the (non-dimensionalized) northward derivative, $f$ is the Coriolis parameter, $y$ is the vertical coordinate and $R_s$ represents the orography or heating.
+The parameters, $F_1,F_2$, are the parameters that couple the laters together.
+
+Below are some experimental parameters for the experimental setup
+
+
+```{list-table} Parameters
+:header-rows: 1
+:name: tb:qg_stacked_louis_fixed
+
+* - Name
+  - Symbol
+  - Units
+  - Value
+* - Basin Length
+  - $L$ 
+  - m
+  - `1e6`
+* - Velocity
+  - $U$ 
+  - ms$^{-1}$
+  - `10`
+* - Coriolis Parameter
+  - $f_0$ 
+  - s$^{-1}$
+  - `1e-4`
+* - Northward Derivative
+  - $\beta_0$ 
+  - m$^{-1}$s$^{-1}$
+  - `1.5e-11`
+* - Layer Depths
+  - $D_1, D_2$ 
+  - m
+  - `[6_000, 4_000]`
+* - Mean Potential Temperature
+  - $\bar{\theta}$ 
+  - ...
+  - ...
+* - Layer Difference in Potential Temperature
+  - $\Delta\theta$ 
+  - ...
+  - ...
+* - Ratio PT
+  - $\frac{\Delta\theta}{\bar{\theta}}$ 
+  - ...
+  - `0.1`
+* - Mean Wind - Upper
+  - ... 
+  - ms$^{-1}$
+  - `40`
+* - Mean Wind - Lower
+  - ... 
+  - ms$^{-1}$
+  - `10`
+```
+
+**Note**: the Coriolis paramater is at the *southern boundary*.
+
+---
+
+```{list-table} Non-Dimensionalization
+:header-rows: 1
+:name: tb:qg_stacked_louis_fixed
+
+* - Name
+  - Symbol
+  - Units
+  - Transformation
+* - Time
+  - $t$ 
+  - s
+  - $\tilde{t} \frac{\bar{U}}{L}$
+* - X-Coordinate
+  - $x$ 
+  - m
+  - $\frac{\tilde{x}}{L}$
+* - Y-Coordinate
+  - $y$ 
+  - m
+  - $\frac{\tilde{y}}{L}$
+* - u-Velocity
+  - $u$ 
+  - ms$^{-1}$
+  - $\frac{\tilde{u}}{U}$
+* - v-Velocity
+  - $v$ 
+  - ms$^{-1}$
+  - $\frac{\tilde{v}}{U}$
+* - Northward Derivative
+  - $\beta$ 
+  - ...
+  - $\beta_0\frac{L^2}{U}$
+* - Coupling Term I
+  - $F_1$ 
+  - ...
+  - $\frac{f_0^2L^2}{D_1 g \frac{\Delta\theta}{\bar{\theta}}}$
+* - Coupling Term II
+  - $F_2$ 
+  - ...
+  - $\frac{f_0^2L^2}{D_2 g \frac{\Delta\theta}{\bar{\theta}}}$
+* - Rossby Number
+  - $\epsilon$ 
+  - ...
+  - $\frac{\bar{U}}{f_0 L} = 0.1$
+```
+
+---
+
+**Experimental Details**
+
+* Time Stepping - first order upstream
+* PV Advection - Semi-Lagrangian advection
+* Interpolation of upstream PV - bi-cubic
+* Advection Outside Domain - edge values
+* North-South PV Values - user supplied
+* Advection Wind - Inverting PV
+* Domain - Cyclic in Zonal Direction
+
+---
+
+**Initial Condition**
+
+They place a Gaussian hill centered at point `(10,15)` with a dimensional height of `2_000m` and an e-folding width of `1_000km`
+
+
+---
+
+**Errors**
+
+```{list-table} Parameters
+:header-rows: 1
+:name: tb:qg_stacked_louis_fixed
+
+* - Covariance Matrix
+  - Standard Deviation ($\sigma$)
+  - Horizontal Correlation ($c_h$)
+  - Vertical Correlation ($c_v$)
+  - Scales
+* - $\mathbf{B}$
+  - `0.8` 
+  - `0.6e6`
+  - `0.2`
+  - Short
+* - $\mathbf{Q}_s$
+  - `0.005555` 
+  - `0.6e6`
+  - `0.2`
+  - Short
+* - $\mathbf{Q}_l$
+  - `0.005555` 
+  - `1.6e6`
+  - `0.8`
+  - Long
+* - $\mathbf{Q}_{k_i}$
+  - `0.8` 
+  - `1.6e6`
+  - `0.8`
+  - Long
+* - $\mathbf{R}$
+  - `0.2` 
+  - `0.0`
+  - `0.8`
+  - Grid Pint
+```
+
+:::
+
 
 
 
