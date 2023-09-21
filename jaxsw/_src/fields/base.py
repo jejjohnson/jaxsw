@@ -1,5 +1,7 @@
 import typing as tp
 
+import jax
+import jax.numpy as jnp
 import equinox as eqx
 from jaxtyping import Array, Float
 
@@ -27,19 +29,30 @@ class Field(eqx.Module):
             values (Array): An arbitrary sized array
             domain (Domain): the domain for the array
         """
-        assert values.shape == domain.grid[..., 0].shape
+        values = jnp.atleast_1d(values)
+        msg = "Incorrect dimentions\n"
+        msg += f"Values: {values.shape} | Grid: {domain.grid_axis[0].shape}"
+        assert values.shape == domain.grid_axis[0].shape, msg
+
         self.values = values
         self.domain = domain
 
     @classmethod
-    def init_from_fn(cls, domain: Domain, fn: tp.Callable, *kwargs):
-        values = fn(domain.grid, *kwargs)
+    def init_from_fn(cls, domain: Domain, fn: tp.Callable, **kwargs):
+        # vectorize coordinate values
+
+        values = jax.vmap(fn)(domain.coords, **kwargs)
+        # reshape to match grid size
+        values = jnp.reshape(values, domain.grid_axis[0].shape)
 
         return cls(values=values, domain=domain)
 
+    @classmethod
+    def init_from_array(cls, values: Array):
+        return cls(values=values, domain=Domain.from_array(u=values))
+
     def replace_values(self, values):
-        return eqx.tree_at(lambda x: x.values, self, values)
-        # return self.__class__(values, self.domain)
+        return Field(values=values, domain=self.domain)
 
     @property
     def shape(self) -> tp.Tuple[int]:

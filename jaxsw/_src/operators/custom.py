@@ -6,7 +6,7 @@ from jaxsw._src.fields.base import Field
 
 
 class FuncOperator(eqx.Module):
-    f: Callable = eqx.static_field()
+    f: Callable
 
     def __init__(self, f):
         self.f = f

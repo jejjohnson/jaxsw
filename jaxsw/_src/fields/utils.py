@@ -4,6 +4,7 @@ from ..domain.base import Domain
 class DiscretizationError(Exception):
     def __init__(self, d1, d2):
         self.message = f"Mismatched spatial discretizations\n{d1}\n{d2}"
+        self.message += f"\nd1: {d1.Nx} | d2: {d2.Nx}"
         super().__init__(self.message)
 
 

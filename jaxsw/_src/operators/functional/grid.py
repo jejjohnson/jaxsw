@@ -78,52 +78,6 @@ def interp_linear_irregular(u: Array, dx: Array, axis: int = 0) -> Array:
     return (dx2 * u1 + dx1 * u2) / (dx1 + dx2)
 
 
-def difference(
-    u: Array,
-    step_size: Array = 1,
-    axis: int = 0,
-    method: str = "right",
-    accuracy: int = 1,
-    a: Array = None,
-    **kwargs,
-) -> Array:
-    if method == "right":
-        u = fdx.difference(
-            u, step_size=step_size, axis=axis, method="backward", accuracy=accuracy
-        )
-        u = jax.lax.slice_in_dim(u, 1, None, axis=axis)
-        return u
-    elif method == "left":
-        u = fdx.difference(
-            u, step_size=step_size, axis=axis, method="forward", accuracy=accuracy
-        )
-        u = jax.lax.slice_in_dim(u, None, -1, axis=axis)
-        return u
-    elif method == "inner":
-        u = fdx.difference(
-            u, step_size=step_size, axis=axis, method="central", accuracy=accuracy
-        )
-        u = jax.lax.slice_in_dim(u, 1, -1, axis=axis)
-        return u
-    elif method == "upwind":
-        # get plus-minus
-        u_plus, u_minus = plusminus(a if a is not None else u)
-
-        du_b = difference(u, step_size=step_size, axis=axis, method="left")
-        du_f = difference(u, step_size=step_size, axis=axis, method="right")
-
-        u_minus = jax.lax.slice_in_dim(u_minus, None, -1, axis=axis)
-        u_plus = jax.lax.slice_in_dim(u_plus, 1, None, axis=axis)
-        # u_minus = jax.lax.slice_in_dim(u_minus, -1, None, axis=axis)
-        # u_plus = jax.lax.slice_in_dim(u_plus, None, -1, axis=axis)
-
-        return du_f * u_minus + du_b * u_plus
-    else:
-        msg = f"Unrecognized method: {method}"
-        msg += "\nNeeds to be: 'forward', 'backward', 'central'."
-        raise ValueError(msg)
-
-
 def x_average_1D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the two-point average at the centres between grid points.
 
@@ -145,31 +99,6 @@ def x_average_1D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
         return jnp.mean(u)
 
     return kernel_fn(u)
-
-
-def x_difference_1D(
-    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
-) -> Array:
-    """Returns the two-point average at the centres between grid points.
-
-    Grid:
-        + -- ⋅ -- +
-        u -- u̅ -- u
-        + -- ⋅ -- +
-
-    Args:
-        u (Array): the field [Nx,]
-
-    Returns:
-        ubar (Array): the field averaged [Nx-1,]
-
-    """
-
-    @kex.kmap(kernel_size=(2,), padding=padding)
-    def kernel_fn(u):
-        return u[0] - u[-1]
-
-    return kernel_fn(u) / step_size
 
 
 def x_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
@@ -217,55 +146,6 @@ def x_interp_linear_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Ar
     return 0.5 * (u[:-1] + u[1:])
 
 
-def x_difference_2D(
-    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
-) -> Array:
-    """Returns the two-point average at the centres between grid points.
-
-    Grid:
-        u -- u̅ -- u
-        |         |
-        ⋅         ⋅
-        |         |
-        u -- u̅ -- u
-
-    Args:
-        u (Array): the field [Nx,Ny]
-
-    Returns:
-        ubar (Array): the field averaged [Nx-1, Ny]
-
-    """
-
-    @kex.kmap(kernel_size=(2, 1), padding=padding)
-    def kernel_fn(u):
-        return u[1, 0] - u[0, 0]
-
-    return kernel_fn(u) / step_size
-
-
-def x_difference_2D_(
-    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
-) -> Array:
-    """Returns the two-point average at the centres between grid points.
-
-    Grid:
-        u -- u̅ -- u
-        |         |
-        ⋅         ⋅
-        |         |
-        u -- u̅ -- u
-
-    Args:
-        u (Array): the field [Nx,Ny]
-
-    Returns:
-        ubar (Array): the field averaged [Nx-1, Ny]
-
-    """
-    return (u[1:] - u[:-1]) / step_size
-
-
 def y_average_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Array:
     """Returns the two-point average at the centres between grid points.
 
@@ -309,33 +189,6 @@ def y_interp_linear_2D(u: Array, padding: tp.Optional[tp.Tuple] = "valid") -> Ar
 
     """
     return 0.5 * (u[:, :-1] + u[:, 1:])
-
-
-def y_difference_2D(
-    u: Array, step_size: Array, padding: tp.Optional[tp.Tuple] = "valid"
-) -> Array:
-    """Returns the two-point average at the centres between grid points.
-
-    Grid:
-        u -- ⋅ -- u
-        |         |
-        u̅         u̅
-        |         |
-        u -- ⋅ -- u
-
-    Args:
-        u (Array): the field [Nx,Ny]
-
-    Returns:
-        ubar (Array): the field averaged [Nx, Ny-1]
-
-    """
-
-    @kex.kmap(kernel_size=(1, 2), padding=padding)
-    def kernel_fn(u):
-        return u[0, 1] - u[0, 0]
-
-    return kernel_fn(u) / step_size
 
 
 def y_difference_2D_(
