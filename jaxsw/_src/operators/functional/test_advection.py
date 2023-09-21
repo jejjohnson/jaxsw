@@ -1,6 +1,7 @@
-from jaxsw._src.operators.functional import advection as F_adv
-import jax.random as jrandom
 import jax
+import jax.random as jrandom
+
+from jaxsw._src.operators.functional import advection as F_adv
 
 KEY = jrandom.PRNGKey(123)
 

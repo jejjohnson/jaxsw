@@ -1,9 +1,48 @@
 # from .functional.conv import fd_convolve
+import typing as tp
 import equinox as eqx
 import finitediffx as fdx
+from jaxtyping import Array
 
-from jaxsw._src.domain.base import Domain
 from jaxsw._src.fields.base import Field
+
+
+class Difference(eqx.Module):
+    axis: int = eqx.static_field()
+    accuracy: int = eqx.static_field()
+    derivative: int = eqx.static_field()
+    method: str = eqx.static_field()
+
+    def __init__(
+        self,
+        axis: int = 0,
+        accuracy: int = 1,
+        derivative: int = 1,
+        method: str = "central",
+    ):
+        self.axis = axis
+        self.accuracy = accuracy
+        self.derivative = derivative
+        self.method = method
+
+    def __call__(
+        self, u: Field, step_size: tp.Optional[Array] = None, axis: int = None
+    ) -> Field:
+        axis = self.axis if axis is None else axis
+        step_size = u.domain.dx[self.axis] if step_size is None else step_size
+
+        out = fdx.difference(
+            u.values,
+            axis=axis,
+            accuracy=self.accuracy,
+            step_size=step_size,
+            derivative=self.derivative,
+            method=self.method,
+        )
+        assert out.shape == u.values.shape
+
+        return eqx.tree_at(lambda x: x.values, u, out)
+
 
 # from finitediffx._src.utils import _check_and_return
 # from .functional.fd import (
@@ -18,43 +57,6 @@ from jaxsw._src.fields.base import Field
 #     generate_backward_padding,
 # )
 # from .functional.conv import fd_convolution, fd_kernel_init
-
-
-class Difference(eqx.Module):
-    domain: Domain = eqx.static_field()
-    axis: int = eqx.static_field()
-    accuracy: int = eqx.static_field()
-    derivative: int = eqx.static_field()
-    method: str = eqx.static_field()
-
-    def __init__(
-        self,
-        domain: Domain,
-        axis: int = 0,
-        accuracy: int = 2,
-        derivative: int = 1,
-        method: str = "central",
-    ):
-        self.domain = domain
-        self.axis = axis
-        self.accuracy = accuracy
-        self.derivative = derivative
-        self.method = method
-
-    def __call__(self, u: Field) -> Field:
-        out = fdx.difference(
-            u.values,
-            axis=self.axis,
-            accuracy=self.accuracy,
-            step_size=self.domain.dx[self.axis],
-            derivative=self.derivative,
-            method=self.method,
-        )
-        assert out.shape == u.values.shape
-
-        u = eqx.tree_at(lambda x: x.values, u, out)
-
-        return u
 
 
 # class Derivative(eqx.Module):

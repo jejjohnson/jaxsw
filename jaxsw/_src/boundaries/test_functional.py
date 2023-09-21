@@ -1,19 +1,18 @@
 # import pytest
-from jaxsw._src.boundaries.functional import (
-    apply_periodic_x,
-    apply_periodic_y,
-    # apply_periodic_pad_ND,
-    apply_periodic_pad_1D,
-    apply_periodic_pad_2D,
-    # apply_neumann_pad_ND,
+import jax.numpy as jnp
+import jax.random as jrandom
+import numpy as np
+
+from jaxsw._src.boundaries.functional import (  # apply_periodic_pad_ND,; apply_neumann_pad_ND,
     apply_neumann_pad_1D,
     apply_neumann_pad_2D,
     apply_neumann_x,
     apply_neumann_y,
+    apply_periodic_pad_1D,
+    apply_periodic_pad_2D,
+    apply_periodic_x,
+    apply_periodic_y,
 )
-import jax.numpy as jnp
-import jax.random as jrandom
-import numpy as np
 
 # import einops
 

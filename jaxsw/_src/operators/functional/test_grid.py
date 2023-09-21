@@ -7,10 +7,11 @@ Testing the full Arakawa-C grid.
         P -- U -- P
 
 """
-import pytest
 import numpy as np
-from jaxsw._src.operators.functional import grid as F_grid
+import pytest
+
 from jaxsw._src.domain.base import Domain
+from jaxsw._src.operators.functional import grid as F_grid
 
 
 @pytest.fixture

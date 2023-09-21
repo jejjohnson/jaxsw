@@ -1,8 +1,10 @@
 import typing as tp
 
 import finitediffx as fdx
+import jax
 import jax.numpy as jnp
-from finitediffx._src.utils import _check_and_return
+
+# from finitediffx._src.utils import _check_and_return
 from jaxtyping import Array
 
 
@@ -33,12 +35,16 @@ def advection_1D(
     accuracy = _check_and_return(value=accuracy, ndim=1, name="accuracy")
     step_size = _check_and_return(value=step_size, ndim=1, name="step_size")
 
+    accuracy = _check_and_return(value=accuracy, ndim=1, name="accuracy")
+    # print(step_size, type(step_size))
+    step_size = _check_and_return(value=step_size, ndim=1, name="step_size")
+
     du_dx = fdx.difference(
         u,
         axis=axis,
         method=method,
-        accuracy=accuracy,
-        step_size=step_size,
+        accuracy=accuracy[0],
+        step_size=step_size[0],
         derivative=1,
     )
 
@@ -71,12 +77,27 @@ def advection_2D(
     """
     accuracy = _check_and_return(value=accuracy, ndim=2, name="accuracy")
     step_size = _check_and_return(value=step_size, ndim=2, name="step_size")
+    accuracy = _check_and_return(value=accuracy, ndim=2, name="accuracy")
+    step_size = _check_and_return(value=step_size, ndim=2, name="step_size")
 
     u_grad = fdx.gradient(u, method=method, accuracy=accuracy, step_size=step_size)
 
     return a * u_grad[0] + b * u_grad[1]
 
 
+def advection_3D(
+    u: Array,
+    a: Array,
+    b: Array,
+    c: Array,
+    step_size: Array,
+    method: str = "backward",
+    accuracy: int = 1,
+):
+    """simple 2D advection scheme using backwards finite
+    difference.
+
+        Advection = a ∂u/∂x + b ∂u/∂y + c ∂u/∂z
 def advection_3D(
     u: Array,
     a: Array,
@@ -99,8 +120,23 @@ def advection_3D(
         step_size (Array): the stepsize for the FD scheme
         method (str, optional): the method for FD. Defaults to "backward".
         accuracy (int, optional): the accuracy for the FD scheme. Defaults to 1.
+        u (Array): the field
+        a (Array): the field or constant
+        b (Array): the field or constant
+        c (Array): the field or constant
+        step_size (Array): the stepsize for the FD scheme
+        method (str, optional): the method for FD. Defaults to "backward".
+        accuracy (int, optional): the accuracy for the FD scheme. Defaults to 1.
 
     Returns:
+        Array: the RHS for the advection term
+    """
+    accuracy = _check_and_return(value=accuracy, ndim=3, name="accuracy")
+    step_size = _check_and_return(value=step_size, ndim=3, name="step_size")
+
+    u_grad = fdx.gradient(u, method=method, accuracy=accuracy, step_size=step_size)
+
+    return a * u_grad[0] + b * u_grad[1] + c * u_grad[2]
         Array: the RHS for the advection term
     """
     accuracy = _check_and_return(value=accuracy, ndim=3, name="accuracy")
@@ -150,8 +186,11 @@ def advection_upwind_1D(
     way = _check_and_return(value=way, ndim=1, name="way")
     accuracy = _check_and_return(value=accuracy, ndim=1, name="accuracy")
     step_size = _check_and_return(value=step_size, ndim=1, name="step_size")
+    way = _check_and_return(value=way, ndim=1, name="way")
+    accuracy = _check_and_return(value=accuracy, ndim=1, name="accuracy")
+    step_size = _check_and_return(value=step_size, ndim=1, name="step_size")
 
-    a_plus, a_minus = plusminus(a, way=way[0], fn=fn)
+    a_plus, a_minus = plusminus(a, way=way[0][0], fn=fn)
 
     u_rhs_forward = advection_1D(
         u=u,
@@ -159,7 +198,7 @@ def advection_upwind_1D(
         axis=axis,
         step_size=step_size[0],
         method="forward",
-        accuracy=accuracy[0],
+        accuracy=accuracy[0][0],
     )
 
     u_rhs_backward = advection_1D(
@@ -168,7 +207,7 @@ def advection_upwind_1D(
         axis=axis,
         step_size=step_size[0],
         method="backward",
-        accuracy=accuracy[0],
+        accuracy=accuracy[0][0],
     )
 
     return u_rhs_backward + u_rhs_forward
@@ -215,14 +254,17 @@ def advection_upwind_2D(
     way = _check_and_return(value=way, ndim=2, name="way")
     accuracy = _check_and_return(value=accuracy, ndim=2, name="accuracy")
     step_size = _check_and_return(value=step_size, ndim=2, name="step_size")
+    way = _check_and_return(value=way, ndim=2, name="way")
+    accuracy = _check_and_return(value=accuracy, ndim=2, name="accuracy")
+    step_size = _check_and_return(value=step_size, ndim=2, name="step_size")
 
     a_du_dx = advection_upwind_1D(
         u=u,
         a=a,
         axis=0,
-        way=way[0],
+        way=way[0][0],
         step_size=step_size[0],
-        accuracy=accuracy[0],
+        accuracy=accuracy[0][0],
         fn=fn,
     )
 
@@ -230,9 +272,9 @@ def advection_upwind_2D(
         u=u,
         a=b,
         axis=1,
-        way=way[1],
+        way=way[1][1],
         step_size=step_size[1],
-        accuracy=accuracy[1],
+        accuracy=accuracy[1][1],
         fn=fn,
     )
 
@@ -284,14 +326,17 @@ def advection_upwind_3D(
     way = _check_and_return(value=way, ndim=3, name="way")
     accuracy = _check_and_return(value=accuracy, ndim=3, name="accuracy")
     step_size = _check_and_return(value=step_size, ndim=3, name="step_size")
+    way = _check_and_return(value=way, ndim=3, name="way")
+    accuracy = _check_and_return(value=accuracy, ndim=3, name="accuracy")
+    step_size = _check_and_return(value=step_size, ndim=3, name="step_size")
 
     a_du_dx = advection_upwind_1D(
         u=u,
         a=a,
         axis=0,
-        way=way[0],
+        way=way[0][0],
         step_size=step_size[0],
-        accuracy=accuracy[0],
+        accuracy=accuracy[0][0],
         fn=fn,
     )
 
@@ -299,9 +344,9 @@ def advection_upwind_3D(
         u=u,
         a=b,
         axis=1,
-        way=way[1],
+        way=way[1][1],
         step_size=step_size[1],
-        accuracy=accuracy[1],
+        accuracy=accuracy[1][1],
         fn=fn,
     )
 
@@ -309,9 +354,9 @@ def advection_upwind_3D(
         u=u,
         a=c,
         axis=2,
-        way=way[2],
+        way=way[2][2],
         step_size=step_size[2],
-        accuracy=accuracy[2],
+        accuracy=accuracy[2][2],
         fn=fn,
     )
 
@@ -342,3 +387,72 @@ def plusminus(
         u_plus = way * fn(way * u)
         u_minus = -1.0 * way * fn(-1.0 * way * u)
     return u_plus, u_minus
+
+
+def plusminus(
+    u: Array, way: int = 1, fn: tp.Optional[tp.Callable] = None
+) -> tp.Tuple[Array, Array]:
+    """Plus Minus Scheme
+    It returns the + and - for the array whereby
+    "plus" has all values less than zero equal to zero
+    and "minus" has all values greater than zero equal to zero.
+    This is useful for advection schemes
+
+    Args:
+        u (Array): the input field
+        way (int): chooses which "way" (default=1)
+
+    Returns:
+        plus (Array): the postive values
+        minus (Array): the negative values
+    """
+    if fn is None:
+        u_plus = jnp.where(way * u < 0.0, 0.0, u)
+        u_minus = jnp.where(way * u > 0.0, 0.0, u)
+    else:
+        u_plus = way * fn(way * u)
+        u_minus = -1.0 * way * fn(-1.0 * way * u)
+    return u_plus, u_minus
+
+
+def det_jacobian(f, g, dx, dy):
+    """Arakawa discretisation of Jacobian J(f,g).
+    Scalar fields f and g must have the same dimension.
+    Grid is regular and dx = dy."""
+    dx_f = f[..., 2:, :] - f[..., :-2, :]
+    dx_g = g[..., 2:, :] - g[..., :-2, :]
+    dy_f = f[..., 2:] - f[..., :-2]
+    dy_g = g[..., 2:] - g[..., :-2]
+    return (
+        (dx_f[..., 1:-1] * dy_g[..., 1:-1, :] - dx_g[..., 1:-1] * dy_f[..., 1:-1, :])
+        + (
+            (
+                f[..., 2:, 1:-1] * dy_g[..., 2:, :]
+                - f[..., :-2, 1:-1] * dy_g[..., :-2, :]
+            )
+            - (f[..., 1:-1, 2:] * dx_g[..., 2:] - f[..., 1:-1, :-2] * dx_g[..., :-2])
+        )
+        + (
+            (g[..., 1:-1, 2:] * dx_f[..., 2:] - g[..., 1:-1, :-2] * dx_f[..., :-2])
+            - (
+                g[..., 2:, 1:-1] * dy_f[..., 2:, :]
+                - g[..., :-2, 1:-1] * dy_f[..., :-2, :]
+            )
+        )
+    ) / (12.0 * dx * dy)
+
+
+from typing import Any
+
+
+def _check_and_return(value: Any, ndim: int, name: str):
+    if isinstance(value, int):
+        return (value,) * ndim
+    elif isinstance(value, float):
+        return (value,) * ndim
+    elif isinstance(value, jax.Array):
+        return jnp.repeat(value, ndim)
+    elif isinstance(value, tuple):
+        assert len(value) == ndim, f"{name} must be a tuple of length {ndim}"
+        return tuple(value)
+    raise ValueError(f"Expected int or tuple for {name}, got {value}.")

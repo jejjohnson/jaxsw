@@ -146,3 +146,4 @@ datasets/*
 notebooks/dev/eman/advection/mitgcm_example_dataset_v2.nc
 \outputs/
 \jbook/_build/
+\_build/

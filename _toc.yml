@@ -1,0 +1,61 @@
+# Table of Contents
+#
+# Myst will respect:
+# 1. New pages
+#      - file: relative/path/to/page
+# 2. New sections without an associated page
+#      - title: Folder Title
+#        sections: ...
+# 3. New sections with an associated page
+#      - file: relative/path/to/page
+#        sections: ...
+#
+# Note: Titles defined on pages here are not recognized.
+#
+# This spec is based on the JupyterBook table of contents.
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: content/overview
+chapters:
+  - title: Tutorials
+    sections:
+      - file: content/components/anatomy_pde
+      - file: content/components/design
+      - file: content/components/grid_operations
+      - file: content/components/boundaries
+  - title: Special Cases
+    sections:
+      - file: content/geometry/latlon_deltas
+  - title: Lorenz
+    sections:
+      - file: content/lorenz/lorenz
+      - file: content/lorenz/demo_lorenz63
+      - file: content/lorenz/demo_lorenz96
+      - file: content/lorenz/demo_lorenz96t
+  - title: 12 Steps to Navier-Stokes
+    sections:
+      - file: content/12_steps/12_steps
+      - file: content/12_steps/1.1_linear_convection
+      - file: content/12_steps/1.2_diffusion_1d
+      - file: content/12_steps/1.3_burgers_1d
+      - file: content/12_steps/2.1_linear_convection_2d
+      - file: content/12_steps/2.2_nonlinear_convection_2d
+      - file: content/12_steps/2.3_diffusion_2d
+      - file: content/12_steps/2.4_burgers_2d
+      - file: content/12_steps/3.1_laplace
+      - file: content/12_steps/3.2_poisson
+  - title: Quasi-Geostrophic Model
+    sections:
+      - file: content/qg/qg
+      - file: content/qg/qg_formulation
+      - file: content/qg/ssh_free_run
+      - file: content/qg/multilayer_qg
+      - file: content/qg/qg_inversion
+  - title: Shallow Water Model
+    sections:
+      - file: content/sw/sw
+      - file: content/sw/sw_formulation
+      - file: content/sw/sw_linear_rossby_api1
+      - file: content/sw/sw_linear_jet_api1
+      - file: content/sw/sw_nonlinear_jet_api1

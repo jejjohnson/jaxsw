@@ -1,0 +1,20 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  title: Start Here
+  # description:
+  keywords: []
+  authors: ["J. Emmanuel Johnson", "Takaya Uchida"]
+  github: https://github.com/jejjohnson/jaxsw
+  # bibliography: []
+site:
+  template: book-theme
+  title: Approximate Ocean Models
+  # logo:
+  nav: []
+  actions:
+    - title: jaxsw
+      url: https://github.com/jejjohnson/jaxsw
+  domains: []
+exports:
+  - format: html
