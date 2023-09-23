@@ -1,5 +1,7 @@
 from jaxtyping import Array
 import finitediffx as fdx
+from jaxsw._src.fields.base import Field
+from jaxsw._src.operators.functional.cgrid import stagger_domain
 
 
 def diffx_midpoint(u: Array, step_size: float):
@@ -24,6 +26,45 @@ def diffy2_centerpoint(u: Array, step_size: float):
     return fdx.difference(
         u, step_size=step_size, axis=1, accuracy=1, derivative=2, method="backward"
     )[:, 1:-1]
+
+
+def difference(u: Field, axis=0, derivative=1) -> Field:
+    assert derivative >= 1 and derivative <= 2
+    assert axis >= 0 and axis <= 1
+
+    # calculate 1st derivative (midpoint)
+    if derivative == 1 and axis == 0:
+        u_values = diffx_midpoint(u=u[:], step_size=u.domain.dx[0])
+        domain = stagger_domain(
+            u.domain, direction=("inner", None), stagger=(True, False)
+        )
+
+    # calculate 1st derivative (midpoint)
+    elif derivative == 1 and axis == 1:
+        u_values = diffy_midpoint(u=u[:], step_size=u.domain.dx[1])
+        domain = stagger_domain(
+            u.domain, direction=(None, "inner"), stagger=(False, True)
+        )
+
+    # calculate 2st derivative (gridpoint)
+    elif derivative == 2 and axis == 0:
+        u_values = diffx2_centerpoint(u=u[:], step_size=u.domain.dx[0])
+        domain = stagger_domain(
+            u.domain, direction=("inner", None), stagger=(False, False)
+        )
+
+    # calculate 2st derivative (gridpoint)
+    elif derivative == 2 and axis == 1:
+        u_values = diffy2_centerpoint(u=u[:], step_size=u.domain.dx[1])
+        domain = stagger_domain(
+            u.domain, direction=(False, "inner"), stagger=(False, False)
+        )
+    else:
+        msg = f"Incorrect combo of axis and derivative:"
+        msg += f"\nderivative: {derivative} | axis: {axis}"
+        raise ValueError(msg)
+
+    return Field(u_values, domain=domain)
 
 
 def laplacian_centerpoint(u: Array, step_size: float):

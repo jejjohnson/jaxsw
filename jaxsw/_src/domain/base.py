@@ -118,11 +118,11 @@ class Domain(eqx.Module):
 
     @property
     def coords_axis(self) -> tp.List:
-        return jnp.asarray(list(map(make_coords, self.xmin, self.xmax, self.dx)))
+        return list(map(make_coords, self.xmin, self.xmax, self.dx))
 
     @property
     def grid_axis(self) -> Array:
-        return jnp.asarray(make_grid_from_coords(self.coords_axis))
+        return make_grid_from_coords(self.coords_axis)
 
     @property
     def coords(self) -> Array:

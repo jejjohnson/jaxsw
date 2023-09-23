@@ -38,12 +38,10 @@ class Field(eqx.Module):
         self.domain = domain
 
     @classmethod
-    def init_from_fn(cls, domain: Domain, fn: tp.Callable, **kwargs):
+    def init_from_fn(cls, domain: Domain, fn: tp.Callable, *args, **kwargs):
         # vectorize coordinate values
 
-        values = jax.vmap(fn)(domain.coords, **kwargs)
-        # reshape to match grid size
-        values = jnp.reshape(values, domain.grid_axis[0].shape)
+        values = fn(*args, **kwargs)
 
         return cls(values=values, domain=domain)
 

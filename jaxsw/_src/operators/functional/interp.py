@@ -58,29 +58,33 @@ class CartesianGrid:
         self.mode = mode
         self.cval = cval
 
-    def __call__(self, *coords) -> Array:
+    def __call__(self, coords) -> Array:
         """
         Perform interpolation.
 
         Args:
-            coords: point at which to interpolate. These will be broadcasted if
-                they are not the same shape.
+            coords: ArrayLike: (NxD)
 
         Returns:
             Interpolated values, with extrapolation handled according to ``mode``.
         """
         # transform coords into pixel values
-        coords = jnp.broadcast_arrays(*coords)
+        # coords = jnp.broadcast_arrays(*list(coords))
 
         # coords = jnp.asarray(coords)
+        # print(self.xmin, self.xmax, coords.shape, self.values)
         coords = [
             (c - lo) * (n - 1) / (hi - lo)
             for lo, hi, c, n in zip(self.xmin, self.xmax, coords, self.values.shape)
         ]
 
-        return jax.scipy.ndimage.map_coordinates(
-            self.values, coords, mode=self.mode, cval=self.cval, order=1
+        # print(len(coords), coords[0].shape, coords[1].shape)
+
+        fn = lambda x: jax.scipy.ndimage.map_coordinates(
+            self.values, x, mode=self.mode, cval=self.cval, order=1
         )
+
+        return jax.vmap(fn)(coords)
 
 
 def field_domain_transform(
@@ -100,10 +104,10 @@ def field_domain_transform(
     )
 
     # interpolate points
-    u_values = grid(domain.coords)
+    u_values = grid(domain.coords.T)
 
     # reshape to match grid values
-    u_values = jnp.reshape(u_values, newshape=domain.coords.shape[0])
+    u_values = jnp.reshape(u_values, newshape=domain.grid_axis[0].shape)
 
     return Field(values=u_values, domain=domain)
 

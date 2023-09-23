@@ -98,19 +98,6 @@ def advection_3D(
     difference.
 
         Advection = a ∂u/∂x + b ∂u/∂y + c ∂u/∂z
-def advection_3D(
-    u: Array,
-    a: Array,
-    b: Array,
-    c: Array,
-    step_size: Array,
-    method: str = "backward",
-    accuracy: int = 1,
-):
-    """simple 2D advection scheme using backwards finite
-    difference.
-
-        Advection = a ∂u/∂x + b ∂u/∂y + c ∂u/∂z
 
     Args:
         u (Array): the field
@@ -129,14 +116,6 @@ def advection_3D(
         accuracy (int, optional): the accuracy for the FD scheme. Defaults to 1.
 
     Returns:
-        Array: the RHS for the advection term
-    """
-    accuracy = _check_and_return(value=accuracy, ndim=3, name="accuracy")
-    step_size = _check_and_return(value=step_size, ndim=3, name="step_size")
-
-    u_grad = fdx.gradient(u, method=method, accuracy=accuracy, step_size=step_size)
-
-    return a * u_grad[0] + b * u_grad[1] + c * u_grad[2]
         Array: the RHS for the advection term
     """
     accuracy = _check_and_return(value=accuracy, ndim=3, name="accuracy")

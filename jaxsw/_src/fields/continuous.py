@@ -21,6 +21,16 @@ class ContinuousField(Field):
         self.fn = fn
         self.domain = domain
 
+    @classmethod
+    def init_from_fn(cls, domain: Domain, fn: tp.Callable, *args, **kwargs):
+        # vectorize coordinate values
+
+        values = jax.vmap(fn)(domain.coords, *args, **kwargs)
+        # reshape to match grid size
+        values = jnp.reshape(values, domain.grid_axis[0].shape)
+
+        return cls(values=values, domain=domain)
+
     def __call__(self, coords: Array, **kwargs) -> Array:
         return self.fn(coords, **kwargs)
 

@@ -10,18 +10,40 @@ from jaxsw._src.fields.base import Field
 
 
 class Constant(eqx.Module):
-    domain: Domain = eqx.static_field()
     constant: tp.Union[float, jnp.ndarray] = eqx.static_field()
 
     def __init__(
         self,
-        domain: Domain,
         constant: tp.Union[float, jnp.ndarray] = 1.0,
     ):
-        self.domain = domain
         self.constant = constant
 
-    def __call__(self, u: Field) -> Field:
-        u = eqx.tree_at(lambda x: x.values, u, self.constant * u.values)
+    def binop(self, other, fn: tp.Callable):
+        # check discretization
+        values = fn(self.constant, other.values)
+        return Field(values, other.domain)
 
-        return u
+    def single_op(self, fn: tp.Callable):
+        # check discretization
+        return Constant(fn(self.constant))
+
+    def __add__(self, other):
+        return self.binop(other, lambda x, y: x + y)
+
+    def __radd__(self, other):
+        return self.binop(other, lambda x, y: y + x)
+
+    def __mul__(self, other):
+        return self.binop(other, lambda x, y: x * y)
+
+    def __rmul__(self, other):
+        return self.binop(other, lambda x, y: y * x)
+
+    def __neg__(self):
+        return self.single_op(lambda x: -x)
+
+    def __pow__(self, power):
+        return self.single_op(lambda x: x**power)
+
+    def __rpow__(self, power):
+        return self.single_op(lambda x: power**x)
