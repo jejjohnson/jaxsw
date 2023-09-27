@@ -7,7 +7,16 @@ import jax.numpy as jnp
 import numpy as np
 from finitediffx._src.utils import _check_and_return
 from jaxtyping import Array, Float
-from jaxsw._src.domain.utils import make_grid_from_coords, make_coords, make_grid_coords
+from jaxsw._src.domain.utils import (
+    make_grid_from_coords,
+    make_coords,
+    make_grid_coords,
+    bounds_and_points_to_step,
+    bounds_and_step_to_points,
+    bounds_to_length,
+    length_and_points_to_step,
+    length_and_step_to_points,
+)
 
 
 def _fix_iterable_input(x, num_iters) -> tp.Iterable:
@@ -40,6 +49,9 @@ class Domain(eqx.Module):
     xmin: tp.Iterable[float] = eqx.static_field()
     xmax: tp.Iterable[float] = eqx.static_field()
     dx: tp.Iterable[float] = eqx.static_field()
+    Nx: tp.Iterable[int] = eqx.static_field()
+    Lx: tp.Iterable[float] = eqx.static_field()
+    ndim: int = eqx.static_field()
 
     def __init__(self, xmin, xmax, dx, stagger=None):
         """Initializes domain
@@ -64,12 +76,21 @@ class Domain(eqx.Module):
         xmin = tuple(map(fn, xmin, dx, stagger))
         xmax = tuple(map(fn, xmax, dx, stagger))
 
+        # calculate Nx
+        Nx = tuple(map(bounds_and_step_to_points, xmin, xmax, dx))
+
+        # calculate Lx
+        Lx = tuple(map(bounds_to_length, xmin, xmax))
+
         self.xmin = xmin
         self.xmax = xmax
         self.dx = dx
+        self.Nx = Nx
+        self.Lx = Lx
+        self.ndim = len(xmin)
 
     @classmethod
-    def from_numpoints(
+    def from_bounds_and_points(
         cls,
         xmin: tp.Iterable[float],
         xmax: tp.Iterable[float],
@@ -81,13 +102,23 @@ class Domain(eqx.Module):
         xmax = check_tuple_inputs(xmax)
         N = check_tuple_inputs(N)
         stagger = check_tuple_inputs(stagger)
-        f = lambda xmin, xmax, N: (xmax - xmin) / (float(N) - 1)
 
-        dx = tuple(map(f, xmin, xmax, N))
-
-        xmax = tuple(map(lambda x, dx: x + dx, xmax, dx))
+        # calculate dx
+        dx = tuple(map(bounds_and_points_to_step, xmin, xmax, N))
 
         return cls(xmin=xmin, xmax=xmax, dx=dx, stagger=stagger)
+
+    @classmethod
+    def from_length_and_points(cls, Lx: tp.Iterable, Nx: tp.Iterable):
+        # get shape of array
+        assert len(Lx) == len(Nx)
+
+        # construct axis
+        xmin = (0,) * len(Lx)
+
+        dx = list(map(lambda Lx, Nx: Lx / Nx, Lx, Nx))
+
+        return cls(xmin=xmin, xmax=Lx, dx=dx)
 
     @classmethod
     def from_array(
@@ -104,21 +135,9 @@ class Domain(eqx.Module):
 
         return cls.from_numpoints(xmin=xmin, xmax=xmax, N=N)
 
-    @classmethod
-    def from_distance(cls, Lx: tp.Iterable, Nx: tp.Iterable):
-        # get shape of array
-        assert len(Lx) == len(Nx)
-
-        # construct axis
-        xmin = (0,) * len(Lx)
-
-        dx = list(map(lambda Lx, Nx: Lx / Nx, Lx, Nx))
-
-        return cls(xmin=xmin, xmax=Lx, dx=dx)
-
     @property
     def coords_axis(self) -> tp.List:
-        return list(map(make_coords, self.xmin, self.xmax, self.dx))
+        return list(map(make_coords, self.xmin, self.xmax, self.Nx))
 
     @property
     def grid_axis(self) -> Array:
@@ -127,19 +146,6 @@ class Domain(eqx.Module):
     @property
     def coords(self) -> Array:
         return jnp.asarray(make_grid_coords(self.coords_axis))
-
-    @property
-    def ndim(self) -> int:
-        return len(self.xmin)
-
-    @property
-    def Nx(self) -> tp.Tuple[int]:
-        return tuple(map(len, self.coords_axis))
-
-    @property
-    def Lx(self) -> tp.Tuple[int]:
-        f = lambda xmin, xmax: xmax - xmin
-        return tuple(map(f, self.xmin, self.xmax))
 
     @property
     def cell_volume(self) -> float:

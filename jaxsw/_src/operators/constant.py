@@ -21,7 +21,7 @@ class Constant(eqx.Module):
     def binop(self, other, fn: tp.Callable):
         # check discretization
         values = fn(self.constant, other.values)
-        return Field(values, other.domain)
+        return other.__class__(values, other.domain)
 
     def single_op(self, fn: tp.Callable):
         # check discretization

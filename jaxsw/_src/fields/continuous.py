@@ -63,3 +63,27 @@ class ContinuousField(Field):
 
 class ParameterizedField(Field):
     fn: eqx.Module
+
+
+class ScalarFnField1D(Field):
+    pass
+
+
+class ScalarFnField2D(Field):
+    pass
+
+
+class ScalarFnField3D(Field):
+    pass
+
+
+class ScalarFnField4D(Field):
+    pass
+
+
+class NeuralField(Field):
+    pass
+
+
+class NeuralOperatorField(Field):
+    pass

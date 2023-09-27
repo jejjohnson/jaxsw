@@ -3,6 +3,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array
 from jaxsw._src.domain.base import Domain
+from jaxsw._src.domain import base_v2 as domain_utils
 from jaxsw._src.fields.base import Field
 from jaxsw._src.operators.functional import grid as F_grid
 import finitediffx as fdx
@@ -93,13 +94,21 @@ def stagger_domain(
         == len(stagger)
     ), msg
 
+    print(domain.xmin, domain.xmax, domain.dx)
+
     # change domain limits
     xmin, xmax = batch_domain_limits_transform(
         domain.xmin, domain.xmax, domain.dx, direction, stagger
     )
-
+    print(xmin, xmax, domain.dx)
+    domains = [domain_utils.init_domain_1d(float(ixmin), float(ixmax), float(idx)) for ixmin, ixmax, idx in zip(xmin,xmax, domain.dx)]
+    import functools
+    domain = functools.reduce(lambda a, b: a*b, domains)
+    
+    # print(domains[0], domains[1])
+    # domain = sum(domains)
     # create new domain
-    domain = Domain(xmin=xmin, xmax=xmax, dx=domain.dx)
+    # domain = Domain(xmin=xmin, xmax=xmax, dx=domain.dx)
 
     return domain
 

@@ -29,6 +29,7 @@ def diffy2_centerpoint(u: Array, step_size: float):
 
 
 def difference(u: Field, axis=0, derivative=1) -> Field:
+    print(u.values.shape, u.domain.Nx)
     assert derivative >= 1 and derivative <= 2
     assert axis >= 0 and axis <= 1
 
@@ -38,6 +39,8 @@ def difference(u: Field, axis=0, derivative=1) -> Field:
         domain = stagger_domain(
             u.domain, direction=("inner", None), stagger=(True, False)
         )
+
+        print(u_values.shape, domain.Nx)
 
     # calculate 1st derivative (midpoint)
     elif derivative == 1 and axis == 1:
