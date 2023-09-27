@@ -2,6 +2,7 @@ import typing as tp
 import jax.numpy as jnp
 from jaxtyping import Array, Float
 import einops
+import math
 
 
 def make_coords(xmin, xmax, nx):
@@ -36,7 +37,7 @@ def create_meshgrid_coordinates(shape):
 
 
 def bounds_and_step_to_points(xmin: float, xmax: float, dx: float) -> int:
-    return 1 + int(jnp.floor(((float(xmax) - float(xmin)) / float(dx))))
+    return 1 + int(math.floor(((float(xmax) - float(xmin)) / float(dx))))
 
 
 def bounds_to_length(xmin: float, xmax: float) -> float:
@@ -52,4 +53,4 @@ def length_and_points_to_step(Lx: float, Nx: float) -> float:
 
 
 def length_and_step_to_points(Lx: float, dx: float) -> int:
-    return int(jnp.floor(1.0 + float(Lx) / float(dx)))
+    return math.floor(1.0 + float(Lx) / float(dx))

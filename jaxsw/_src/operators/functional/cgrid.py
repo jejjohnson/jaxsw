@@ -94,17 +94,18 @@ def stagger_domain(
         == len(stagger)
     ), msg
 
-    print(domain.xmin, domain.xmax, domain.dx)
-
     # change domain limits
     xmin, xmax = batch_domain_limits_transform(
         domain.xmin, domain.xmax, domain.dx, direction, stagger
     )
-    print(xmin, xmax, domain.dx)
-    domains = [domain_utils.init_domain_1d(float(ixmin), float(ixmax), float(idx)) for ixmin, ixmax, idx in zip(xmin,xmax, domain.dx)]
+    domains = [
+        domain_utils.init_domain_1d(float(ixmin), float(ixmax), float(idx))
+        for ixmin, ixmax, idx in zip(xmin, xmax, domain.dx)
+    ]
     import functools
-    domain = functools.reduce(lambda a, b: a*b, domains)
-    
+
+    domain = functools.reduce(lambda a, b: a * b, domains)
+
     # print(domains[0], domains[1])
     # domain = sum(domains)
     # create new domain
