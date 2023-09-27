@@ -114,7 +114,10 @@ def difference_field(
 
 
 def elliptical_operator_2D(
-    k_vec: tp.Iterable[Array], order: int = 2, alpha: float = 1.0, beta: float = 0.0
+    k_vec: tp.Iterable[Array],
+    order: int = 1,
+    alpha: float = 1.0,
+    beta: float = 0.0,
 ) -> Array:
     msg = "Error: the k_vec should be 2D"
     assert len(tuple(k_vec)) == 2, msg
@@ -123,7 +126,7 @@ def elliptical_operator_2D(
     ks = [jnp.expand_dims(array, axis=i) for i, array in enumerate(k_vec)]
 
     # sum each of dimensions
-    ksq = ft.reduce(lambda x, y: x**order + y**order, ks)
+    ksq = ft.reduce(lambda x, y: x ** (2 * order) + y ** (2 * order), ks)
 
     # reshape and add beta
     ksq = alpha * ksq.T + beta
@@ -152,10 +155,10 @@ def elliptical_inversion_2D(u: SpectralField) -> SpectralField:
 
 
 def laplacian_field(
-    u: SpectralField, alpha: Array = 1.0, beta: Array = 0.0
+    u: SpectralField, alpha: Array = 1.0, beta: Array = 0.0, order: float = 1.0
 ) -> SpectralField:
     # get laplacian vector
-    ksq = elliptical_operator_2D(u.k_vec, alpha=alpha, beta=beta)
+    ksq = elliptical_operator_2D(u.k_vec, alpha=alpha, beta=beta, order=order)
     # do fft
     uh = jnp.fft.fftn(u.values)
     uh_lap = ksq * uh
