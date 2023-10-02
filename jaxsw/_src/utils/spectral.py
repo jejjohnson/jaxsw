@@ -14,4 +14,4 @@ def calculate_fft_freq(Nx: int, Lx: float = 2.0 * math.pi) -> Array:
         freq (Array): the 1D fourier frequencies
     """
     # return jnp.fft.fftfreq(n=Nx, d=Lx / (2.0 * math.pi * Nx))
-    return (2.0 * math.pi / Lx) * jnp.fft.fftfreq(n=Nx, d=Lx / (2.0 * math.pi * Nx))
+    return (2 * math.pi / Lx) * jnp.fft.fftfreq(n=Nx, d=Lx / (Nx * 2.0 * math.pi))

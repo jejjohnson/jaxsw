@@ -5,6 +5,8 @@ import numpy as np
 from plum import dispatch
 import jaxsw._src.domain.utils as d_utils
 from jaxtyping import Array
+from functools import reduce
+from operator import mul
 
 
 def check_inputs(x, name: str):
@@ -196,7 +198,7 @@ def init_domain_1d(Lx: float = 100.0, Nx: int = 50):
     # calculate dx
     dx = d_utils.bounds_and_points_to_step(xmin=0.0, xmax=1.0, Nx=Nx)
 
-    return Domain(xmin=0.0, xmax=1.0, dx=dx, Nx=Nx, Lx=Lx)
+    return Domain(xmin=0.0, xmax=Lx, dx=dx, Nx=Nx, Lx=Lx)
 
 
 @dispatch
@@ -215,4 +217,4 @@ def init_domain_1d(Lx: float = 100.0, dx: float = 1.0):
     # calculate Nx
     Nx = d_utils.length_and_step_to_points(Lx=Lx, dx=dx)
 
-    return Domain(xmin=0.0, xmax=1.0, dx=dx, Nx=Nx, Lx=Lx)
+    return Domain(xmin=0.0, xmax=Lx, dx=dx, Nx=Nx, Lx=Lx)

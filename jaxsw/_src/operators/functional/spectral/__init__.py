@@ -9,9 +9,7 @@ import math
 from plum import dispatch
 
 
-def fft_transform(
-    u: Array, axis: int = -1, scale: float = 1.0, inverse: bool = False
-) -> Array:
+def fft_transform(u: Array, axis: int = -1, inverse: bool = False) -> Array:
     """the FFT transformation (forward and inverse)
 
     Args:
@@ -26,9 +24,9 @@ def fft_transform(
         u (Array): the transformation that maybe forward or backwards
     """
     if inverse:
-        return jnp.fft.ifft(a=u, axis=axis) / scale
+        return jnp.fft.ifft(a=u, axis=axis)
     else:
-        return scale * jnp.fft.fft(a=u, axis=axis)
+        return jnp.fft.fft(a=u, axis=axis)
 
 
 def spectral_difference(
@@ -79,13 +77,13 @@ def difference(
         du (Array): the resulting array with the derivatives
     """
     # forward transformation
-    fu = fft_transform(u, axis=axis, scale=u.shape[axis], inverse=False)
+    fu = fft_transform(u, axis=axis, inverse=False)
 
     # difference operator
     dfu = spectral_difference(fu, k_vec=k_vec, axis=axis, derivative=derivative)
 
     # inverse transformation
-    du = fft_transform(dfu, axis=axis, scale=u.shape[axis], inverse=True)
+    du = fft_transform(dfu, axis=axis, inverse=True)
 
     # return real components
     if real:
@@ -98,13 +96,13 @@ def difference_field(
     u: SpectralField, axis: int = 0, derivative: int = 1, real: bool = True
 ) -> SpectralField:
     # forward transformation
-    fu = fft_transform(u.values, axis=axis, scale=u.domain.Nx[axis], inverse=False)
+    fu = fft_transform(u.values, axis=axis, inverse=False)
 
     # difference operator
     dfu = spectral_difference(fu, k_vec=u.k_vec[axis], axis=axis, derivative=derivative)
 
     # inverse transformation
-    du = fft_transform(dfu, axis=axis, scale=u.domain.Nx[axis], inverse=True)
+    du = fft_transform(dfu, axis=axis, inverse=True)
 
     # return real components
     if real:
