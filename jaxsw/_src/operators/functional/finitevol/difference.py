@@ -20,7 +20,7 @@ def gradient_perpendicular(u: Array, dx: float, dy: float) -> Array:
     du_dy = difference(u, axis=1, step_size=dy)
     du_dx = difference(u, axis=0, step_size=dx)
 
-    return - du_dy, du_dx
+    return du_dy, du_dx
 
 def laplacian(u: Array, step_size: float=1.0):
 

@@ -73,7 +73,7 @@ def interp_3pt(q: Array, dim: int) -> tp.Union[Array]:
     return qi_left, qi_right
 
 
-def tracer_flux(u: Array, a: Array, dim: int, num_pts: int=1) -> Array:
+def tracer_flux(q: Array, u: Array, dim: int, num_pts: int=1) -> Array:
     """Flux computation for staggered variables q and u with
     solid boundaries. Typically used for calculating the flux
     Advection Scheme:
@@ -96,9 +96,9 @@ def tracer_flux(u: Array, a: Array, dim: int, num_pts: int=1) -> Array:
     
     # calculate flux
     if num_pts == 1:
-        ui_left, ui_right = interp_1pt(u, dim=dim)
+        qi_left, qi_right = interp_1pt(q, dim=dim)
     elif num_pts == 3:
-        ui_left, ui_right = interp_3pt(u, dim=dim)
+        qi_left, qi_right = interp_3pt(q, dim=dim)
     elif num_pts == 5:
         msg = "5pt method is not implemented yet"
         raise NotImplementedError(msg)
@@ -108,9 +108,9 @@ def tracer_flux(u: Array, a: Array, dim: int, num_pts: int=1) -> Array:
         raise ValueError(msg)
     
     # calculate +ve and -ve points
-    a_pos, a_neg = plusminus(a)
+    u_pos, u_neg = plusminus(u)
     
     # calculate upwind flux
-    flux = a_pos * ui_left + a_neg * ui_right
+    flux = u_pos * qi_left + u_neg * qi_right
     
     return flux
