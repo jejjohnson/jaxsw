@@ -24,10 +24,6 @@ def dstI2D(x, norm="ortho"):
     x = jnp.transpose(x, axes=(-1,-2))
     return x
 
-
-
-
-
 def laplacian_dst(nx, ny, dx, dy, mean: bool = True) -> Array:
     if mean:
         dx = dy = jnp.mean(jnp.asarray([dx, dy]))

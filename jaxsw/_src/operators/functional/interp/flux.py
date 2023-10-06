@@ -5,6 +5,8 @@ from jaxtyping import Array
 import functools as ft
 from jax.nn import relu
 import einops
+from jaxsw._src.domain.mask import Mask
+from jaxsw._src.operators.functional.interp.linear import linear_3pts_left, linear_3pts_right, linear_2pts
 
 def plusminus(u: Array, way: int=1) -> tp.Union[Array]:
     u_pos = relu(float(way) * u)
@@ -14,6 +16,15 @@ def plusminus(u: Array, way: int=1) -> tp.Union[Array]:
 def interp_1pt(q: Array, dim: int) -> tp.Union[Array]:
     """creates the stencils for the upwind scheme
     - 1 pts inside domain & boundary
+    Args:
+        q (Array): input tracer
+            shape[dim] = N
+    
+    Return:
+        qi_left (Array): output tracer left size
+            shape[dim] = N-1
+        qi_right (Array): output tracer left size
+            shape[dim] = N-1
     """
     # get number of points
     num_pts = q.shape[dim]
@@ -24,7 +35,6 @@ def interp_1pt(q: Array, dim: int) -> tp.Union[Array]:
     qi_left = dyn_slicer(q, 0, num_pts-1)
     qi_right = dyn_slicer(q, 1, num_pts-1)
     
-
     return qi_left, qi_right
 
 def interp_3pt(q: Array, dim: int) -> tp.Union[Array]:
@@ -44,19 +54,20 @@ def interp_3pt(q: Array, dim: int) -> tp.Union[Array]:
     q1 = dyn_slicer(q, 1, num_pts-2)
     q2 = dyn_slicer(q, 2, num_pts-2)
 
-    qi_left_interior = linear3_left(q0, q1, q2)
-    qi_right_interior = linear3_right(q0, q1, q2)
+    qi_left_interior = linear_3pts_left(q0, q1, q2)
+    qi_right_interior = linear_3pts_right(q0, q1, q2)
 
     # left boundary slices
     q0 = dyn_slicer(q, 0, 1)
     q1 = dyn_slicer(q, 1, 1)
-    qi_left_bd = linear2(q0, q1)
+    qi_left_bd = linear_2pts(q0, q1)
+    
 
     # right boundary slices
     q0 = dyn_slicer(q, -1, 1)
     q1 = dyn_slicer(q, -2, 1)
-    qi_right_bd = linear2(q0, q1)
-
+    qi_right_bd = linear_2pts(q0, q1)
+    
     # concatenate each
     qi_left = jnp.concatenate([
         qi_left_bd,
@@ -70,10 +81,11 @@ def interp_3pt(q: Array, dim: int) -> tp.Union[Array]:
         qi_right_bd
     ])
 
+
     return qi_left, qi_right
 
 
-def tracer_flux(q: Array, u: Array, dim: int, num_pts: int=1) -> Array:
+def tracer_flux(q: Array, u: Array, dim: int, num_pts: int=1, masks: tp.Optional[Mask]=None) -> Array:
     """Flux computation for staggered variables q and u with
     solid boundaries. Typically used for calculating the flux
     Advection Scheme:
@@ -94,16 +106,25 @@ def tracer_flux(q: Array, u: Array, dim: int, num_pts: int=1) -> Array:
             
     """
     
+    # print(num_pts)
+    # print(masks)
+    
     # calculate flux
     if num_pts == 1:
-        qi_left, qi_right = interp_1pt(q, dim=dim)
+        if masks is not None:
+            qi_left, qi_right = interp_1pt(q, dim=dim)
+        else:
+            qi_left, qi_right = interp_1pt(q, dim=dim)
     elif num_pts == 3:
-        qi_left, qi_right = interp_3pt(q, dim=dim)
+        if masks is not None:
+            qi_left, qi_right = interp_3pt(q, dim=dim)
+        else:
+            qi_left, qi_right = interp_3pt(q, dim=dim)
     elif num_pts == 5:
         msg = "5pt method is not implemented yet"
         raise NotImplementedError(msg)
     else:
-        msg = "Unrecognized method: {num_pts}"
+        msg = f"Unrecognized method: {num_pts}"
         msg +="\nMust be 1, 3, or 5"
         raise ValueError(msg)
     

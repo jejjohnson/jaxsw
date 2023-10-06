@@ -2,7 +2,7 @@ import typing as tp
 
 import finitediffx as fdx
 from jaxtyping import Array
-
+import jax.numpy as jnp
 from jaxsw._src.boundaries.helmholtz import enforce_boundaries_helmholtz
 from jaxsw._src.utils.constants import GRAVITY
 from jaxsw._src.utils.dst_solver import inverse_elliptical_dst_solver
