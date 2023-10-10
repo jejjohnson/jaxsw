@@ -4,6 +4,16 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array
 
+def print_debug_quantity(quantity, name=""):
+    size = quantity.shape
+    min_ = jnp.min(quantity)
+    max_ = jnp.max(quantity)
+    mean_ = jnp.mean(quantity)
+    median_ = jnp.mean(quantity)
+    jax.debug.print(
+        f"{name}: {size} | {min_:.6e} | {mean_:.6e} | {median_:.6e} | {max_:.6e}"
+    )
+
 
 def dstI1D(x, norm="ortho"):
     """1D type-I discrete sine transform."""
@@ -18,10 +28,13 @@ def dstI1D(x, norm="ortho"):
 
 def dstI2D(x, norm="ortho"):
     """2D type-I discrete sine transform."""
+    # print_debug_quantity(x, "X")
     x = dstI1D(x, norm=norm)
     x = jnp.transpose(x, axes=(-1,-2))
+    # print_debug_quantity(x, "DST1D (1)")
     x = dstI1D(x, norm=norm)
     x = jnp.transpose(x, axes=(-1,-2))
+    # print_debug_quantity(x, "DST1D (2)")
     return x
 
 def laplacian_dst(nx, ny, dx, dy, mean: bool = True) -> Array:
@@ -63,10 +76,11 @@ def inverse_elliptic_dst(f, operator_dst):
     using float32 discrete sine transform."""
     num_dims = f.ndim
     padding = ((0,0),) * (num_dims-2) + ((1,1),(1,1)) 
-    x = dstI2D(f) / operator_dst
-    # print(x)
-    
-    return jnp.pad(dstI2D(x), pad_width=padding, mode="constant", constant_values=0.0)
+    x = dstI2D(f) 
+    # print_debug_quantity(x)
+    x /= operator_dst
+    # print_debug_quantity(x)
+    return jnp.pad(dstI2D(x), pad_width=padding, mode="constant", constant_values=0.0).astype(jnp.float64)
 
 
 def inverse_elliptic_dst_cmm(
