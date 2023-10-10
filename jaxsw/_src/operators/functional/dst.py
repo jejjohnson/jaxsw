@@ -76,6 +76,8 @@ def inverse_elliptic_dst_cmm(
     mask: Array
 ) -> Array:
     
+
+    
     # solving the inversion of rhs
     fn = lambda y, x: dstI2D(dstI2D(y) / x)
     sol_rect = jax.vmap(fn)(rhs, H_matrix)
@@ -102,6 +104,9 @@ def compute_capacitance_matrices(
     irrbound_yids: Array,
 ) -> Array:
     
+    irrbound_xids = irrbound_xids.astype(jnp.int32)
+    irrbound_yids = irrbound_yids.astype(jnp.int32)
+    
     # make sure it has layers
     assert H_matrix.ndim >= 3
     
@@ -118,8 +123,6 @@ def compute_capacitance_matrices(
         rhs = rhs.at[:].set(0.0)
 
         rhs = rhs.at[..., irrbound_xids[iquery], irrbound_yids[iquery]].set(1.0)
-
-        assert rhs.sum() == 1.0
         sol = jax.vmap(fn)(rhs, H_matrix)
         G_matrices = G_matrices.at[:,iquery].set(sol[..., irrbound_xids, irrbound_yids])
     capacitance_matrices = jnp.zeros_like(G_matrices)

@@ -153,11 +153,12 @@ def tracer_flux_5pt_mask(
     u_mask3plus: Array,
     method: str = "linear",
 ):
+    """Tasks - ++"""
     # get padding
     if dim == 0:
-        pad_left_3pt = ((1, 0), (0, 0))
+        pad_left_3pt = ((0, 1), (0, 0))
         pad_right_3pt = ((1, 0), (0, 0))
-        pad_left_5pt = ((2, 1), (0, 0))
+        pad_left_5pt = ((1, 2), (0, 0))
         pad_right_5pt = ((2, 1), (0, 0))
     elif dim == 1:
         pad_left_3pt = ((0, 0), (0, 1))

@@ -196,7 +196,7 @@ def init_domain_1d(Lx: float = 100.0, Nx: int = 50):
         domain (Domain): the full domain
     """
     # calculate dx
-    dx = d_utils.bounds_and_points_to_step(xmin=0.0, xmax=1.0, Nx=Nx)
+    dx = d_utils.bounds_and_points_to_step(xmin=0.0, xmax=Lx, Nx=Nx)
 
     return Domain(xmin=0.0, xmax=Lx, dx=dx, Nx=Nx, Lx=Lx)
 

@@ -114,8 +114,8 @@ class Mask(tp.NamedTuple):
         psi = VariableMask(
             values=psi.astype(mtype),
             not_values=not_psi.astype(mtype),
-            irrbound_xids=psi_irrbound_xids[0].astype(mtype),
-            irrbound_yids=psi_irrbound_xids[1].astype(mtype),
+            irrbound_xids=psi_irrbound_xids[0].astype(jnp.int32),
+            irrbound_yids=psi_irrbound_xids[1].astype(jnp.int32),
         )
         
         # create tracer mask
