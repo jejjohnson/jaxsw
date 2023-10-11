@@ -116,7 +116,7 @@ def tracer_flux_5pt(q: Array, u: Array, dim: int, method: str = "linear") -> Arr
     qi_left_interior, qi_right_interior = upwind_5pt(q=q, dim=dim, method="linear")
 
     # 3pts-near boundary
-    qi_left_b, qi_right_b = upwind_3pt_bnds(q, dim=dim, method="wenoz")
+    qi_left_b, qi_right_b = upwind_3pt_bnds(q, dim=dim, method=method)
 
     qi_left_b0 = dyn_slicer(qi_left_b, 0, 1)
     qi_left_m = dyn_slicer(qi_left_b, -1, 1)
@@ -156,22 +156,22 @@ def tracer_flux_5pt_mask(
     """Tasks - ++"""
     # get padding
     if dim == 0:
-        pad_left_3pt = ((0, 1), (0, 0))
-        pad_right_3pt = ((1, 0), (0, 0))
-        pad_left_5pt = ((1, 2), (0, 0))
-        pad_right_5pt = ((2, 1), (0, 0))
+        pad_left_3pt = ((1, 0), (0, 0))
+        pad_right_3pt = ((0, 1), (0, 0))
+        pad_left_5pt = ((2, 1), (0, 0))
+        pad_right_5pt = ((1, 2), (0, 0))
     elif dim == 1:
-        pad_left_3pt = ((0, 0), (0, 1))
-        pad_right_3pt = ((0, 0), (1, 0))
-        pad_left_5pt = ((0, 0), (1, 2))
-        pad_right_5pt = ((0, 0), (2, 1))
+        pad_left_3pt = ((0, 0), (1, 0))
+        pad_right_3pt = ((0, 0), (0, 1))
+        pad_left_5pt = ((0, 0), (2, 1))
+        pad_right_5pt = ((0, 0), (1, 2))
     else:
         msg = f"Dims should be between 0 and 1!"
         msg += f"\nDims: {dim}"
         raise ValueError(msg)
 
     # 1 point flux
-    qi_left_i_1pt, qi_right_i_1pt = upwind_1pt(q=q, dim=dim)
+    qi_left_i_1pt, qi_right_i_1pt = upwind_2pt_bnds(q=q, dim=dim, method="linear")
 
     # 3 point flux
     qi_left_i_3pt, qi_right_i_3pt = upwind_3pt(q=q, dim=dim, method=method)

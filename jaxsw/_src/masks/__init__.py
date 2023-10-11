@@ -14,12 +14,14 @@ class VelocityMask(tp.NamedTuple):
 class VariableMask(tp.NamedTuple):
     values: Array
     not_values: Array
+    distbound1: Array
     irrbound_xids: Array
     irrbound_yids: Array
     
 class TracerMask(tp.NamedTuple):
     values: Array
     not_values: Array
+    values_interior: Array
     distbound1: Array
 
 # class Mask(tp.NamedTuple):
@@ -64,16 +66,27 @@ class Mask(tp.NamedTuple):
         not_v = jnp.logical_not(v.astype(bool))
         not_psi = jnp.logical_not(psi.astype(bool))
         
+        
+        # VARIABLE
         psi_irrbound_xids = jnp.logical_and(
             not_psi[1:-1,1:-1],
             avg_pool_2d(psi, kernel_size=(3,3), strides=(1,1), padding=(0,0)) > 1/18
         )
         psi_irrbound_xids = jnp.where(psi_irrbound_xids)
+        
+        psi_distbound1 = jnp.logical_and(
+            avg_pool_2d(psi.astype(mtype), (3,3), strides=(1,1), padding=(1,1)) < 17/18,
+            psi
+        )
 
+        # TRACER
         q_distbound1 = jnp.logical_and(
             avg_pool_2d(q, kernel_size=(3,3), strides=(1,1), padding=(1,1)) < 17/18,
             q
         )
+        q_interior = jnp.logical_and(jnp.logical_not(psi_distbound1), psi)
+
+        
         u_distbound1 = jnp.logical_and(
             avg_pool_2d(u, kernel_size=(3,1), strides=(1,1), padding=(1,0)) < 5/6,
             u
@@ -114,6 +127,7 @@ class Mask(tp.NamedTuple):
         psi = VariableMask(
             values=psi.astype(mtype),
             not_values=not_psi.astype(mtype),
+            distbound1=psi_distbound1.astype(mtype),
             irrbound_xids=psi_irrbound_xids[0].astype(jnp.int32),
             irrbound_yids=psi_irrbound_xids[1].astype(jnp.int32),
         )
@@ -123,6 +137,7 @@ class Mask(tp.NamedTuple):
             values=q.astype(mtype),
             not_values=not_q, 
             distbound1=q_distbound1.astype(mtype),
+            values_interior=q_interior.astype(mtype),
         )
         
         # create u velocity mask

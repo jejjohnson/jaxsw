@@ -1,3 +1,4 @@
+import os
 import autoroot
 import jax
 import jax.numpy as jnp
@@ -14,7 +15,7 @@ import einops
 import matplotlib.pyplot as plt
 import seaborn as sns
 from einops import rearrange, repeat, reduce
-from tqdm.notebook import tqdm, trange
+from tqdm import tqdm, trange
 from jaxtyping import Array, Float
 import typing as tp
 import einops
@@ -42,6 +43,19 @@ from jaxsw._src.operators.functional.dst import (
     compute_capacitance_matrices
 )
 
+
+
+def plot_field(field):
+    num_axis = len(field)
+    fig, ax = plt.subplots(ncols=num_axis, figsize=(8, 2))
+
+    for i in range(num_axis):
+        pts = ax[i].imshow(field[i].T, origin="lower", cmap="coolwarm")
+        plt.colorbar(pts)
+
+    plt.tight_layout()
+    plt.show()
+
 def print_debug_quantity(quantity, name=""):
     size = quantity.shape
     min_ = np.min(quantity)
@@ -55,7 +69,8 @@ def print_debug_quantity(quantity, name=""):
 
 # Low Resolution
 # Nx, Ny = 128, 128
-Nx, Ny = 256+1, 256+1
+# Medium Resolution
+Nx, Ny = 256, 256
 # High Resolution
 # Nx, Ny = 769, 961
 
@@ -73,6 +88,19 @@ xy_domain = Domain.Domain(
 
 params = F_qg.PDEParams(y0=0.5 * Ly)
 
+
+# # octogonal domain
+# domain_type = "octogonal"
+# mask = np.ones((Nx-1,Ny-1))
+# for i in range(Nx//4):
+#     for j in range(Ny//4):
+#         if i+j < min(Nx//4, Ny//4):
+#             mask[i,j] = 0.
+#             mask[i,-1-j] = 0.
+#             mask[-1-i,j] = 0.
+#             mask[-1-i,-1-j] = 0.
+            
+# masks = Mask.init_mask(mask, variable="q")
 
 domain_type = "rectangular"
 
@@ -102,7 +130,7 @@ H_mat = F_qg.calculate_helmholtz_dst(xy_domain, layer_domain, params)
 
 
 psi0 = jnp.zeros(shape=(layer_domain.Nz,) + xy_domain.Nx)
-psi0 = np.load("/Users/eman/code_projects/data/qg_runs/psi_000y_360d.npy")[0]
+# psi0 = np.load("/Users/eman/code_projects/data/qg_runs/psi_000y_360d.npy")[0]
 lambda_sq = params.f0**2 *einops.rearrange(layer_domain.lambda_sq, "Nz -> Nz 1 1")
 homsol = F_qg.compute_homogeneous_solution(
     psi0, 
@@ -251,8 +279,52 @@ def time_step(state: State, dt: float) -> State:
 
 state_t0 = State(q=q, psi=psi0)
 
-dt = 1_000
-state_t1 = time_step(state_t0, dt)
+
+jitted_time_step = jax.jit(time_step)
+
+psi0 = jnp.zeros(shape=(layer_domain.Nz,) + xy_domain.Nx)
+# psi0 = np.load("/Users/eman/code_projects/data/qg_runs/psi_000y_360d.npy")[0]
+
+q = F_qg.calculate_potential_vorticity(
+    psi0, xy_domain, layer_domain, 
+    params=params,
+    masks_psi=masks.psi, 
+    masks_q=masks.q
+)
+
+state = State(q=q, psi=psi0)
 
 
 
+dt = 4_000
+
+_ = jitted_time_step(state, dt)
+
+tmin = 0.0
+num_days = 10*360
+tmax = pd.to_timedelta(num_days, unit="days").total_seconds()
+num_save = 20
+
+ts = jnp.arange(tmin, tmax+dt, dt)
+
+
+
+
+
+for t in tqdm(ts):
+    state = jitted_time_step(state, dt)
+
+
+
+
+    
+plot_field(state.psi)
+plot_field(state.q)
+n_years = num_days/365
+
+output_dir = "/Users/eman/code_projects/data/qg_runs"
+fname = os.path.join(output_dir, f'psi_{n_years:.3f}y_{num_days:.2f}d_{domain_type}.npy')
+np.save(fname, np.asarray(state.psi).astype('float32'))
+
+fname = os.path.join(output_dir, f'q_{n_years:.3f}y_{num_days:.2f}d_{domain_type}.npy')
+np.save(fname, np.asarray(state.q).astype('float32'))

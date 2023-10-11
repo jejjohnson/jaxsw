@@ -53,7 +53,7 @@ def linear_5pts_left(qmm: Array, qm: Array, q0: Array, qp: Array, qpp: Array) ->
         - 13.0 / 60.0 * qm
         + 47.0 / 60.0 * q0
         + 9.0 / 20.0 * qp
-        - 1 / 20 * qpp
+        - 1. / 20. * qpp
     )
 
 
