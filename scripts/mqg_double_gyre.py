@@ -18,6 +18,7 @@ from tqdm.notebook import tqdm, trange
 from jaxtyping import Array, Float
 import typing as tp
 import einops
+config.update("jax_enable_x64", True)
 
 from jaxsw._src.operators.functional import advection as F_adv
 from jaxsw._src.operators.functional import geostrophic as F_geos
@@ -31,28 +32,49 @@ from jaxsw._src.domain.qg import create_qg_multilayer_mat, LayerDomain
 from jaxsw._src.masks import Mask
 from jaxsw._src.operators.functional.finitevol.interp import x_average_2D, y_average_2D, center_average_2D
 from jaxsw._src.operators.functional.interp import flux as F_flux
+from jaxsw._src.operators.functional.dst import (
+    helmholtz_dst, 
+    laplacian_dst, 
+    inverse_elliptic_dst, 
+    dstI2D, dstI1D,
+    inverse_elliptic_dst_cmm,
+    helmholtz_fn,
+    compute_capacitance_matrices
+)
 
-
-a_4 = 5.0e11  # 2.0e9 #
-params = F_qg.PDEParams()
-
+def print_debug_quantity(quantity, name=""):
+    size = quantity.shape
+    min_ = np.min(quantity)
+    max_ = np.max(quantity)
+    mean_ = np.mean(quantity)
+    median_ = np.mean(quantity)
+    jax.debug.print(
+        f"{name}: {size} | {min_:.6e} | {mean_:.6e} | {median_:.6e} | {max_:.6e}"
+    )
 
 
 # Low Resolution
-Nx, Ny = 97, 121
+# Nx, Ny = 128, 128
+Nx, Ny = 256+1, 256+1
 # High Resolution
 # Nx, Ny = 769, 961
 
 # Lx, Ly = 3840.0e3, 4800.0e3
 Lx, Ly = 5_120.0e3, 5_120.0e3
 
-x_domain = Domain.init_domain_1d(Lx, Nx)
-y_domain = Domain.init_domain_1d(Ly, Ny)
-x_domain, y_domain
-xy_domain = x_domain * y_domain
+dx, dy = Lx / Nx, Ly / Ny
+
+xy_domain = Domain.Domain(
+    xmin=(0.0,0.0), 
+    xmax=(Lx,Ly),
+    Lx=(Lx,Ly),
+    Nx=(Nx, Ny), dx=(dx, dy)
+)
+
+params = F_qg.PDEParams(y0=0.5 * Ly)
 
 
-
+domain_type = "rectangular"
 
 mask = jnp.ones((Nx,Ny))
 mask = mask.at[0].set(0.0)
@@ -64,32 +86,54 @@ masks = Mask.init_mask(mask, variable="psi")
 
 
 # heights
-heights = [350.0, 750.0, 2900.0]
+# heights = [350.0, 750.0, 2900.0]
+heights = [400.0, 1_100.0, 2_600.0]
 
 # reduced gravities
 reduced_gravities = [0.025, 0.0125]
 
 # initialize layer domain
-layer_domain = LayerDomain(heights, reduced_gravities)
+layer_domain = LayerDomain(heights, reduced_gravities, correction=False)
+print_debug_quantity(layer_domain.A_layer_2_mode, "CL2M")
+print_debug_quantity(layer_domain.A_mode_2_layer, "CM2L")
 
 # from jaxsw._src.operators.functional import elliptical as F_elliptical
 H_mat = F_qg.calculate_helmholtz_dst(xy_domain, layer_domain, params)
 
 
-psi0 = jnp.zeros(shape=(layer_domain.Nz,) +xy_domain.Nx)
-
+psi0 = jnp.zeros(shape=(layer_domain.Nz,) + xy_domain.Nx)
+psi0 = np.load("/Users/eman/code_projects/data/qg_runs/psi_000y_360d.npy")[0]
+lambda_sq = params.f0**2 *einops.rearrange(layer_domain.lambda_sq, "Nz -> Nz 1 1")
 homsol = F_qg.compute_homogeneous_solution(
     psi0, 
-    lambda_sq=einops.rearrange(layer_domain.lambda_sq, "Nz -> Nz 1 1"),
+    lambda_sq=lambda_sq,
     H_mat=H_mat
 )
+print_debug_quantity(homsol, "HOMSOL")
+
+# CALCULATE CAPCITANCE MATRIX
+if domain_type == "octogonal":
+    cap_matrices = compute_capacitance_matrices(
+        H_mat, 
+        masks.psi.irrbound_xids,
+        masks.psi.irrbound_yids
+    )
+else:
+    cap_matrices = None
+
 
 # calculate homogeneous solution
 homsol_i = center_average_2D(homsol) * masks.q.values
 
 homsol_mean = einops.reduce(homsol_i, "Nz Nx Ny -> Nz 1 1", reduction="mean")
+print_debug_quantity(homsol_mean, "HOMSOL MEAN")
 
-dst_sol = F_qg.DSTSolution(homsol=homsol, homsol_mean=homsol_mean, H_mat=H_mat)
+dst_sol = F_qg.DSTSolution(
+    homsol=homsol, 
+    homsol_mean=homsol_mean, 
+    H_mat=H_mat,
+    capacitance_matrix=cap_matrices
+)
 
 # PV
 q = F_qg.calculate_potential_vorticity(
@@ -98,11 +142,13 @@ q = F_qg.calculate_potential_vorticity(
     masks_psi=masks.psi, 
     masks_q=masks.q
 )
+print_debug_quantity(psi0, "PSI0")
+print_debug_quantity(q, "Q0")
 
 fn = jax.vmap(F_qg.advection_rhs, in_axes=(0,0,None,None,None,None,None))
 
 div_flux = fn(
-    q, psi0, xy_domain.dx[-2],xy_domain.dx[-1], 1, masks.u, masks.v
+    q, psi0, xy_domain.dx[-2],xy_domain.dx[-1], 3, masks.u, masks.v
     # q, psi0, xy_domain.dx[-2],xy_domain.dx[-1], 1, None, None,
 )
 
@@ -120,21 +166,93 @@ wind_forcing = F_qg.calculate_wind_forcing(
     tau0=0.08/1_000.0,
 )
 
+class State(eqx.Module):
+    q: Array
+    psi: Array
+    
+    
+def vector_field(t: float, state: State, args) -> State:
+    
+    dq, dpsi = F_qg.qg_rhs(
+        q=state.q, psi=state.psi,
+        domain=xy_domain, params=params,
+        layer_domain=layer_domain,
+        dst_sol=dst_sol,
+        wind_forcing=wind_forcing,
+        bottom_drag=bottom_drag,
+        masks=masks
+    )
+    
+    state = eqx.tree_at(lambda x: x.q, state, dq)
+    state = eqx.tree_at(lambda x: x.psi, state, dpsi)
+    
+    return state
 
 
+def time_step(state: State, dt: float) -> State:
+    
+    
+    
+    # 1st order time derivative (Euler)
+    state_new = vector_field(0, state, None)
+    
+    
+    # extract new state
+    dq0 = state_new.q
+    dpsi0 = state_new.psi
+    
+    # do time step
+    q = state.q + dt * dq0
+    psi = state.psi + dt * dpsi0
+    
+    # update state
+    state = eqx.tree_at(lambda x: x.q, state, q)
+    state = eqx.tree_at(lambda x: x.psi, state, psi)
+    
+    # ===============
+    # 2nd order?
+    # ===============
+    state_new = vector_field(0, state, None)
+    
+    
+    # extract new state
+    dq1 = state_new.q
+    dpsi1 = state_new.psi
+    
+    # do time step
+    q = state.q + (dt/4.0) * (dq1 - 3.0*dq0)
+    psi = state.psi + (dt/4.0) * (dpsi1 - 3.0*dpsi0)
+    
+    # update state
+    state = eqx.tree_at(lambda x: x.q, state, q)
+    state = eqx.tree_at(lambda x: x.psi, state, psi)
+    
+    
+    # ===============
+    # 3rd order?
+    # ===============
+    state_new = vector_field(0, state, None)
+    
+    # extract new state
+    dq2 = state_new.q
+    dpsi2 = state_new.psi
+    
+    # do time step
+    q = state.q + (dt/12.0) * (8.0 * dq2 - dq1 - dq0)
+    psi = state.psi + (dt/12.0) * (8.0* dpsi2 - dpsi1 - dpsi0)
+    
+    # update state
+    state = eqx.tree_at(lambda x: x.q, state, q)
+    state = eqx.tree_at(lambda x: x.psi, state, psi)
+    
+    
+    
+    return state
 
-dq, dpsi = F_qg.qg_rhs(
-    q=q, 
-    psi=psi0, 
-    domain=xy_domain,
-    params=params, 
-    layer_domain=layer_domain,
-    dst_sol=dst_sol, 
-    wind_forcing=wind_forcing,
-    bottom_drag=bottom_drag,
-    masks=masks
-)
+state_t0 = State(q=q, psi=psi0)
 
+dt = 1_000
+state_t1 = time_step(state_t0, dt)
 
 
 

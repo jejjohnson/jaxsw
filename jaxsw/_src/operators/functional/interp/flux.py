@@ -113,10 +113,10 @@ def tracer_flux_5pt(q: Array, u: Array, dim: int, method: str = "linear") -> Arr
     dyn_slicer = ft.partial(jax.lax.dynamic_slice_in_dim, axis=dim)
 
     # 5-pts inside domain
-    qi_left_interior, qi_right_interior = upwind_5pt(q=q, dim=dim, method=method)
+    qi_left_interior, qi_right_interior = upwind_5pt(q=q, dim=dim, method="linear")
 
     # 3pts-near boundary
-    qi_left_b, qi_right_b = upwind_3pt_bnds(q, dim=dim, method=method)
+    qi_left_b, qi_right_b = upwind_3pt_bnds(q, dim=dim, method="wenoz")
 
     qi_left_b0 = dyn_slicer(qi_left_b, 0, 1)
     qi_left_m = dyn_slicer(qi_left_b, -1, 1)
@@ -191,7 +191,7 @@ def tracer_flux_5pt_mask(
     u_pos, u_neg = plusminus(u)
 
     # calculate upwind flux
-    flux_1pt = u_pos * qi_left_i_1pt + u_neg * qi_right_i_1pt
+    flux_1pt = u * linear_2pts(qi_left_i_1pt, qi_right_i_1pt)
     flux_3pt = u_pos * qi_left_i_3pt + u_neg * qi_right_i_3pt
     flux_5pt = u_pos * qi_left_i_5pt + u_neg * qi_right_i_5pt
 

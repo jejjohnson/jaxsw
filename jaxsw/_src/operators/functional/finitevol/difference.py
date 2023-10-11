@@ -19,10 +19,19 @@ def difference(u: Array, axis: int=0, step_size: float=1.0):
 
 
 def laplacian(u: Array, step_size: float=1.0):
+    
+    dx, dy = step_size
+    
+    d2u_dx2 = (u[...,2:,1:-1] + u[...,:-2,1:-1] - 2*u[...,1:-1,1:-1]) / dx**2
+    d2u_dy2 = (u[...,1:-1,2:] + u[...,1:-1,:-2] - 2*u[...,1:-1,1:-1]) / dy**2
+    
+    
+    
+    return d2u_dx2 + d2u_dy2
 
-    lap_u = fdx.laplacian(u, step_size=step_size, accuracy=1, method="backward")
+#     lap_u = fdx.laplacian(u, step_size=step_size, accuracy=1, method="backward")
 
-    return lap_u[1:-1,1:-1]
+#     return lap_u[1:-1,1:-1]
 
 
 laplacian_batch = jax.vmap(laplacian, in_axes=(0,None))

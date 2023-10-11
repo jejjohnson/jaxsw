@@ -69,7 +69,7 @@ def calculate_helmholtz_dst(
     # get Laplacian dst transform
     # print(domain.Nx, domain.dx)
     L_mat = laplacian_dst(domain.Nx[0]-2, domain.Nx[1]-2, domain.dx[0], domain.dx[1])
-    print_debug_quantity(L_mat, "L_MAT")
+    # print_debug_quantity(L_mat, "L_MAT")
     # get beta term
     lambda_sq = einops.rearrange(layer_domain.lambda_sq, "Nz -> Nz 1 1")
     beta = params.f0**2 * lambda_sq
@@ -190,6 +190,10 @@ def advection_rhs(
     # u = -∂yΨ
     u *= -1
     
+    # u = (psi[...,:-1] - psi[...,1:]) / dy
+
+    
+    # np.testing.assert_array_almost_equal(u, u_)
 
     
     # check_field_shapes(u, name="u")
@@ -258,12 +262,12 @@ def advection_rhs(
         # q_flux_on_v = F_flux.tracer_flux_1pt(q=q, u=v_i, dim=1)
         # OPTION II - 3pt Flux 
         # method - "linear" | "weno" | "wenoz"
-        q_flux_on_u = F_flux.tracer_flux_3pt(q=q, u=u_i, dim=0, method="linear")
-        q_flux_on_v = F_flux.tracer_flux_3pt(q=q, u=v_i, dim=1, method="linear")
-        # # OPTION III - 5pt Flux 
-        # # method - "linear" | "weno" | "wenoz"
-        # q_flux_on_u = F_flux.tracer_flux_5pt(q=q, u=u_i, dim=0, method="wenoz")
-        # q_flux_on_v = F_flux.tracer_flux_5pt(q=q, u=v_i, dim=1, method="wenoz")
+        # q_flux_on_u = F_flux.tracer_flux_3pt(q=q, u=u_i, dim=0, method="linear")
+        # q_flux_on_v = F_flux.tracer_flux_3pt(q=q, u=v_i, dim=1, method="linear")
+        # OPTION III - 5pt Flux 
+        # method - "linear" | "weno" | "wenoz"
+        q_flux_on_u = F_flux.tracer_flux_5pt(q=q, u=u_i, dim=0, method="wenoz")
+        q_flux_on_v = F_flux.tracer_flux_5pt(q=q, u=v_i, dim=1, method="wenoz")
         
         
         
@@ -288,7 +292,7 @@ def advection_rhs(
     
     
     
-    return div_flux, u, v, q_flux_on_u, q_flux_on_v
+    return - div_flux, u, v, q_flux_on_u, q_flux_on_v
 
 
 def calculate_bottom_drag(
@@ -384,21 +388,21 @@ def qg_rhs(
     # use psi for the boundary conditions
     # TODO
     
-    psi = compute_psi_from_q( 
-        q=q,
-        params=params,
-        domain=domain,
-        layer_domain=layer_domain,
-        dst_sol=dst_sol
-    )
+    # psi = compute_psi_from_q( 
+    #     q=q,
+    #     params=params,
+    #     domain=domain,
+    #     layer_domain=layer_domain,
+    #     dst_sol=dst_sol
+    # )
     
-    # calculate potential vorticity
-    q  = calculate_potential_vorticity(
-        psi, domain, layer_domain,
-        params=params,
-        masks_psi=masks.psi,
-        masks_q=masks.q,
-    )
+    # # calculate potential vorticity
+    # q  = calculate_potential_vorticity(
+    #     psi, domain, layer_domain,
+    #     params=params,
+    #     masks_psi=masks.psi,
+    #     masks_q=masks.q,
+    # )
     
     # calculate advection
     fn = jax.vmap(advection_rhs, in_axes=(0,0,None,None,None,None,None))
@@ -420,7 +424,6 @@ def qg_rhs(
         masks_psi=masks.psi
     )
     
-    # print_debug_quantity(dq, "DIV FLUX") 
 
     
     # add forces duh
@@ -438,13 +441,13 @@ def qg_rhs(
     
     # print_debug_quantity(dq, "DQ") 
     
-    dpsi = compute_psi_from_q( 
-        q=q,
-        params=params,
-        domain=domain,
-        layer_domain=layer_domain,
-        dst_sol=dst_sol
-    )
+    # dpsi = compute_psi_from_q( 
+    #     q=q,
+    #     params=params,
+    #     domain=domain,
+    #     layer_domain=layer_domain,
+    #     dst_sol=dst_sol
+    # )
     
     # get interior points (cell verticies interior)
     # [Nx-1,Ny-1] --> [Nx-2,Ny-2]
@@ -507,6 +510,7 @@ def compute_psi_from_q(
     domain: Domain,
     layer_domain: LayerDomain,
     dst_sol: DSTSolution,
+    mask_psi: Mask=None,
 ) -> Array:
     
     # calculate beta-plane
@@ -524,9 +528,9 @@ def compute_psi_from_q(
             rhs=helmholtz_rhs, 
             H_matrix=dst_sol.H_mat,
             cap_matrices=dst_sol.capacitance_matrix,
-            bounds_xids=masks.psi.irrbound_xids,
-            bounds_yids=masks.psi.irrbound_yids,
-            mask=masks.psi.values
+            bounds_xids=mask_psi.irrbound_xids,
+            bounds_yids=mask_psi.irrbound_yids,
+            mask=mask_psi.values
         )
     else:
         psi_modes = jax.vmap(inverse_elliptic_dst, in_axes=(0,0))(helmholtz_rhs, dst_sol.H_mat)
