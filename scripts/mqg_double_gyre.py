@@ -42,8 +42,9 @@ from jaxsw._src.operators.functional.dst import (
     helmholtz_fn,
     compute_capacitance_matrices
 )
-
-
+from jaxsw._src.domain.time import TimeDomain
+import time
+from loguru import logger
 
 def plot_field(field):
     num_axis = len(field)
@@ -66,7 +67,7 @@ def print_debug_quantity(quantity, name=""):
         f"{name}: {size} | {min_:.6e} | {mean_:.6e} | {median_:.6e} | {max_:.6e}"
     )
 
-
+logger.info(f"Initializing Parameters...")
 # Low Resolution
 # Nx, Ny = 128, 128
 # Medium Resolution
@@ -89,28 +90,28 @@ xy_domain = Domain.Domain(
 params = F_qg.PDEParams(y0=0.5 * Ly)
 
 
-# # octogonal domain
-# domain_type = "octogonal"
-# mask = np.ones((Nx-1,Ny-1))
-# for i in range(Nx//4):
-#     for j in range(Ny//4):
-#         if i+j < min(Nx//4, Ny//4):
-#             mask[i,j] = 0.
-#             mask[i,-1-j] = 0.
-#             mask[-1-i,j] = 0.
-#             mask[-1-i,-1-j] = 0.
+# octogonal domain
+domain_type = "octogonal"
+mask = np.ones((Nx-1,Ny-1))
+for i in range(Nx//4):
+    for j in range(Ny//4):
+        if i+j < min(Nx//4, Ny//4):
+            mask[i,j] = 0.
+            mask[i,-1-j] = 0.
+            mask[-1-i,j] = 0.
+            mask[-1-i,-1-j] = 0.
             
-# masks = Mask.init_mask(mask, variable="q")
+masks = Mask.init_mask(mask, variable="q")
 
-domain_type = "rectangular"
+# domain_type = "rectangular"
 
-mask = jnp.ones((Nx,Ny))
-mask = mask.at[0].set(0.0)
-mask = mask.at[-1].set(0.0)
-mask = mask.at[:,0].set(0.0)
-mask = mask.at[:,-1].set(0.0)
+# mask = jnp.ones((Nx,Ny))
+# mask = mask.at[0].set(0.0)
+# mask = mask.at[-1].set(0.0)
+# mask = mask.at[:,0].set(0.0)
+# mask = mask.at[:,-1].set(0.0)
 
-masks = Mask.init_mask(mask, variable="psi")
+# masks = Mask.init_mask(mask, variable="psi")
 
 
 # heights
@@ -180,6 +181,7 @@ div_flux = fn(
     # q, psi0, xy_domain.dx[-2],xy_domain.dx[-1], 1, None, None,
 )
 
+logger.info(f"Initializing Forcings...")
 bottom_drag = F_qg.calculate_bottom_drag(
     psi=psi0, 
     domain=xy_domain, 
@@ -217,114 +219,63 @@ def vector_field(t: float, state: State, args) -> State:
     return state
 
 
-def time_step(state: State, dt: float) -> State:
-    
-    
-    
-    # 1st order time derivative (Euler)
-    state_new = vector_field(0, state, None)
-    
-    
-    # extract new state
-    dq0 = state_new.q
-    dpsi0 = state_new.psi
-    
-    # do time step
-    q = state.q + dt * dq0
-    psi = state.psi + dt * dpsi0
-    
-    # update state
-    state = eqx.tree_at(lambda x: x.q, state, q)
-    state = eqx.tree_at(lambda x: x.psi, state, psi)
-    
-    # ===============
-    # 2nd order?
-    # ===============
-    state_new = vector_field(0, state, None)
-    
-    
-    # extract new state
-    dq1 = state_new.q
-    dpsi1 = state_new.psi
-    
-    # do time step
-    q = state.q + (dt/4.0) * (dq1 - 3.0*dq0)
-    psi = state.psi + (dt/4.0) * (dpsi1 - 3.0*dpsi0)
-    
-    # update state
-    state = eqx.tree_at(lambda x: x.q, state, q)
-    state = eqx.tree_at(lambda x: x.psi, state, psi)
-    
-    
-    # ===============
-    # 3rd order?
-    # ===============
-    state_new = vector_field(0, state, None)
-    
-    # extract new state
-    dq2 = state_new.q
-    dpsi2 = state_new.psi
-    
-    # do time step
-    q = state.q + (dt/12.0) * (8.0 * dq2 - dq1 - dq0)
-    psi = state.psi + (dt/12.0) * (8.0* dpsi2 - dpsi1 - dpsi0)
-    
-    # update state
-    state = eqx.tree_at(lambda x: x.q, state, q)
-    state = eqx.tree_at(lambda x: x.psi, state, psi)
-    
-    
-    
-    return state
+logger.info(f"Initializing State...")
 
-state_t0 = State(q=q, psi=psi0)
-
-
-jitted_time_step = jax.jit(time_step)
-
-psi0 = jnp.zeros(shape=(layer_domain.Nz,) + xy_domain.Nx)
 # psi0 = np.load("/Users/eman/code_projects/data/qg_runs/psi_000y_360d.npy")[0]
-
-q = F_qg.calculate_potential_vorticity(
-    psi0, xy_domain, layer_domain, 
-    params=params,
-    masks_psi=masks.psi, 
-    masks_q=masks.q
-)
-
-state = State(q=q, psi=psi0)
+# psi0 = np.load("/Users/eman/code_projects/data/qg_runs/psi_0.986y_360.00d_octogonal.npy")
 
 
+state_init = State(q=q, psi=psi0)
 
+
+logger.info(f"Initializing Time Intervals...")
 dt = 4_000
 
-_ = jitted_time_step(state, dt)
 
 tmin = 0.0
-num_days = 10*360
+num_days = 50*360
 tmax = pd.to_timedelta(num_days, unit="days").total_seconds()
 num_save = 20
 
-ts = jnp.arange(tmin, tmax+dt, dt)
+t_domain = TimeDomain(tmin=tmin, tmax=tmax, dt=dt)
+ts = jnp.linspace(tmin, tmax, num_save)
+saveat = dfx.SaveAt(ts=ts)
 
 
+solver = dfx.Tsit5()
+stepsize_controller = dfx.PIDController(rtol=1e-5, atol=1e-5)
 
+logger.info(f"Starting Integration...")
+# integration
+t0 = time.time()
+sol = dfx.diffeqsolve(
+    terms=dfx.ODETerm(vector_field),
+    solver=solver,
+    t0=tmin,
+    t1=tmax,
+    dt0=dt,
+    y0=state_init,
+    saveat=saveat,
+    args=None,
+    stepsize_controller=stepsize_controller,
+    max_steps=None,
+)
+logger.info(f"Done...!")
+t1 = time.time() - t0
 
-
-for t in tqdm(ts):
-    state = jitted_time_step(state, dt)
-
-
-
+logger.info(f"Time taken: {t1/60:.2f} mins")
 
     
-plot_field(state.psi)
-plot_field(state.q)
+plot_field(sol.ys.psi[-1])
+plot_field(sol.ys.q[-1])
 n_years = num_days/365
 
+logger.info(f"Saving...")
 output_dir = "/Users/eman/code_projects/data/qg_runs"
-fname = os.path.join(output_dir, f'psi_{n_years:.3f}y_{num_days:.2f}d_{domain_type}.npy')
-np.save(fname, np.asarray(state.psi).astype('float32'))
+fname = os.path.join(output_dir, f'psi_{n_years:.3f}y_{num_days:.2f}d_{domain_type}_.npy')
+np.save(fname, np.asarray(sol.ys.psi).astype('float32'))
 
-fname = os.path.join(output_dir, f'q_{n_years:.3f}y_{num_days:.2f}d_{domain_type}.npy')
-np.save(fname, np.asarray(state.q).astype('float32'))
+fname = os.path.join(output_dir, f'q_{n_years:.3f}y_{num_days:.2f}d_{domain_type}_.npy')
+np.save(fname, np.asarray(sol.ys.q).astype('float32'))
+
+logger.info(f"Completed Script!")

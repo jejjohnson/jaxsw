@@ -171,10 +171,10 @@ def tracer_flux_5pt_mask(
         raise ValueError(msg)
 
     # 1 point flux
-    qi_left_i_1pt, qi_right_i_1pt = upwind_2pt_bnds(q=q, dim=dim, method="linear")
+    qi_left_i_1pt, qi_right_i_1pt = upwind_1pt(q=q, dim=dim)
 
     # 3 point flux
-    qi_left_i_3pt, qi_right_i_3pt = upwind_3pt(q=q, dim=dim, method=method)
+    qi_left_i_3pt, qi_right_i_3pt = upwind_3pt(q=q, dim=dim, method="linear")
 
     # add padding
     qi_left_i_3pt = jnp.pad(qi_left_i_3pt, pad_width=pad_left_3pt)
@@ -191,7 +191,9 @@ def tracer_flux_5pt_mask(
     u_pos, u_neg = plusminus(u)
 
     # calculate upwind flux
-    flux_1pt = u * linear_2pts(qi_left_i_1pt, qi_right_i_1pt)
+    # NOTE: This was in the code originally but it was unstable...
+    # flux_1pt = u * linear_2pts(qi_left_i_1pt, qi_right_i_1pt)
+    flux_1pt = u_pos * qi_left_i_1pt + u_neg * qi_right_i_1pt
     flux_3pt = u_pos * qi_left_i_3pt + u_neg * qi_right_i_3pt
     flux_5pt = u_pos * qi_left_i_5pt + u_neg * qi_right_i_5pt
 

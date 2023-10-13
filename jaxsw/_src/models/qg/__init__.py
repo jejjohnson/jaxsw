@@ -226,48 +226,48 @@ def advection_rhs(
             
 #         )
         
-        # OPTION II - 3pt Flux 
+#         # OPTION II - 3pt Flux 
+#         # method - "linear" | "weno" | "wenoz"
+#         q_flux_on_u = F_flux.tracer_flux_3pt_mask(
+#             q=q, u=u_i, dim=0, method="wenoz",
+#             u_mask1=masks_u.distbound1[...,1:-1,:],
+#             u_mask2plus=masks_u.distbound2plus[...,1:-1,:], 
+#         )
+#         q_flux_on_v = F_flux.tracer_flux_3pt_mask(
+#             q=q, u=v_i, dim=1, method="wenoz",
+#             u_mask1=masks_v.distbound1[...,1:-1],
+#             u_mask2plus=masks_v.distbound2plus[...,1:-1], 
+            
+#         )
+        
+        # OPTION III - 5pt Flux 
         # method - "linear" | "weno" | "wenoz"
-        q_flux_on_u = F_flux.tracer_flux_3pt_mask(
+        q_flux_on_u = F_flux.tracer_flux_5pt_mask(
             q=q, u=u_i, dim=0, method="wenoz",
             u_mask1=masks_u.distbound1[...,1:-1,:],
-            u_mask2plus=masks_u.distbound2plus[...,1:-1,:], 
+            u_mask2=masks_u.distbound2[...,1:-1,:], 
+            u_mask3plus=masks_u.distbound3plus[...,1:-1,:],    
         )
-        q_flux_on_v = F_flux.tracer_flux_3pt_mask(
+        q_flux_on_v = F_flux.tracer_flux_5pt_mask(
             q=q, u=v_i, dim=1, method="wenoz",
             u_mask1=masks_v.distbound1[...,1:-1],
-            u_mask2plus=masks_v.distbound2plus[...,1:-1], 
+            u_mask2=masks_v.distbound2[...,1:-1], 
+            u_mask3plus=masks_v.distbound3plus[...,1:-1],   
             
         )
-        
-#         # OPTION III - 5pt Flux 
-#         # method - "linear" | "weno" | "wenoz"
-#         q_flux_on_u = F_flux.tracer_flux_5pt_mask(
-#             q=q, u=u_i, dim=0, method="linear",
-#             u_mask1=masks_u.distbound1[...,1:-1,:],
-#             u_mask2=masks_u.distbound2[...,1:-1,:], 
-#             u_mask3plus=masks_u.distbound3plus[...,1:-1,:],    
-#         )
-#         q_flux_on_v = F_flux.tracer_flux_5pt_mask(
-#             q=q, u=v_i, dim=1, method="linear",
-#             u_mask1=masks_v.distbound1[...,1:-1],
-#             u_mask2=masks_v.distbound2[...,1:-1], 
-#             u_mask3plus=masks_v.distbound3plus[...,1:-1],   
-            
-#         )
         
     else:
         # # OPTION I - 1pt Flux (Standard Upwind Scheme)
         # q_flux_on_u = F_flux.tracer_flux_1pt(q=q, u=u_i, dim=0)
         # q_flux_on_v = F_flux.tracer_flux_1pt(q=q, u=v_i, dim=1)
-        # OPTION II - 3pt Flux 
-        # method - "linear" | "weno" | "wenoz"
-        # q_flux_on_u = F_flux.tracer_flux_3pt(q=q, u=u_i, dim=0, method="linear")
-        # q_flux_on_v = F_flux.tracer_flux_3pt(q=q, u=v_i, dim=1, method="linear")
-        # OPTION III - 5pt Flux 
-        # method - "linear" | "weno" | "wenoz"
-        q_flux_on_u = F_flux.tracer_flux_5pt(q=q, u=u_i, dim=0, method="wenoz")
-        q_flux_on_v = F_flux.tracer_flux_5pt(q=q, u=v_i, dim=1, method="wenoz")
+        #OPTION II - 3pt Flux 
+        #method - "linear" | "weno" | "wenoz"
+        q_flux_on_u = F_flux.tracer_flux_3pt(q=q, u=u_i, dim=0, method="linear")
+        q_flux_on_v = F_flux.tracer_flux_3pt(q=q, u=v_i, dim=1, method="linear")
+        # # OPTION III - 5pt Flux 
+        # # method - "linear" | "weno" | "wenoz"
+        # q_flux_on_u = F_flux.tracer_flux_5pt(q=q, u=u_i, dim=0, method="wenoz")
+        # q_flux_on_v = F_flux.tracer_flux_5pt(q=q, u=v_i, dim=1, method="wenoz")
         
         
         
